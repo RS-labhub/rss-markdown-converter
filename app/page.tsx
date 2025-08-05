@@ -324,13 +324,13 @@ export default function RSSMarkdownPlatform() {
       name: "Groq",
       icon: <Zap className="w-4 h-4" />,
       description: "Ultra-fast inference with excellent performance for creative content generation",
-      model: "Llama 3.1 70B",
+      model: "llama-3.3-70b-versatile",
     },
     gemini: {
       name: "Gemini",
       icon: <Brain className="w-4 h-4" />,
       description: "Google's advanced AI with strong reasoning capabilities and multimodal understanding",
-      model: "Gemini 1.5 Pro",
+      model: "gemini-2.0-flash",
     },
   }
 
