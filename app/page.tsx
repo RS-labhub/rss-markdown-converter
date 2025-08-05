@@ -1003,10 +1003,10 @@ export default function RSSMarkdownPlatform() {
                 <p className="mt-1">
                   Must check the{" "}
                   <a
-                    href="https://content-generator.vercel.app"
+                    href="https://content-generation.vercel.app"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 underline hover:text-blue-800"
+                    className="text-gray-600 underline hover:text-gray-800"
                   >
                     Content Generation Platform
                   </a>
