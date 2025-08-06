@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { createAnthropic } from "@ai-sdk/anthropic"
 
 // Initialize GROQ (OpenAI-compatible) and Gemini clients
 const groqClient = createOpenAI({
@@ -15,15 +16,48 @@ const geminiClient = createGoogleGenerativeAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { content, title, type, keywords, postType, provider = "groq" } = await request.json()
+    const { 
+      content, 
+      title, 
+      type, 
+      keywords, 
+      postType, 
+      provider = "groq",
+      apiKey,
+      model 
+    } = await request.json()
 
     if (!content) {
       return NextResponse.json({ error: "Content is required" }, { status: 400 })
     }
 
     // Select AI model based on provider
-    const model =
-      provider === "groq" ? groqClient.chat("llama-3.3-70b-versatile") : geminiClient("models/gemini-2.0-flash")
+    let aiModel
+    
+    switch (provider) {
+      case "groq":
+        aiModel = groqClient.chat("llama-3.3-70b-versatile")
+        break
+      case "gemini":
+        aiModel = geminiClient("models/gemini-2.0-flash")
+        break
+      case "openai":
+        if (!apiKey) {
+          return NextResponse.json({ error: "OpenAI API key is required" }, { status: 400 })
+        }
+        const openaiClient = createOpenAI({ apiKey })
+        aiModel = openaiClient.chat(model || "gpt-4o")
+        break
+      case "anthropic":
+        if (!apiKey) {
+          return NextResponse.json({ error: "Anthropic API key is required" }, { status: 400 })
+        }
+        const anthropicClient = createAnthropic({ apiKey })
+        aiModel = anthropicClient(model || "claude-3-5-sonnet-20241022")
+        break
+      default:
+        return NextResponse.json({ error: "Invalid provider" }, { status: 400 })
+    }
 
     let prompt = ""
     const keywordText = keywords ? `Include these keywords naturally: ${keywords}.` : ""
@@ -228,7 +262,7 @@ Generate ONLY the Mermaid diagram code following the exact format above:`
     }
 
     const { text } = await generateText({
-      model,
+      model: aiModel,
       prompt,
       temperature: type === "mermaid" ? 0.3 : 0.7,
     })
@@ -237,7 +271,7 @@ Generate ONLY the Mermaid diagram code following the exact format above:`
     let finalContent = text
     if (type === "mermaid") {
       // Remove markdown code blocks
-      finalContent = finalContent.replace(/```mermaid\n?/gi, "").replace(/```/g, "")
+      finalContent = finalContent.replace(/\`\`\`mermaid\n?/gi, "").replace(/\`\`\`/g, "")
 
       // Remove any explanatory text before the diagram
       const lines = finalContent.split("\n")
