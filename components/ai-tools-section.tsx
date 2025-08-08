@@ -1,7 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,10 +9,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Copy, Key, Sparkles, Share2, BookOpen, Zap, Brain, MessageSquare, Instagram, Facebook, Youtube, Hash, Workflow, Edit3, Code, Music2, Linkedin, Twitter } from 'lucide-react'
+import { Copy, Key, Sparkles, Share2, BookOpen, Brain, MessageSquare, Instagram, Facebook, Youtube, Hash, Workflow, Edit3, Code, Music2, Linkedin, Twitter, Zap } from 'lucide-react'
 import { APIKeyDialog } from "@/components/api-key-dialog"
 import { ModelSelector } from "@/components/model-selector"
 import { type APIProvider } from "@/lib/api-key-manager"
+import type React from "react"
 
 type AIProvider = "groq" | "gemini" | "openai" | "anthropic"
 
@@ -38,7 +38,7 @@ interface AIToolsSectionProps {
   copyToClipboard: (text: string) => void
   handleKeyAdded: (provider: string, keyId: string) => void
   aiProviders: Record<string, APIProvider>
-  generatedContentRef: React.RefObject<HTMLDivElement | null>;
+  generatedContentRef: React.RefObject<HTMLDivElement | null>
 }
 
 export function AIToolsSection({
@@ -106,256 +106,253 @@ export function AIToolsSection({
 
   return (
     <>
-      <ScrollArea className="h-[650px]">
-        {/* AI Provider Selection */}
-        <Card className="p-4 bg-muted/30">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">AI Provider</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowAPIKeyDialog(true)}
-                className="h-8 px-3"
-              >
-                <Key className="w-4 h-4 mr-2" />
-                Configure Keys
-              </Button>
-            </div>
-            
-            {/* Current Provider & Model Info */}
-            {aiProvider && (
-              <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="p-1 bg-primary/10 rounded">
-                    {aiProviders[aiProvider].icon}
-                  </div>
-                  <span className="font-medium text-sm">
-                    Active: {aiProviders[aiProvider].name}
-                  </span>
-                  {selectedKeyId && (
-                    <Badge variant="secondary" className="text-xs">
-                      Custom Key
-                    </Badge>
-                  )}
-                </div>
-                
-                {/* Show current model */}
-                <div className="text-xs text-muted-foreground">
-                  {selectedModel ? (
-                    <span className="flex items-center gap-1">
-                      <span>Model:</span>
-                      <Badge variant="outline" className="text-xs font-mono">
-                        {selectedModel}
-                      </Badge>
-                    </span>
-                  ) : (
-                    <span>Model: {aiProviders[aiProvider].model}</span>
-                  )}
-                </div>
+      {/* Make scroll constrained only on md+ for better mobile UX */}
+      <ScrollArea className="md:h-[650px] h-auto">
+        <div className="space-y-4">
+          {/* AI Provider Selection */}
+          <Card className="p-4 bg-muted/30">
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <Label className="text-sm font-medium">AI Provider</Label>
+                <Button variant="outline" size="sm" onClick={() => setShowAPIKeyDialog(true)} className="h-9">
+                  <Key className="w-4 h-4 mr-2" />
+                  Configure Keys
+                </Button>
               </div>
-            )}
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {Object.entries(aiProviders).map(([key, provider]) => (
-                <Card
-                  key={key}
-                  className={`cursor-pointer transition-all p-3 ${
-                    aiProvider === key ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
-                  }`}
-                  onClick={() => {
-                    if (provider.requiresKey) {
-                      setShowAPIKeyDialog(true)
-                    } else {
-                      setAiProvider(key as AIProvider)
-                      setSelectedModel("")
-                    }
-                  }}
-                >
-                  <div className="flex items-start gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">{provider.icon}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className="font-medium text-sm">{provider.name}</h4>
-                        <Badge variant="outline" className="text-xs">
-                          {provider.model}
-                        </Badge>
-                        {provider.requiresKey && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Key className="w-3 h-3 mr-1" />
-                            API Key
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground line-clamp-2">{provider.description}</p>
-                    </div>
+
+              {/* Current Provider & Model Info */}
+              {aiProvider && (
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <div className="p-1 bg-primary/10 rounded">{aiProviders[aiProvider].icon}</div>
+                    <span className="font-medium text-sm">Active: {aiProviders[aiProvider].name}</span>
+                    {selectedKeyId && (
+                      <Badge variant="secondary" className="text-xs">
+                        Custom Key
+                      </Badge>
+                    )}
                   </div>
-                </Card>
-              ))}
-            </div>
 
-            {/* Model Selector for custom providers */}
-            {(aiProvider === "openai" || aiProvider === "anthropic") && selectedKeyId && (
-              <ModelSelector
-                provider={aiProvider}
-                keyId={selectedKeyId}
-                selectedModel={selectedModel}
-                onModelChange={setSelectedModel}
-                defaultModels={aiProviders[aiProvider]?.defaultModels}
-              />
-            )}
-          </div>
-        </Card>
+                  {/* Show current model */}
+                  <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2">
+                    <span>Model:</span>
+                    <Badge variant="outline" className="text-xs font-mono">
+                      {selectedModel || aiProviders[aiProvider].model}
+                    </Badge>
+                  </div>
+                </div>
+              )}
 
-        <Card className="p-6 bg-muted/30">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Post Type</Label>
-              <Select value={postType} onValueChange={setPostType}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select post type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="devrel">DevRel</SelectItem>
-                  <SelectItem value="story">Story-based</SelectItem>
-                  <SelectItem value="technical">Technical</SelectItem>
-                  <SelectItem value="tutorial">Tutorial</SelectItem>
-                  <SelectItem value="opinion">Opinion</SelectItem>
-                  <SelectItem value="news">News</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-              {postType === "custom" && (
-                <Input
-                  placeholder="Enter custom post type..."
-                  value={customPostType}
-                  onChange={(e) => setCustomPostType(e.target.value)}
-                  className="mt-2"
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {Object.entries(aiProviders).map(([key, provider]) => (
+                  <Card
+                    key={key}
+                    className={`cursor-pointer transition-all p-3 ${
+                      aiProvider === key ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
+                    }`}
+                    onClick={() => {
+                      if (provider.requiresKey) {
+                        setShowAPIKeyDialog(true)
+                      } else {
+                        setAiProvider(key as AIProvider)
+                        // reset custom selection if switching to keyless provider
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore - these setters exist in parent
+                        if (typeof (setSelectedModel as any) === "function") setSelectedModel("")
+                      }
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-primary/10 rounded-lg">{provider.icon}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          <h4 className="font-medium text-sm">{provider.name}</h4>
+                          <Badge variant="outline" className="text-xs">
+                            {provider.model}
+                          </Badge>
+                          {provider.requiresKey && (
+                            <Badge variant="secondary" className="text-xs">
+                              <Key className="w-3 h-3 mr-1" />
+                              API Key
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{provider.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Model Selector for custom providers */}
+              {(aiProvider === "openai" || aiProvider === "anthropic") && selectedKeyId && (
+                <ModelSelector
+                  provider={aiProvider}
+                  keyId={selectedKeyId}
+                  selectedModel={selectedModel}
+                  onModelChange={setSelectedModel}
+                  defaultModels={aiProviders[aiProvider]?.defaultModels}
                 />
               )}
             </div>
+          </Card>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Keywords (Optional)</Label>
-              <Input
-                placeholder="e.g., react, javascript, web dev"
-                value={keywords}
-                onChange={(e) => setKeywords(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">Separate multiple keywords with commas</p>
-            </div>
-          </div>
-
-          <Separator className="my-6" />
-
-          {/* Content Tools */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-primary" />
-              <Label className="text-sm font-medium">Content Tools</Label>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              {contentTools.map((tool) => (
-                <Button
-                  key={tool.id}
-                  variant="outline"
-                  onClick={() => generateAIContent(tool.id)}
-                  disabled={aiLoading}
-                  className="flex items-center gap-2 h-auto p-4 flex-col"
-                >
-                  <div className={`p-2 rounded-lg text-white ${tool.color}`}>{tool.icon}</div>
-                  <span className="text-xs font-medium">{tool.name}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <Separator className="my-6" />
-
-          {/* Social Media Platforms */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Share2 className="w-4 h-4 text-primary" />
-              <Label className="text-sm font-medium">Social Media</Label>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-              {socialPlatforms.map((platform) => (
-                <Button
-                  key={platform.id}
-                  variant="outline"
-                  onClick={() => generateAIContent(platform.id)}
-                  disabled={aiLoading}
-                  className="flex items-center gap-2 h-auto p-3 flex-col"
-                >
-                  <div className={`p-2 rounded-lg text-white ${platform.color}`}>{platform.icon}</div>
-                  <span className="text-xs font-medium">{platform.name}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-
-          <Separator className="my-6" />
-
-          {/* Blogging Platforms */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4 text-primary" />
-              <Label className="text-sm font-medium">Blogging Platforms</Label>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {blogPlatforms.map((platform) => (
-                <Button
-                  key={platform.id}
-                  variant="outline"
-                  onClick={() => generateAIContent(platform.id)}
-                  disabled={aiLoading}
-                  className="flex items-center gap-2 h-auto p-3 flex-col"
-                >
-                  <div className={`p-2 rounded-lg text-white ${platform.color}`}>{platform.icon}</div>
-                  <span className="text-xs font-medium">{platform.name}</span>
-                </Button>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        {generatedContent && (
-          <Card className="p-6" ref={generatedContentRef}>
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center gap-2">
-                <Label className="text-lg font-medium">Generated Content</Label>
-                {currentGenerationType && (
-                  <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                    <div
-                      className={`p-1 rounded text-white ${getPlatformInfo(currentGenerationType).color}`}
-                    >
-                      {getPlatformInfo(currentGenerationType).icon}
-                    </div>
-                    {getPlatformInfo(currentGenerationType).name}
-                  </Badge>
-                )}
-                <Badge variant="outline" className="text-xs flex items-center gap-1">
-                  {aiProviders[aiProvider].icon}
-                  {aiProviders[aiProvider].name}
-                </Badge>
-                {selectedModel && (
-                  <Badge variant="outline" className="text-xs font-mono">
-                    {selectedModel}
-                  </Badge>
+          {/* Config Panel */}
+          <Card className="p-4 md:p-6 bg-muted/30">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 md:mb-6">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Post Type</Label>
+                <Select value={postType} onValueChange={setPostType}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select post type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="devrel">DevRel</SelectItem>
+                    <SelectItem value="story">Story-based</SelectItem>
+                    <SelectItem value="technical">Technical</SelectItem>
+                    <SelectItem value="tutorial">Tutorial</SelectItem>
+                    <SelectItem value="opinion">Opinion</SelectItem>
+                    <SelectItem value="news">News</SelectItem>
+                    <SelectItem value="custom">Custom</SelectItem>
+                  </SelectContent>
+                </Select>
+                {postType === "custom" && (
+                  <Input
+                    placeholder="Enter custom post type..."
+                    value={customPostType}
+                    onChange={(e) => setCustomPostType(e.target.value)}
+                    className="mt-2"
+                  />
                 )}
               </div>
-              <Button variant="outline" size="sm" onClick={() => copyToClipboard(generatedContent)}>
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Content
-              </Button>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Keywords (Optional)</Label>
+                <Input
+                  placeholder="e.g., react, javascript, web dev"
+                  value={keywords}
+                  onChange={(e) => setKeywords(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">Separate multiple keywords with commas</p>
+              </div>
             </div>
-            <Textarea
-              value={generatedContent}
-              readOnly
-              className="h-auto min-h-[400px] resize-none font-mono text-sm"
-            />
+
+            <Separator className="my-4 md:my-6" />
+
+            {/* Content Tools */}
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <Label className="text-sm font-medium">Content Tools</Label>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                {contentTools.map((tool) => (
+                  <Button
+                    key={tool.id}
+                    variant="outline"
+                    onClick={() => generateAIContent(tool.id)}
+                    disabled={aiLoading}
+                    className="flex items-center gap-2 h-auto p-3 sm:p-4 flex-col"
+                  >
+                    <div className={`p-2 rounded-lg text-white ${tool.color}`}>{tool.icon}</div>
+                    <span className="text-xs font-medium">{tool.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <Separator className="my-4 md:my-6" />
+
+            {/* Social Media Platforms */}
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-primary" />
+                <Label className="text-sm font-medium">Social Media</Label>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3">
+                {socialPlatforms.map((platform) => (
+                  <Button
+                    key={platform.id}
+                    variant="outline"
+                    onClick={() => generateAIContent(platform.id)}
+                    disabled={aiLoading}
+                    className="flex items-center gap-2 h-auto p-3 flex-col"
+                  >
+                    <div className={`p-2 rounded-lg text-white ${platform.color}`}>{platform.icon}</div>
+                    <span className="text-xs font-medium">{platform.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            <Separator className="my-4 md:my-6" />
+
+            {/* Blogging Platforms */}
+            <div className="space-y-3 md:space-y-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-primary" />
+                <Label className="text-sm font-medium">Blogging Platforms</Label>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                {blogPlatforms.map((platform) => (
+                  <Button
+                    key={platform.id}
+                    variant="outline"
+                    onClick={() => generateAIContent(platform.id)}
+                    disabled={aiLoading}
+                    className="flex items-center gap-2 h-auto p-3 flex-col"
+                  >
+                    <div className={`p-2 rounded-lg text-white ${platform.color}`}>{platform.icon}</div>
+                    <span className="text-xs font-medium">{platform.name}</span>
+                  </Button>
+                ))}
+              </div>
+            </div>
           </Card>
-        )}
+
+          {/* Generated Content */}
+          {generatedContent && (
+            <Card className="p-4 md:p-6" ref={generatedContentRef}>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Label className="text-base sm:text-lg font-medium">Generated Content</Label>
+                  {currentGenerationType && (
+                    <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                      <div className={`p-1 rounded text-white ${getPlatformInfo(currentGenerationType).color}`}>
+                        {getPlatformInfo(currentGenerationType).icon}
+                      </div>
+                      {getPlatformInfo(currentGenerationType).name}
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="text-xs flex items-center gap-1">
+                    {aiProviders[aiProvider].icon}
+                    {aiProviders[aiProvider].name}
+                  </Badge>
+                  {(selectedModel || aiProviders[aiProvider].model) && (
+                    <Badge variant="outline" className="text-xs font-mono">
+                      {selectedModel || aiProviders[aiProvider].model}
+                    </Badge>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyToClipboard(generatedContent)}
+                  className="w-full sm:w-auto"
+                >
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy Content
+                </Button>
+              </div>
+              {/* Smaller font and responsive min-height on mobile for better fit */}
+              <Textarea
+                value={generatedContent}
+                readOnly
+                className="h-auto min-h-48 sm:min-h-60 md:min-h-[400px] resize-y font-mono text-xs sm:text-sm"
+              />
+            </Card>
+          )}
+        </div>
       </ScrollArea>
 
       <APIKeyDialog
