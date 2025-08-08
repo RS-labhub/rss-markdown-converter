@@ -68,6 +68,8 @@ export default function RSSMarkdownPlatform() {
   const [selectedModel, setSelectedModel] = useState<string>("")
   const [showAPIKeyDialog, setShowAPIKeyDialog] = useState(false)
   const [currentGenerationType, setCurrentGenerationType] = useState<string>("")
+  const [lastError, setLastError] = useState<string>("")
+  const [lastErrorDetails, setLastErrorDetails] = useState<string>("")
   
   const { toast } = useToast()
   const generatedContentRef = useRef<HTMLDivElement>(null)
@@ -193,6 +195,8 @@ export default function RSSMarkdownPlatform() {
     const finalPostType = postType === "custom" ? customPostType : postType
     setAiLoading(true)
     setCurrentGenerationType(type)
+    setLastError("") // Clear previous errors
+    setLastErrorDetails("")
 
     try {
       let requestBody: any = {
@@ -221,6 +225,13 @@ export default function RSSMarkdownPlatform() {
       })
 
       const data = await response.json()
+
+      if (!response.ok) {
+        setLastError(data.error || "Generation Failed")
+        setLastErrorDetails(data.details || "Please try again or switch providers.")
+        throw new Error(data.details || data.error || "Failed to generate content")
+      }
+
       setGeneratedContent(data.content)
 
       // Scroll to generated content after a short delay to ensure it's rendered
@@ -231,10 +242,18 @@ export default function RSSMarkdownPlatform() {
         })
       }, 100)
     } catch (error) {
+      console.error("AI generation error:", error)
+    
+      // if (!lastError) { // Only set if not already set from API response
+      //   setLastError("AI Generation Failed")
+      //   setLastErrorDetails("Please check your connection and try again.")
+      // }
+    
       toast({
-        title: "Error",
-        description: "Failed to generate AI content",
+        title: lastError || "AI Generation Failed",
+        description: lastErrorDetails || "Please try again or switch to a different provider.",
         variant: "destructive",
+        duration: 6000,
       })
     } finally {
       setAiLoading(false)
@@ -299,6 +318,12 @@ export default function RSSMarkdownPlatform() {
     },
   }
 
+  const retryGeneration = () => {
+    if (currentGenerationType) {
+      generateAIContent(currentGenerationType)
+    }
+  }
+
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -351,6 +376,9 @@ export default function RSSMarkdownPlatform() {
                 handleKeyAdded={handleKeyAdded}
                 aiProviders={aiProviders}
                 generatedContentRef={generatedContentRef}
+                lastError={lastError}
+                lastErrorDetails={lastErrorDetails}
+                onRetryGeneration={retryGeneration}
               />
             </ContentPreview>
           </div>

@@ -14,6 +14,7 @@ import { APIKeyDialog } from "@/components/api-key-dialog"
 import { ModelSelector } from "@/components/model-selector"
 import { type APIProvider } from "@/lib/api-key-manager"
 import type React from "react"
+import { ErrorState } from "@/components/error-state"
 
 type AIProvider = "groq" | "gemini" | "openai" | "anthropic"
 
@@ -38,7 +39,10 @@ interface AIToolsSectionProps {
   copyToClipboard: (text: string) => void
   handleKeyAdded: (provider: string, keyId: string) => void
   aiProviders: Record<string, APIProvider>
-  generatedContentRef: React.RefObject<HTMLDivElement | null>
+  generatedContentRef: React.RefObject<HTMLDivElement>
+  lastError?: string
+  lastErrorDetails?: string
+  onRetryGeneration?: () => void
 }
 
 export function AIToolsSection({
@@ -63,6 +67,9 @@ export function AIToolsSection({
   handleKeyAdded,
   aiProviders,
   generatedContentRef,
+  lastError,
+  lastErrorDetails,
+  onRetryGeneration,
 }: AIToolsSectionProps) {
   const contentTools = [
     { id: "summary", name: "Summary", icon: <Sparkles className="w-4 h-4" />, color: "bg-blue-500" },
@@ -351,6 +358,17 @@ export function AIToolsSection({
                 className="h-auto min-h-48 sm:min-h-60 md:min-h-[400px] resize-y font-mono text-xs sm:text-sm"
               />
             </Card>
+          )}
+
+          {/* Error State */}
+          {lastError && (
+            <ErrorState
+              title={lastError}
+              description={lastErrorDetails || "Please try again or switch to a different AI provider."}
+              onRetry={onRetryGeneration}
+              onConfigure={() => setShowAPIKeyDialog(true)}
+              showConfigure={lastError.includes("API key") || lastError.includes("quota") || lastError.includes("credit")}
+            />
           )}
         </div>
       </ScrollArea>

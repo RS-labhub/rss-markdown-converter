@@ -306,10 +306,48 @@ Generate ONLY the Mermaid diagram code following the exact format above:`
     return NextResponse.json({ content: finalContent, provider })
   } catch (error) {
     console.error("AI generation error:", error)
+    
+    // Handle specific API errors
+    let errorMessage = "Failed to generate AI content. Please try again."
+    let errorDetails = ""
+    
+    if (error instanceof Error) {
+      // Handle OpenAI quota errors
+      if (error.message.includes("exceeded your current quota")) {
+        errorMessage = "OpenAI API quota exceeded"
+        errorDetails = "Please check your OpenAI billing and usage limits, or try using a different provider like Groq or Gemini."
+      }
+      // Handle Anthropic quota errors
+      else if (error.message.includes("credit balance is too low")) {
+        errorMessage = "Anthropic API credit balance too low"
+        errorDetails = "Please add credits to your Anthropic account or try using a different provider."
+      }
+      // Handle invalid API key errors
+      else if (error.message.includes("Invalid API key") || error.message.includes("Incorrect API key")) {
+        errorMessage = "Invalid API key"
+        errorDetails = "Please check your API key configuration and try again."
+      }
+      // Handle rate limiting
+      else if (error.message.includes("rate limit") || error.message.includes("too many requests")) {
+        errorMessage = "Rate limit exceeded"
+        errorDetails = "Please wait a moment before trying again, or switch to a different provider."
+      }
+      // Handle model not found errors
+      else if (error.message.includes("model") && error.message.includes("not found")) {
+        errorMessage = "Model not available"
+        errorDetails = "The selected model is not available. Please try a different model or provider."
+      }
+      // Generic API errors
+      else if (error.message.includes("API")) {
+        errorMessage = "API Error"
+        errorDetails = error.message
+      }
+    }
+
     return NextResponse.json(
       {
-        error: "Failed to generate AI content. Please try again.",
-        details: error instanceof Error ? error.message : "Unknown error",
+        error: errorMessage,
+        details: errorDetails,
       },
       { status: 500 },
     )
