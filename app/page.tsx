@@ -9,7 +9,7 @@ import { RSSFeedSection } from "@/components/rss-feed-section"
 import { ContentPreview } from "@/components/content-preview"
 import { AIToolsSection } from "@/components/ai-tools-section"
 import { apiKeyManager, type APIProvider } from "@/lib/api-key-manager"
-import { Zap, Brain, MessageSquare, Key } from 'lucide-react'
+import { Zap, Brain, MessageSquare } from "lucide-react"
 
 interface RSSItem {
   title: string
@@ -20,6 +20,7 @@ interface RSSItem {
   markdown: string
   coverImage?: string
   images: string[]
+  extractedLinks?: Array<{ url: string; text: string }>
 }
 
 interface FilterState {
@@ -46,7 +47,7 @@ export default function RSSMarkdownPlatform() {
   const [selectedItem, setSelectedItem] = useState<RSSItem | null>(null)
   const [loading, setLoading] = useState(false)
   const [recentFeeds, setRecentFeeds] = useState<RecentFeed[]>([])
-  
+
   // Filter State
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -70,9 +71,12 @@ export default function RSSMarkdownPlatform() {
   const [currentGenerationType, setCurrentGenerationType] = useState<string>("")
   const [lastError, setLastError] = useState<string>("")
   const [lastErrorDetails, setLastErrorDetails] = useState<string>("")
-  
+
+  // New state for includeSourceLink
+  const [includeSourceLink, setIncludeSourceLink] = useState(false)
+
   const { toast } = useToast()
-  const generatedContentRef = useRef<HTMLDivElement>(null)
+  const generatedContentRef = useRef<HTMLDivElement>(null!)
 
   // Load recent feeds from localStorage on component mount
   useEffect(() => {
@@ -199,13 +203,16 @@ export default function RSSMarkdownPlatform() {
     setLastErrorDetails("")
 
     try {
-      let requestBody: any = {
+      const requestBody: any = {
         content: selectedItem.content,
         title: selectedItem.title,
+        link: selectedItem.link, // Include the article link
         type,
         keywords,
         postType: finalPostType,
         provider: aiProvider,
+        extractedLinks: selectedItem.extractedLinks || [],
+        includeSourceLink,
       }
 
       // Add custom model and API key for custom providers
@@ -243,12 +250,13 @@ export default function RSSMarkdownPlatform() {
       }, 100)
     } catch (error) {
       console.error("AI generation error:", error)
-    
-      // if (!lastError) { // Only set if not already set from API response
-      //   setLastError("AI Generation Failed")
-      //   setLastErrorDetails("Please check your connection and try again.")
-      // }
-    
+
+      if (!lastError) {
+        // Only set if not already set from API response
+        setLastError("AI Generation Failed")
+        setLastErrorDetails("Please check your connection and try again.")
+      }
+
       toast({
         title: lastError || "AI Generation Failed",
         description: lastErrorDetails || "Please try again or switch to a different provider.",
@@ -263,7 +271,7 @@ export default function RSSMarkdownPlatform() {
   const handleKeyAdded = (provider: string, keyId: string) => {
     setAiProvider(provider as AIProvider)
     setSelectedKeyId(keyId)
-    
+
     // Set default model for the provider
     const providerInfo = aiProviders[provider]
     if (providerInfo?.defaultModels && providerInfo.defaultModels.length > 0) {
@@ -349,11 +357,7 @@ export default function RSSMarkdownPlatform() {
               uniqueAuthors={uniqueAuthors}
             />
 
-            <ContentPreview
-              selectedItem={selectedItem}
-              rssItems={rssItems}
-              copyToClipboard={copyToClipboard}
-            >
+            <ContentPreview selectedItem={selectedItem} rssItems={rssItems} copyToClipboard={copyToClipboard}>
               <AIToolsSection
                 postType={postType}
                 setPostType={setPostType}
@@ -379,6 +383,10 @@ export default function RSSMarkdownPlatform() {
                 lastError={lastError}
                 lastErrorDetails={lastErrorDetails}
                 onRetryGeneration={retryGeneration}
+                selectedItem={selectedItem}
+                // New props for includeSourceLink
+                includeSourceLink={includeSourceLink}
+                setIncludeSourceLink={setIncludeSourceLink}
               />
             </ContentPreview>
           </div>

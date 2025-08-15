@@ -69,6 +69,25 @@ function extractCoverImage(htmlContent: string, item: any): string | undefined {
   return undefined
 }
 
+// Add a function to extract links from HTML content
+function extractLinksFromContent(htmlContent: string): Array<{ url: string; text: string }> {
+  const linkRegex = /<a[^>]+href="([^"]+)"[^>]*>([^<]+)<\/a>/gi
+  const links: Array<{ url: string; text: string }> = []
+  let match
+
+  while ((match = linkRegex.exec(htmlContent)) !== null) {
+    const url = match[1]
+    const text = match[2].trim()
+
+    // Skip empty links, anchors, and very short text
+    if (url && text && !url.startsWith("#") && text.length > 2) {
+      links.push({ url, text })
+    }
+  }
+
+  return links
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { url } = await request.json()
@@ -135,6 +154,9 @@ export async function POST(request: NextRequest) {
       const images = extractImages(cleanedHtml)
       const coverImage = extractCoverImage(cleanedHtml, item)
 
+      // Extract links from content
+      const extractedLinks = extractLinksFromContent(cleanedHtml)
+
       const markdown = `# ${title}\n\n${turndownService.turndown(cleanedHtml)}`
 
       return {
@@ -146,11 +168,12 @@ export async function POST(request: NextRequest) {
         markdown: markdown.trim(),
         coverImage,
         images,
+        extractedLinks, // Add this line
       }
     })
 
     // Sort by date (newest first)
-    processedItems.sort((a: { date: string }, b: { date: string }) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    processedItems.sort((a: { date: string | number | Date }, b: { date: string | number | Date }) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
     return NextResponse.json({
       items: processedItems,

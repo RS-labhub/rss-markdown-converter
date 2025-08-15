@@ -13,6 +13,7 @@
     "@ai-sdk/google": "latest",
     "@ai-sdk/groq": "latest",
     "@ai-sdk/openai": "^2.0.2",
+    "@fal-ai/serverless-client": "^0.15.0",
     "@hookform/resolvers": "^3.9.1",
     "@radix-ui/react-accordion": "1.2.2",
     "@radix-ui/react-alert-dialog": "1.1.4",

@@ -1,12 +1,14 @@
 "use client"
 
+import React from "react"
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { FileText, Search, Sparkles, Copy, Calendar, User } from 'lucide-react'
+import { FileText, Search, Sparkles, Copy, Calendar, User } from "lucide-react"
 
 interface RSSItem {
   title: string
@@ -97,11 +99,7 @@ export function ContentPreview({ selectedItem, rssItems, copyToClipboard, childr
                 Copy Markdown
               </Button>
             </div>
-            <Textarea
-              value={selectedItem.markdown}
-              readOnly
-              className="min-h-[600px] font-mono text-sm resize-none"
-            />
+            <Textarea value={selectedItem.markdown} readOnly className="min-h-[600px] font-mono text-sm resize-none" />
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-4">
@@ -169,10 +167,7 @@ export function ContentPreview({ selectedItem, rssItems, copyToClipboard, childr
                         .replace(/<ul[^>]*>/gi, '<ul class="list-disc list-inside mb-4 space-y-2">')
                         .replace(/<ol[^>]*>/gi, '<ol class="list-decimal list-inside mb-4 space-y-2">')
                         .replace(/<li[^>]*>/gi, '<li class="text-foreground">')
-                        .replace(
-                          /<img /gi,
-                          '<img class="mx-auto rounded-lg shadow-md my-6 max-w-full h-auto" ',
-                        ),
+                        .replace(/<img /gi, '<img class="mx-auto rounded-lg shadow-md my-6 max-w-full h-auto" '),
                     }}
                   />
                 </article>
@@ -181,7 +176,8 @@ export function ContentPreview({ selectedItem, rssItems, copyToClipboard, childr
           </TabsContent>
 
           <TabsContent value="ai" className="space-y-6">
-            {children}
+            {/* Pass selectedItem to AI Tools */}
+            {React.cloneElement(children as React.ReactElement, { selectedItem })}
           </TabsContent>
         </Tabs>
       </CardContent>
