@@ -1,0 +1,294 @@
+# Stack Overflow's 2025 Report is Out: Trends on AI Native Development
+
+## What Happened - Devs appear to use AI more, and believe it less
+
+[Stack Overflow&#x27;s 2025 Developer Survey](https://survey.stackoverflow.co/2025), featuring over `49,000` developers from `177` countries, reveals an intriguing paradox in the AI revolution: while `84%` of developers now use or plan to use AI tools (up from `76%` in 2024), trust in these tools has significantly dropped.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/3a72c5fd3c6375c67ee6461d5d6032a1d64c15ec-2000x949.png)
+
+Trust in AI accuracy has fallen sharply: only `33%` of developers now trust AI-generated output, down from `43%` in 2024.That said, there’s a quote worth remembering: “Today’s AI is the worst you are going to get.” So while trust may be declining, the pace of progress means those losing faith might want to revisit their assumptions sooner rather than later.
+
+Perhaps most telling, `66%` of developers report frustration with AI solutions that are "almost right but not quite," often spending more time debugging AI-generated code than writing it themselves. Stack Overflow CEO Prashanth Chandrasekar emphasized that the "growing lack of trust in AI tools stood out" this year, highlighting the need for a trusted "human intelligence layer" to counterbalance inaccuracies.
+
+## Community Reactions - Survey Resonance, and Contextual AI Confidence
+
+The developer community largely resonates with the survey results, noting that the findings align closely with their own experiences, with some highlighting that the data appears relatively consistent with trends observed in last year’s report. Across forums and social media, programmers also echoed that AI tools are useful – even indispensable – but it wouldn’t be wise to trust them blindly.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/17d0fc7e3b31103f006c442cf53349b55c40aaab-1756x718.png)
+
+A more nuanced view is that trust in AI code gen is context-dependent. "Do I trust AI for a full agentic build? Absolutely not. Do I trust it to scaffold a frontend validation schema? Generally, yes - but I will verify."
+
+> "LLMs get a bad rep because of individuals who completely outsource thinking."
+
+The community also acknowledges that although the survey suggests that `69%` of AI agent users agree AI agents have increased productivity”, the rise of AI first development have at times slow down productivity. Critically, productivity concerns transcend experience: multiple studies, including recent [METR research](https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/), suggest even experienced developers are `19%` slower when relying on AI tools.
+
+Ultimately, it it all depends on the tools being used, the coding languages and codebase complexity; which is not taken into account in this survey numbers. Together, these insights point to a core truth: the value of AI in development hinges not just on capability, but on how precisely and intentionally it’s integrated into the workflow.
+
+## The AIND Take: Emerging reality of AI Native Dev and spec-driven development
+
+The issue isn't that people don't trust AI - they do. What they don't trust are the current methods AI uses to generate code, particularly "vibe coding" approaches. As we attempt more complex development tasks, we're consistently hitting the limits of these methods.
+
+This creates a predictable cycle: AI improves, we find new limits. Tools evolve, we discover fresh constraints. The critical question isn't whether AI can help with development - it's whether we can push AI-assisted development into professional, production-ready environments.
+
+The current trust setback should thus accelerate more sophisticated integration patterns, where AI code generation's strengths and limitations are explicitly recognized as core design considerations rather than implementation afterthoughts. For instance, instead of letting AI generate an entire backend service ad hoc, teams might begin designing modular interfaces where AI is only responsible for generating testable utility functions within a predefined contract.
+
+A robust future for AI native development likely includes clear guardrails and a test-driven approach, as embraced by our community advocating for a spec-driven development.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/4801b40d2d2ea4fc0c2c65a206aa086374bae020-1114x1272.png)
+
+Alignment between intent and AI output is emerging as the key challenge, surpassing simple code generation. Specs act as the anchor, offering structured clarity for both AI reasoning and human validation. They provide a shared, testable source of truth crucial in managing AI-generated content's inherent unpredictability. In a world where AI confidently delivers almost right solutions, specs help safeguard against subtle yet significant errors.
+
+While AI Native development is advancing rapidly, its ultimate form will likely be nuanced. This year's survey offers devs a practical reality check, underscoring the need for thoughtful integration, realistic expectations, and human oversight as AI becomes more central to development practices.
+
+===
+
+# Terminal-Bench: Benchmarking AI Agents on CLI Tasks
+
+## **What Happened: A New Benchmark for AI Agents in Terminal Environments**
+
+[Terminal-Bench](https://www.tbench.ai/), an evaluation framework that measures how effectively AI agents can perform complex tasks within terminal environments. This o[pen-source](https://github.com/laude-institute/terminal-bench) benchmark, developed through a collaboration between Stanford University and the [Laude Institute](https://www.laude.org/), represents the first comprehensive attempt to quantify AI agents' mastery of command-line operations.
+
+Terminal-Bench consists of approximately 100 challenging tasks that range from compiling code repositories and training ML models to setting up servers and debugging system configurations. Each task includes detailed descriptions, Docker-containerized environments, verification scripts, and reference solutions, creating a standardized testing ground for terminal-based AI capabilities.
+
+_“What makes TerminalBench hard is not just the questions that we’re giving the agents, it’s the environments that we’re placing them in.”_ Terminal-Bench co-creator Alex Shaw.
+
+For example, one particular [task](https://www.tbench.ai/news/announcement) asks the agent to build a linux kernel from source. Current performance results suggest that even state-of-the-art AI agents struggle significantly with terminal environments.
+
+While Warp's terminal agent currently leads the leaderboard at 52% task completion, gpt-4.1 model (with Terminus agents), only reaches ~30% . These results highlight the substantial gap between AI agents' theoretical capabilities and their practical effectiveness in real-world terminal operations.
+
+## **Community Reactions: A New Kind of AI Benchmark Is Catching On**
+
+The open-source project has garnered nearly 300 stars and attracted contributions from over 40 devs. While still in its early stages, Terminal-Bench has already received positive feedback from the developer community for its emphasis on real-world, practical scenarios. Discussions reveal appreciation for the benchmark's emphasis on complete task execution rather than isolated code snippets.
+
+Developers particularly value the benchmark's inclusion of tasks that require understanding system architecture, dependency management, and environment configuration; skills that separate experienced engineers from juniors. Building on that, devs appreciate that, unlike previous benchmarks like [SWE-bench](https://www.swebench.com/), terminal-bench captures the full scope of interactivity that modern agents operate within.
+
+_Static benchmarks don’t measure what agents do best (multi-turn reasoning). Thus , interactive benchmarks:_  
+[<em>@GregKamradt</em>](https://x.com/GregKamradt/status/1947737830735941741)
+
+*   _Terminal Bench_
+*   _Text Arena_
+*   _Barlrog_
+*   _ARC-AGI-3_
+
+With brands beginning to evangelize the benchmark, we expect its notoriety to grow as more terminal-centric agents are adopted.
+
+## **The AI Native Dev Take: The CLI Still Matters (and Perhaps More Than Ever)**
+
+With the rise of Claude Code, Codex, Gemini CLI, and other terminal-centric agents, Terminal-Bench signals a shift in focus within dev environments toward evaluating system-level capabilities. While new IDEs with integrated agents are gaining adoption, Terminal-Bench surfaces fundamental differences in AI effectiveness between terminal interfaces and IDEs, raising important questions about how context shapes agent performance.
+
+Supporting this, a recent [METR study](https://arxiv.org/abs/2507.09089) on Cursor Pro found a discrepancy: although devs estimated task completion would be 20–30% faster with the tool, actual results showed they were nearly 20% slower, highlighting the tension between perceived and observed productivity in AI-assisted development. In contrast, Warp’s strong performance in Terminal-Bench challenges traditional assumptions about where AI tools are most effective.
+
+It suggests that specialized terminal environments may have their place alongside general-purpose IDE integrations, especially when it comes to certain complex or multistep tasks. IDEs remain indispensable in current workflows, providing the direct code-editing environments developers rely on. But the evolving performance gap invites a reevaluation of where agents add the most value.
+
+_“Our big bet is that there’s a future in which 95% of LLM-computer interaction is through a terminal-like interface.”_ Mike Merrill, co-creator Terminal-Bench
+
+This situation is reminiscent of historical tech transitions where CLIs, initially displaced by graphical tools, later resurged due to their superior automation and scripting capabilities. Terminal-Bench’s emphasis on complete task execution, rather than isolated code generation, suggests that effective agentic development requires systematic and step-by-step reasoning, which terminals naturally encourage.
+
+One particularly noteworthy insight from the Terminal-Bench results is that Warp’s top-performing agent isn’t built on a single state-of-the-art model, but rather on a composition of different models working in concert. This underscores an insightful point: excelling at terminal-based agentic tasks doesn’t necessarily seem to require access to frontier models or resources from major labs.
+
+Instead, could there be an opportunity for independent teams and startups to innovate through orchestration, and interface design? If so, this trend hints at a future where smaller teams can meaningfully compete by building specialized agents tailored to developer workflows, especially in high-leverage, terminal-centric domains.
+
+*   Rather than viewing agents as one-shot code-building tools, this reframes agents as collaborators: capable of developing and manipulating computing environments.
+*   The benchmark’s results also suggest that current AI systems still struggle with the holistic reasoning required for effective terminal operations.
+*   This gap between agent capabilities and practical requirements will likely drive innovations in AI architecture, potentially leading to specialized models optimized for system-level reasoning rather than general-purpose language generation.
+
+===
+
+# How claude-task-master “Reduced 90% Errors for My Cursor”
+
+## **What Happened - How Taskmaster Breaks Down Projects and Executes Them**
+
+[Claude-task-master](https://github.com/eyaltoledano/claude-task-master) is a new open-source tool introducing an AI-driven development with Claude, designed to work with Cursor AI. Created by [Eyal Toledano](https://x.com/EyalToledano?ref_src=twsrc%5Egoogle%7Ctwcamp%5Eserp%7Ctwgr%5Eauthor), and other collaborators, it turns natural language prompts into a structured PRD (Product Requirements Document), broken into bite-sized development tasks.
+
+The system integrates with Cursor, Lovable, Windsurf, and Roo, effectively acting as an AI project manager inside coding editors. Taskmaster supports multiple AI model providers and integrates over MCP.
+
+  
+
+## **Community Reactions - Why Devs Embrace it: Clear Tasks, Fewer Errors**
+
+> “Taskmaster helps keep the AI agent on track and allows you to focus on smaller units of work.”
+
+The developer community’s response to Taskmaster has been overwhelmingly positive, with a mix of astonishment at its rapid rise and anecdotes of significantly improved workflows.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/0496f71ca0428930a4f62dcfa0269e07b2e0f0ca-1954x558.png)
+
+On Reddit and Hacker News, many devs see it as a game-changer for working with AI coding agents. By breaking big goals into discrete tasks, Taskmaster prevents the AI from wandering off-course, letting it tackle projects piecewise. This means that there are fewer chances for the generated code to break:
+
+> “My rambling spec \[was turned\] into a crystal-clear PRD, then exploded into bite-sized, dependency-aware tasks, all inside Cursor”. The LLM agents “stayed laser-focused with these well-defined tasks: finish task → commit → next task. No context juggling, no sticky-note chaos.”
+
+Within 9 weeks, the repository’s star count shot from `0 to 15,500 stars`. Such explosive growth is rare and sheds light on how strongly the idea resonated with the AI native development world.
+
+Taskmaster fills a gap, a solution for the planning step, which helps reduce errors, run time, and API costs. There are YouTube tutorials claiming up to [<em>90% fewer errors</em>](https://www.youtube.com/watch?v=1L509JK8p1I&t=1s) when using Cursor with Taskmaster, thanks to eliminating the AI’s tendency to attack complex problems all at once. Considering the tool is editor-agnostic (it’s a CLI + MCP server under the hood), you can integrate it into the environments you prefer.
+
+  
+
+## **AI-Native Dev Take - Architecting PRDs for AI Agents: Why Code Specifications are Key**
+
+Taskmaster also moved in the direction of using different AI models for different jobs (e.g., a “research” model vs. a “main” coding model). This mosaic of AIs working together, overseen by a coordinator, is becoming a standard architecture. It’s somewhat analogous to how microservices evolved in backend engineering: using many specialized components instead of one monolith, except here the services are AI models.
+
+This could be seen as an extension of the agile methodology into the realm of AI: just as human teams have scrums and user stories, AI agents may need their own structured game plan to be effective team members. Would the concept of an “AI Scrum Master” seem far-fetched? Developers would then play more of a supervisory role ([From Producer to Manager](https://ainativedev.io/news/from-producer-to-manager)), verifying tasks, adjusting priorities, and handling edge cases, while the AI handles the boilerplate and low-level implementation. One advice we can give to dev folks out there is to structure [intent](https://ainativedev.io/news/from-implementation-to-intent) in your workflow, deepen your knowledge of software architecture, and consequently drive specifications-led development.
+
+Taskmaster’s momentum highlights a key takeaway: breaking down complex projects into digestible, modular coding tasks significantly reduces the chances of AI-generated code veering off track. Using well-structured PRDs and translating them into granular tasks allows agents to operate more autonomously and more reliably without losing direction.
+
+At the AI-Native Dev, we’ve been discussing that tomorrow’s developer workflow must be rooted in specifications (or specs) that architects software for high-trust and autonomous execution. Interestingly, Task Master places the PRD at the center of the developer workflow, an interchangeable term.  
+  
+Historically, a PRD (Product Requirements Document) has been associated with traditional development practices, typically authored by a product manager or engineering team to guide developers. In the AI Native space, this has evolved into what we often call a “spec” or “specification”, a more precise, code-oriented document tailored for AI-native workflows. In fact, many thought-leaders in the space have started to favor the term “spec” because it better reflects the technical rigor and structure needed in AI-powered development (OpenAI even highlighted this shift in a recent talk at the [AI Engineer World Fair](https://www.youtube.com/live/U-fMsbY-kHY?t=29446s)).
+
+All in all, think in specs (or PRDs), speak with intent, and guide the swarm of agents to execute your tasks (more practical insights on “[how to parallelize coding agents](https://ainativedev.io/news/how-to-parallelize-ai-coding-agents)”). This is how AI native developers will bring trust and autonomy into tomorrow’s software!
+
+===
+
+# The Rise of “Visual Vibe Coding” (with New VSCode Extension)
+
+## What happened: AI-powered UI edits bring “visual vibe coding”
+
+Released under an AGPL-3.0 license, [Stagewise](https://github.com/stagewise-io/stagewise) is an open-source VS Code extension and toolbar for precise UI prompting, introducing a novel way to build frontend with AI assistance. The tool connects a live web application’s front-end to AI coding agents, allowing developers to click on any UI element in their browser and edit it using natural-language prompts.
+
+In practice, Stagewise overlays a toolbar on your app in development mode and feeds the selected DOM element (along with context like screenshots and metadata) to your IDE. In other words, where it’s hard to specify things in a prompt which element, with this you can point and prompt together.
+
+The project support covers popular frameworks (React, Next.js, Vue, Nuxt.js) and is compatible with popular AI coding assistants Cursor, GitHub Copilot and Windsurf (Cline appears to have issues, which should be solved [soon](https://github.com/stagewise-io/stagewise/issues/186)). Devs can get started with the new tool by adding it into their VS code extensions - quickstart instructions [here](https://stagewise.io/#quickstart).
+
+  
+
+## Community reactions: A novel VS code extension for precision-UI prompting (with a few gaps to patch)
+
+Stagewise’s release has generated significant buzz among developers on forums and social media, with reactions ranging from excitement to healthy skepticism. Many developers are impressed by the productivity boost in UI development.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/98e845bb3a74494421aee038129375aefd7a1be5-1066x1242.png)
+
+The implication is that Stagewise brings the convenience of Vercel’s v0 (which has a dedicated UI builder) into the Cursor/VS Code world, and it appears to surpass since you can work live from your IDE. Developers who enjoy being early adopters of AI tools have been sharing success stories of quickly restyling components or swapping UI elements via a single prompt, owing to the live DOM context Stagewise provides.
+
+On the flip side, since the project is its infancy, users report rough edges. In the announcement threads, a few tried Stagewise and found it didn’t work seamlessly in their setup. While Stagewise supports many mainstream frameworks out of the box, there may be limitations with less typical front-end setups.
+
+There’s a consensus Stagewise addresses a real pain point. We’ve seen remarks from devs that they usually just describe UI elements in natural language when prompting Copilo,t and it “works well most of the time.” That said, as project complexity grows, prompts can become “really lengthy”. For example, specifying “the element in position X that does Y” the AI might misunderstand and make broad, unintended changes.
+
+The rapid adoption metrics and word-of-mouth provide additional validation. The project’s GitHub repo amassed over 3k stars within a couple of weeks, and Stagewise’s site claims it’s already “embraced by engineers” at several big-name companies. While we should take such claims with a grain of salt (early interest doesn’t always equal long-term use), it’s clear Stagewise tapped into a demand.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/e595b1919bc66dadf7e9b693570ca71f2ccd0d74-1698x1008.png)
+
+## The AIND take: New intent-driven UIs, Same old testing discipline
+
+The arrival of Stagewise feels like a parallel to the rise of WYSIWYG editors. Rather than painstakingly dragging components into place, you gesture and describe your intent in natural language. The AI doesn’t just drop components where you say, it composes them contextually, adapting design and code on the fly.
+
+The process of building software is fundamentally shifting, with devs focusing on expressing their intent, and the AI partner executes the [implementation, and allows for discovery](https://ainativedev.io/news/the-4-patterns-of-ai-native-dev-overview). Stagewise gives a glimpse of that AI Native future: coding by _feel_ and _feedback_ rather than just by keystrokes, all while keeping the developer in the driver’s seat.
+
+It’s conceivable that larger platforms will build Stagewise's offering for themselves. An IDE like Cursor might bake in a similar UI-inspection feature natively, as they feel pressure to offer comparable visual integration to stay competitive. One limitation is that if the app’s structure is complex or not DOM-centric, the current approach falters.
+
+I suggest trying Stagewise on a small project as it can give a sense of how precision UI-coding could fit in your developer-to-agent workflow. You’ll likely hit roadblocks as the project is nascent (there’s still a couple of [bugs](https://github.com/stagewise-io/stagewise/issues) to iron out), but it sheds light on the new avenues within the AI Native development space.
+
+Stagewise may also risk taking developers further away from the code itself. That added abstraction can open the door to more careless practices if not used deliberately. And that’s not a hypothetical concern: the term “vibe coding” itself has been critiqued as a bit tainted. In some corners, it’s become shorthand for developers who blindly accept AI changes.
+
+It’s essential to maintain good software hygiene: treat AI outputs as draft code, write tests whenever possible, and ensure you thoroughly understand the changes being made. The goal isn’t to surrender coding to an AI, but to offload the repetitive parts so you can focus on your intent.
+
+===
+
+# The Best Open-Source Model for Agentic Coding? Meet Mistral’s Devstral
+
+## **What Happened: Devstral Topped SWE-Bench Verified (in the Open-Weight Section)**
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/b522c323709ab8682ff8eeb64a5b97c602da1d24-1828x932.png)
+
+Mistral AI has announced Devstral, a new open-weights large language model for software development, built in collaboration with All Hands AI (the team behind the [OpenHands](https://docs.all-hands.dev/) agent framework). Devstral is a 24-billion-parameter LLM optimized for Agentic software engineering tasks, able to tackle GitHub issues across entire codebases. This size stands out, particularly in light of the comparisons Simon Willison shared in his [AI Engineer World&#x27;s Fair keynote](https://www.youtube.com/live/z4zXicOAF28?t=5085).  
+  
+
+Released under the permissive Apache 2.0 license, Devstral’s weights are freely available for both research and commercial use. Notably, the model runs on accessible hardware (a single NVIDIA RTX 4090 GPU, or even a 32GB Mac!) owing to its relatively compact size and efficient design.
+
+Critically, Devstral has strong performance on the [SWE-Bench Verified](https://openai.com/index/introducing-swe-bench-verified/) (a dataset of 500 real-world GitHub issues with tests for correctness), and it achieved a 46.8% success rate on this benchmark - over 6 percentage points higher than any previously published open-source model.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/1b1349e90ec529878f6e03a93ed7b22757a50d25-2294x846.png)
+
+Devstral even outperformed some massive proprietary models, including DeepSeek’s 671B-parameter V3 model and Alibaba’s 232B-parameter Qwen3, despite its much smaller size. Mistral’s Devstral has thus taken the lead as the best open-weight model optimized for coding agents. While other models remain highly relevant for tasks like chat and reasoning, Devstral marks a new specialization in agentic workflows.
+
+  
+
+## **Community Reactions: Devstral Hits Sweet Spot Between Performance & Accessibility.**
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/0b0e639c1783bcce6364755a2f5dbf0ab7ade52f-1300x408.png)
+
+The developer community’s response to Devstral has been largely positive. Many developers are impressed by the model’s capabilities given its size and openness. On Hacker News, one user remarked that Devstral’s 46.8% benchmark score “is better than \[Anthropic\] Claude 3.6 (with an open scaffold) … and considering you can run this for almost free, this is an extraordinary model.”
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/43b8cd50db7c9e4b9eab04a543fccde9ae9c8a62-1332x872.png)
+
+This sentiment of accessible and high-performance resonated with developers who have been seeking an alternative to expensive API-based tools.
+
+Open licensing has also earned significant goodwill. The full weight release under Apache 2.0 has been lauded as a positive step for the open-source AI ecosystem, reinforcing trust that developers can use and integrate the model without legal hurdles. Early user experiences with Devstral are emerging as people test it in their workflows. The ability to handle a 128k-token context (which can cover an entire repository’s code) also drew positive attention, as it allows Devstral to consider much more context than typical local models.
+
+There are also words of caution and curiosity about limits. For example, devs have pointed out that cutting-edge closed models still have an edge, albeit at far greater cost and resource. A power-user on [Reddit](https://www.reddit.com/r/LocalLLaMA/comments/1kryxdg/meet_mistral_devstral_sota_open_model_designed/) noted that Devstral, being tuned for the OpenHands agent use-case, “seems a bit too specialized” and “it is clear Devstral in most tasks cannot compare to DeepSeek 671B, which is my current daily driver”, though they immediately add that DeepSeek is “too slow … hence why I am looking into smaller models.”
+
+Overall, the response has been optimistic, and with the release of [Mistral Code](https://mistral.ai/news/mistral-code), an AI-powered coding assistant built on Devstral, Codestral, Codestral Embed, and Mistral Medium, there’s a growing sense of momentum and excitement around Mistral’s expanding toolset.
+
+  
+
+## **The AIND Take: A Noteworthy Development in the Open-Weights Realm.**
+
+At AI Native Dev, we’re always keeping an eye on innovations pushing the boundaries of code generation. We recently took DevStral for a spin, and my colleague and friend Richard described it as the “best experience so far” among open-weights models we’ve explored.
+
+> DevStral is the first open weights model I’ve tried that didn’t crash out of the gate. The codegen wasn’t perfect, but it followed the spec, which is a huge step forward. If you’re looking for an Apache 2 open-weights model, I'd recommend giving DevStral a try.Richard Tweed, Senior Platform Engineer @Tessl.io
+
+Looking ahead, Devstral’s debut marks a noteworthy development in the open-weights realm. Mistral has already hinted that a “larger agentic coding model” is in the works for release in the coming weeks, which could further boost performance. If that upcoming model extends Devstral’s capabilities (potentially at 30B+ parameters), we may see open-source AI reaching deeper into territory that was, until now, dominated by proprietary giants (yay!).
+
+We appear to be moving from AI as a sidebar tool, like code autocomplete or chat assistants, to AI as an integrated development team member (this is happening so fast!). In practice, this may evolve into development workflows where devs define a problem or high-level design, and an agentic system powered by Devstral takes on the heavy lifting of implementing and iterating on the solution.
+
+In that same thread, we are hearing a lot more about [agent parallelization](https://www.youtube.com/watch?v=f8RnRuaxee8&t=15s). It's reminiscent of how software engineering embraced automation in the past – version control and continuous integration automated tedious integration tasks, and now continuous “autonomous coding” could become a new layer in the pipeline. Developers will (and some have begun) to routinely assign an AI agent a ticket (bug fix or feature request) - you can see more of this in [GitHub’s Copilot Agent](https://ainativedev.io/news/github-microsoft-build-2025-copilot-agent-release) release. Current AI models, including Devstral, still have limitations in reasoning and can introduce errors or insecure code if left unchecked.
+
+This is why it’s encouraging to see Devstral’s design uses test cases as part of the loop via the OpenHands scaffold (e.g. AI agents that verify their own output against real unit tests). For our developers, folks out there, we recommend experimenting in a controlled environment: do not use Devstral on critical issues, and leverage it in a sandbox repository to gauge its suggestions.
+
+Make sure to perform code reviews on contributions, just as you would for a human developer. With Mistral code now available on VSCode or JetBrains, you can leverage Devstral for agentic coding and experiment with various refactoring and debugging workflows.
+
+As a final thought, Mistral’s been relatively quiet compared to the buzz surrounding some of the incumbents. With Devstral and Mistral Code, they’ve re-entered the spotlight. And I have to admit, as a Frenchie, there’s something quite satisfying about seeing a homegrown effort holding its own in such a talented and competitive global space. That said, innovation doesn’t have nationality, and Mistral is clearly here to play.
+
+===
+
+# GitHub Unveils Copilot Coding Agent at Build 2025
+
+## What Happened: GitHub’s Cloud-Based Agent Drafts PRs Autonomously
+
+GitHub announced a major new capability for Copilot:
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/3350409ac62e544a70d4f77de8871d11cc14a0af-1210x318.png)
+
+GitHub has unveiled a significant upgrade to Copilot during [Microsoft Build 2025](https://github.blog/news-insights/product-news/github-copilot-meet-the-new-coding-agent/): a cloud-based coding agent capable of drafting and iterating on pull requests directly within GitHub. While previous Copilot experiences focused on in-editor assistance via VSCode, this new agent runs asynchronously in the cloud, leveraging an infrastructure similar to GitHub Actions.
+
+Developers can now assign tasks directly via GitHub or VSCode:
+
+The Copilot agent handles tasks autonomously: creating branches, iterating on PRs based on code review comments, and updating commits until the work is accepted - all without touching protected branches. Crucially, existing CI pipelines, branch protections, and review workflows remain intact, ensuring “trust by design.”
+
+With the addition of MCP, developers can even grant the agent access to external tools and data by configuring servers directly in the repository settings. This abstracts us from the actual implementation and allows to focus on describing the tasks. This aligns with Codex Agents and others providing compute for the agents to run and do the coding. It also resonated with the broader movement toward headless agents - those that run independently, complete tasks, and report back when work is ready for review.
+
+  
+
+## Community Reactions: Awe, Caution, Fears, and Questions.
+
+Personally, using GitHub Copilot Agent was an enjoyable experience when asking to perform low level tasks. I had a ‘wow’ moment when I performed typical GitHub actions directly inside the PR (or via the VSCode’s chat bar). It was impressively fast, and the developer experience felt spot on.
+
+When digging into the community’s reaction, we found Copilot’s coding agent showing a mix of excitement, curiosity, and healthy skepticism. “Time-saving” was the common praise. Users liked that the agent’s draft PR and log let them see exactly what was happening, and that they retained the choice of when/if to merge. Similar to my experience, users shared they found Copilot to perform well with low-level tasks.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/4d21341c9f7aa3f874b6c8e072a9ce86699f82d1-2444x394.png)
+
+To which GitHub’s Product Lead for Copilot coding agent replied:
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/2de5c42b5e0c3a8096309592c27ddbfdd3426f9e-2324x442.png)
+
+A portion of the community also shared a fear that by offloading coding to AI, human work might devolve into janitorial oversight: filing detailed JIRA tickets all day and rubber-stamping AI-generated code. Also, users expressed concern for what this means for junior devs. GitHub CEO’s [take](https://www.linkedin.com/posts/ashtom_microsoft-is-dogfooding-ai-dev-tools-future-activity-7333212347064356866-3Qc3/?utm_source=share&utm_medium=member_desktop&rcm=ACoAAAZ97QEBAduTT2dW-DOPtlayUaE1TT4Pl-U) on this is:
+
+> In an age where some claim that more AI means fewer opportunities for entry level devs, I believe the opposite is true. There has never been a more exciting time to join our industry.
+
+Building on that concern, security and policy questions were also raised. For example, could the agent inadvertently expose sensitive information, such as including a secret key in a PR? Adding to the complexity, some developers pointed out that the benefits of using AI agents don’t come for free. You only truly reap the rewards if you invest effort upfront; e.g writing a good issue description with clear acceptance criteria.
+
+  
+
+## The AIND Take: Abstracting Grunt Work, and Developing New Habits
+
+GitHub is evolving into an AI-enhanced development platform. Much like the historic growth of [Actions Marketplace](https://github.com/marketplace?type=actions), we can expect a spike in tools within [Copilot Extensions](https://github.com/marketplace?type=apps&copilot_app=true), making Copilot more powerful and covering more aspects of the development workflow.
+
+Drawing an analogy from history, this feels akin to the DevOps revolution or the shift to cloud/serverless computing: mundane infrastructure work is abstracted away, enabling developers to focus on higher-level logic. Similarly, the Copilot agent can abstract away a chunk of grunt work.
+
+It’s also a new skill: prompting and supervising AI in coding. Just as CI/CD and cloud led to new roles, AI agents could lead to new roles like“AI orchestration engineer”. I suspect we’ll see AI-native startups experimenting more and more with having multiple agents collaborate.
+
+One use case we believe in is the use of task dependent agents: one agent could generate code while another reviews it, or one agent specialized in front-end and another in back-end, coordinating through issues and PRs. GitHub’s infrastructure could support this kind of multi-agent workflow, especially as MCP allows chaining different AI services.
+
+From a developer’s perspective, to prepare for this AI-centric future, there are a few concrete steps we’d recommend when playing with Copilot’s Agent. First, writing clear, detailed task/issue/PR descriptions with acceptance criteria will become a valuable skill. It’s a good practice even for human collaborators, but for AI it’s _very_ relevant. This helps build the muscle of communicating with machines about code [intent](https://ainativedev.io/news/the-4-patterns-of-ai-native-dev-overview).
+
+Second, invest in tests. The prospect of an AI agent that relies on tests to know it didn’t break things is a strong incentive. High test coverage can turn the agent into a reliable contributor, while low coverage turns it into a serious risk. Strengthening your automated tests and CI pipelines can help position your projects to benefit more fully from AI involvement.
+
+The end-game is to become comfortable letting the AI draft something, and you guiding/refining it. In this new era, the developers who thrive will be those who embrace specifications-centric development; guiding AI with precision, shaping code, and validating it with tests.

@@ -5,25 +5,10 @@ interface PersonaData {
   rawContent: string
   createdAt: string
   isBuiltIn?: boolean
+  contentType?: "posts" | "blogs" | "mixed"
 }
 
 const STORAGE_KEY = "rss-platform-persona-training"
-
-// Built-in personas with their training data
-const BUILT_IN_PERSONAS: PersonaData[] = [
-  {
-    name: "bap",
-    rawContent: "", // Will be loaded from text file
-    createdAt: new Date().toISOString(),
-    isBuiltIn: true,
-  },
-  {
-    name: "simon",
-    rawContent: "", // Will be loaded from text file
-    createdAt: new Date().toISOString(),
-    isBuiltIn: true,
-  },
-]
 
 // Function to load built-in persona data from text files
 export async function loadBuiltInPersonaData(name: string): Promise<string | null> {
@@ -34,6 +19,23 @@ export async function loadBuiltInPersonaData(name: string): Promise<string | nul
     }
   } catch (error) {
     console.error(`Error loading ${name} training data:`, error)
+  }
+  return null
+}
+
+// Add a new function to load built-in persona data with content type
+export async function loadBuiltInPersonaDataWithType(
+  name: string,
+  contentType: "posts" | "blogs",
+): Promise<string | null> {
+  try {
+    const suffix = contentType === "blogs" ? "blogs" : "posts"
+    const response = await fetch(`/training-data/${name}-${suffix}.txt`)
+    if (response.ok) {
+      return await response.text()
+    }
+  } catch (error) {
+    console.error(`Error loading ${name} ${contentType} training data:`, error)
   }
   return null
 }
@@ -50,8 +52,37 @@ export function savePersonaTrainingData(name: string, rawContent: string): void 
       isBuiltIn: false,
     }
 
-    // Remove existing persona with same name (if not built-in)
-    const filteredData = existingData.filter((p) => p.name !== name.toLowerCase() || p.isBuiltIn)
+    // Remove existing persona with same name
+    const filteredData = existingData.filter((p) => p.name !== name.toLowerCase())
+    const updatedData = [...filteredData, newPersona]
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData))
+  } catch (error) {
+    console.error("Error saving persona training data:", error)
+    throw new Error("Failed to save persona training data")
+  }
+}
+
+// Update savePersonaTrainingData to include content type
+export function savePersonaTrainingDataWithType(
+  name: string,
+  rawContent: string,
+  contentType: "posts" | "blogs" | "mixed" = "mixed",
+): void {
+  if (typeof window === "undefined") return
+
+  try {
+    const existingData = getStoredPersonaData()
+    const newPersona: PersonaData = {
+      name: name.toLowerCase(),
+      rawContent,
+      createdAt: new Date().toISOString(),
+      isBuiltIn: false,
+      contentType,
+    }
+
+    // Remove existing persona with same name (regardless of content type)
+    const filteredData = existingData.filter((p) => p.name !== name.toLowerCase())
     const updatedData = [...filteredData, newPersona]
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData))
@@ -73,19 +104,33 @@ export function getPersonaTrainingData(name: string): PersonaData | null {
   }
 }
 
+// Update the getPersonaTrainingData function to support content type
+export function getPersonaTrainingDataWithType(
+  name: string,
+  contentType?: "posts" | "blogs" | "mixed",
+): PersonaData | null {
+  if (typeof window === "undefined") return null
+
+  try {
+    const allPersonas = getAllPersonaData()
+    // Always return the persona with the given name, regardless of content type if not specified
+    return allPersonas.find((p) => p.name === name.toLowerCase()) || null
+  } catch (error) {
+    console.error("Error getting persona training data:", error)
+    return null
+  }
+}
+
+// Only return stored personas (no built-in ones)
 export function getAllPersonaData(): PersonaData[] {
-  if (typeof window === "undefined") return BUILT_IN_PERSONAS
+  if (typeof window === "undefined") return []
 
   try {
     const stored = getStoredPersonaData()
-    const builtInNames = BUILT_IN_PERSONAS.map((p) => p.name)
-
-    // Merge built-in personas with stored ones, avoiding duplicates
-    const customPersonas = stored.filter((p) => !builtInNames.includes(p.name))
-    return [...BUILT_IN_PERSONAS, ...customPersonas]
+    return stored.filter((p) => !p.isBuiltIn)
   } catch (error) {
     console.error("Error getting all persona data:", error)
-    return BUILT_IN_PERSONAS
+    return []
   }
 }
 
@@ -94,13 +139,6 @@ export function removePersonaTrainingData(name: string): boolean {
 
   try {
     const existingData = getStoredPersonaData()
-    const personaToRemove = existingData.find((p) => p.name === name.toLowerCase())
-
-    // Don't allow removal of built-in personas
-    if (personaToRemove?.isBuiltIn) {
-      return false
-    }
-
     const filteredData = existingData.filter((p) => p.name !== name.toLowerCase())
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredData))
     return true
@@ -153,6 +191,7 @@ export async function uploadPersonaData(file: File): Promise<PersonaData> {
           rawContent: data.rawContent,
           createdAt: data.createdAt || new Date().toISOString(),
           isBuiltIn: false,
+          contentType: data.contentType || "mixed",
         }
 
         // Save the persona
@@ -165,28 +204,6 @@ export async function uploadPersonaData(file: File): Promise<PersonaData> {
     reader.onerror = () => reject(new Error("Failed to read file"))
     reader.readAsText(file)
   })
-}
-
-async function loadPersonaData(persona: PersonaData): Promise<PersonaData> {
-  if (persona.isBuiltIn && persona.rawContent === "") {
-    const rawContent = await loadBuiltInPersonaData(persona.name)
-    if (rawContent) {
-      return { ...persona, rawContent }
-    }
-  }
-  return persona
-}
-
-export async function getLoadedPersonaTrainingData(name: string): Promise<PersonaData | null> {
-  const persona = getPersonaTrainingData(name)
-  if (!persona) return null
-  return await loadPersonaData(persona)
-}
-
-export async function getAllLoadedPersonaData(): Promise<PersonaData[]> {
-  const allPersonas = getAllPersonaData()
-  const loadedPersonas = await Promise.all(allPersonas.map(loadPersonaData))
-  return loadedPersonas
 }
 
 function getStoredPersonaData(): PersonaData[] {

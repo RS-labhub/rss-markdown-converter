@@ -1,0 +1,367 @@
+# Why Code Alone Isn’t Enough: The Case for Code Specification (Spec-Driven Development)
+
+This month, we hosted the first AI Native Dev meetup in London, with our friends from [Codurance](https://www.codurance.com/). We had some great discussions about AI Native Development at the event, with a couple of talks, [one of which was given by me](https://www.youtube.com/watch?v=NTpu0XuQsDY&t=0s). During the session, I talked about the comparison of code-centric and [spec-centric software development](https://www.youtube.com/watch?v=NTpu0XuQsDY&t=1734s), which resonated with the audience. I was recently asked if there was a blog post on this topic, and I was surprised I hadn’t written one yet, so here it is!
+
+##   
+
+## Code as the source of truth
+
+In today’s reality, we use a code-centric approach to software development. During the creation of an application, we typically start with a requirements doc, or a PRD that describes the intent of the application. From this document, or set of documents, we write our code in our language of choice. I’m not here to judge, unless your choice is PHP. The next stage is to get some tests (ok, I can hear TDD fanatics sigh. You pick your own order!) and make sure our code is working as intended before building and packaging our code up to ship. Oh, don’t forget those docs, too. Take a look at the slide I used to talk through this, and the words used to describe each of the artefacts.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/c036b674ea0c750ca9dbbb9e4e432ba06d391409-1600x939.png)
+
+The requirements are marked as disposable, as over time, they tend not to keep up with the latest version of the code. The code however, is long-lived, because it’s the source of truth. It’s what is changed and updated, and shipped. So if there's an issue in production, the code holds the answers, not the out-of-date requirements docs. The reason tends to be due to the way we evolve our codebase, by making:
+
+*   **Enhancements** - improvements to our code, adding new features that are being asked for by users and product teams.
+*   **Bug fixes** - Issues in our code, likely because we have missing tests, incomplete requirements, or maybe even a security issue.
+*   **Edge cases** \- those awkward flows or cases we didn’t even think about or dream a user would try to do.
+*   **Ecosystem changes** - upgrades to libraries or frameworks, that could require updates to our code.
+
+We know the reality is that these changes are made in our codebase and rarely reflected back into the requirements docs. We’ve now lost the connection between our intent (the what) and our implementation (the how). Very often, the tests and docs also start to fall out of sync, as code updates aren’t reflected with updated or new tests, and docs become stale as they become out of date without strong development processes and diligent developers. Oh, and I know you’re diligent, it’s all the others out there that aren’t.
+
+This results in a very fragile application with blurred lines between the what and the how, which now both reside in the code, which we often can only work out if we are able to talk with some of the original authors and maintainers of the code. This is, of course, subject to them still being available or a part of the org that created the code, and their ability to remember what happened. If their memory is anything like mine, good luck with that. We end up with the same old maintenance problems that we’ve unfortunately grown all too used to.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/1fef8e2a51e23127e5d16c850e948e18c025ed6d-1600x962.png)
+
+##   
+
+## How do AI assistant tools help?
+
+The typical AI developer tools that are popular today, such as GitHub Copilot, Cursor, Windsurf etc, help us create code faster, and make changes. However, they’re essentially updating the code.
+
+How about agentic tools? They pretty much all still focus on updating the code too. The code still ends up as the source of truth. We’re still code-centric and are accelerating the problem. Some parts are erased. This doesn’t really make the best use of AI in the software development process.
+
+##   
+
+## Code Specification unleashes the true potential of AI
+
+Let’s look at what happens when we make specs the new source of truth. In order to do this, the spec must be the primary artefact that the developer changes. It’s not a document that decorates or accompanies the code. It’s the document that the code is derived from at all times. If an enhancement or bug fix comes in, the spec is updated to reflect the change.
+
+The spec should also contain the descriptions of the tests, because they also define intent. They state how the component should act, given various permutations of input and state. Using your favourite LLM, the code can now be generated from this complete spec, along with runnable tests, as well as documentation. Everything is in step and accurate to the specification. Here’s how the spec-centric approach looks, where the spec is now the long-lived artifact.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/43535dba2bbe50621ddcb0b8abaf2fafd459b059-1600x965.png)
+
+##   
+
+## What does spec-centricity unlock?
+
+The benefits are pretty impressive as this becomes autonomous. I’ll mention a few here that are discussed on the slide below:
+
+*   **Software is less fragile**: With code being generated alongside more complete tests, we can continuously validate the code with the tests to ensure the implementation we’re creating aligns with the intent we detailed in the spec.
+*   **Adaptable software**: Perhaps we created a node implementation initially, but since we like to make bad life choices, we now decide we want a PHP implementation. So long as we keep the specification language and ecosystem agnostic, we can supply context during code generation that specifies how we want that generation to happen, in this case we’d say we’d want to create the component in PHP alongside the tests to again make sure we can validate our intent has been implemented correctly.
+*   **Autonomous software**: Many issues, such as a framework update, an implementation, or 3rd third-party security issue, don’t actually require a specification change. They’re not updating intent, but rather altering how a component is created, based on security scans, etc. As a result, we unlock a path where the code could autonomously be regenerated and validated once again to the spec, to apply this maintenance.
+*   **Higher quality software:** The generation of the code could not just be checked for quality, but also performance, security, and other non-functional requirements. Changes to the generation could be iterated upon, but the key is always to ensure that we’re not only more secure and faster (based on the needs of how the component will be used) but still able to check that the developer's intent has been successfully tested and validated.
+*   **Self-optimizing software**: The context that we pass to the generation can also come from data we gather from the production environment. We can collect system telemetry data, and automatically spin up different code generations based on observations of real production usage, and continuously optimize our implementation while continuously validating every change against the spec through tests.  
+    
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/a9d063d088b0a915c44f88f778e3c20ea0a6996e-1600x838.png)
+
+##   
+
+## Final thoughts
+
+If this resonates with you and you can feel the value that spec-centric development can offer your software development workflows, i’d recommend watching the [video](https://www.youtube.com/watch?v=NTpu0XuQsDY&t=0s) either in it’s entirety, or just [the bit I cover these slides](https://www.youtube.com/watch?v=NTpu0XuQsDY&t=1744s). A couple of key things that stand out for me:
+
+*   Testing becomes more important than the code. Yes, we don’t ship the tests, but with more autonomous code generation, it’s how we validate what good looks like.
+*   A spec-centric workflow massively opens up opportunities of multiple implementations per spec, with accompanying context, self-optimizing software, autonomous maintenance, and more.
+*   This approach requires developers to care more about intent, as well as other skills. [Patrick Debois](https://www.linkedin.com/in/patrickdebois/) covers this really well in [The 4 patterns of AI Native Development](http://ainativedev.co/n7g).
+*   There are a ton of open questions that we need to answer for this to be a reality. What is a spec? How do you validate? How do you version adaptable implementations? How do you engage with LLM decisions? What is the role of an AI Native Developer?
+
+Join our community on [Discord](http://ainativedev.co/s39) and [subscribe to our mailing list](http://ainativedev.co/93e) to join our community to be a part of this movement and to contribute to answering some of these questions and many more!
+
+===
+
+# Cursor 1.0: Everything You Need To Know
+
+Cursor recently had the most significant update since its initial release in 2023. Cursor has become the go-to AI coding assistant for most developers (including me!). The 1.0 release has tons of new features dedicated to enhancing the development experience. The most notable improvements include **BugBot**, **Memories**, and **MCP Support**. Let’s get into what these changes are and how they can make your developer workflows better.
+
+## BugBot
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/e6b5583b479b472001ce3f7377eb4bfddcb50dcf-1024x1024.png)
+
+BugBot lives outside of the Cursor IDE, although it can interact with your existing Cursor installation. BugBot is a GitHub app that can code review changes in your Pull Requests. It can determine whether there are any quality issues with the code changes in your PR, and leave a comment on it. If you have Cursor installed locally, you can make use of the “Fix in Cursor” button in the PR comment, which takes the information about the issue from BugBot, along with the required context and sends it directly to your chat in Cursor, which immediately works on a fix to the issue as if you typed in the request manually. This is a very interesting feature that shows Cursor not just expanding further into Code Reviews, but also expanding its interactions through the SDLC by integrating inside the Git repo.
+
+## Background Agent
+
+The background agent is a pretty nifty feature that allows you to create changes using Cursor in an asynchronous way. You're most likely used to making a request in Cursor and watching it make some decisions and describe what it’s going to do, and then propose some code changes for you to accept. The background agent, however, spawns an asynchronous agent that, by default, will run on a separate Ubuntu machine. The agent clones your repo from GitHub, edits and runs your code in a remote environment, and then makes it available to you on a separate branch in your repo, allowing you to take a look at the diff and create a pull request over to your main branch if you’re happy with the changes.
+
+Oh, another great thing about background agents is that you can invoke them from Slack as well as within the Cursor IDE!
+
+## Jupyter Notebook Support
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/2f4025eb0817e106bdb908752cb542df02447ce7-1024x1024.png)
+
+Cursor now natively supports Jupyter Notebooks, enabling collaborative workflows for data science, ML experimentation, and research—all within your coding environment. You can write, execute, and iterate on code cells alongside teammates, making pair programming and knowledge sharing in notebook-based workflows significantly more efficient.
+
+Currently, only the Sonnet model is supported for notebook interaction, but additional model integrations are planned.
+
+## Memories
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/1be974fc5d8ba4546d8ee65fae4de6eade769e80-1024x1024.png)
+
+This feature is just in beta, but it’s pretty exciting from a usability point of view. The Memory feature allows Cursor to remember context from previous chats. Rules can be created directly from the chat and stored at either the individual or project level. A future goal is for Cursor to understand how others within the team develop, sharing their rules and memories with them. This levels you up as a developer, as you can then take on good habits from others in the team that you may not have otherwise known about.
+
+## MCP support
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/f643dbd7535f1c75b411977fde6e8e84a1c0d8b2-1536x1024.png)
+
+We already know how MCP has taken the AI space by storm, and how everyone is either trying to build their own MCP server or consume others to become more productive. In Cursor 1.0, you can set up MCP servers in one click, and with OAuth support, it's trivial to authenticate for those that need it. There is a curated list of official MCP servers that you can add to your Cursor IDE at [docs.cursor.com/tools](http://docs.cursor.com/tools).
+
+## And finally
+
+One last feature worth mentioning is the visualisation of plans and ideas within the Custor chat. Most notably, you can see mermaid diagrams as images, and markdown tables are nicely displayed.
+
+The Cursor 1.0 release delivered a nice set of additional features. Let us know what your favourite is and if there’s anything else we missed that you think deserves a call out!
+
+===
+
+# The Dark Side of “Just Hooking Up" AI Agents to GitHub
+
+## How a Malicious GitHub Issue Can Hijack Your AI Dev Workflow
+
+We posted about the [GitHub MCP server](https://ainativedev.io/news/github-mcp-server) a couple of [times](https://ainativedev.io/news/12-mcp-servers) recently, highlighting the productivity value it can offer to a developer’s workflow. [Invariant](https://invariantlabs.ai/), an AI security company recently exposed a critical issue in [GitHub’s MCP integration](https://github.com/github/github-mcp-server), which can be exploited by a single malicious GitHub issue created on a public GitHub repository.
+
+Two critical things to mention. Firstly, there isn’t a currently known active attack in this space, and more worryingly, there isn’t an easy and complete fix. Secondly, while this mentions the GitHub MCP, there isn’t a patch that one can easily apply to fix this issue. This is a problem inherent to the way LLMs fail to distinguish between the control and data planes they are given and make poor decisions thereafter.
+
+  
+
+## TL;DR
+
+*   Agents with GitHub MCP (and similar integrations) are vulnerable to prompt injections from public inputs.
+*   A malicious GitHub issue can hijack your agent to expose private repo data.
+*   Model alignment and trusted APIs aren’t enough.
+*   As we automate workflows, toxic agent flows will become a more mainstream concern for security and trust.
+
+We are becoming increasingly comfortable connecting our IDEs, terminals, and agents with tools like GitHub, Slack, Docker, and AWS, utilizing MCP servers. While this is extremely valuable, we’re also unknowingly building up an attack surface. This is the dark side of AI-native development, some of which we recently covered talking with [Danny Allan, CTO at Snyk, at the 2025 AI Native DevCon Spring event](https://www.youtube.com/watch?v=8pG_A2N7C1Y).
+
+  
+
+## Am I vulnerable, and what can a successful attack do?
+
+First of all, you’ll need a specific setup to be vulnerable, such as the following:
+
+*   You’re building with agents. Maybe you’re using Claude Desktop or Cursor, and you’re using the GitHub MCP to fetch issues and create PRs.
+*   You have a public repo accepting issues.
+*   You have a private repo filled with data that the world cannot access.
+
+With this setup, a successful exploit, LLM can share private data from the private github repo to a pull request that it creates on the public repo. This is a data leakage vulnerability that circumvents access control via the LLM, and exposes it in a place that the MCP server can access, in this case, a PR in the public Github repo.
+
+  
+
+## How does the exploit work?
+
+Let’s play through the scenario in which sensitive data could be leaked. You first need to have a configuration as mentioned above. Then one day, you prompt your agent from your client, something like the following:
+
+“Can you summarize the latest issues in the public repo and fix them?”
+
+Seems simple enough, and not unusual behavior. I imagine many of you have taken similar actions with good results and might instinctively defend your approach if questioned. However, there’s an additional step needed that makes the exploit possible. Let’s say a GitHub user has created an issue on your public repository that contains a **maliciously crafted prompt**. Perhaps this is text directly in the comment, or perhaps it's in a code block.
+
+Your agent loads the issue. It follows instructions from inside the issue itself. We’ve seen these classic **prompt injection** attacks before, but what’s interesting is that the exploits require the GitHub integration to pull private code into context. The LLM then skips the authorization engine, which would determine whether the user has access to this data, and it would, without user interaction, **create a new PR** with that content in the **public** repository.
+
+No alarms. No model warnings. Just vibes, and a leak.
+
+**Invariant** refer to these as “toxic agent flows”, and they’re fundamentally different from the kinds of tool-based vulnerabilities devs are used to defending against.
+
+  
+
+## What You Can Do Now
+
+1.  **Validate your data** - Treat public inputs from your GitHub repo as you would user data in your app. Any data there, even metadata, can be considered something that is used for prompt injection.
+2.  **Review tool calls** - Where possible, validate manually for sensitive data or in a more automated way otherwise.
+3.  **Isolate workflows** - Tools can help here, and the organisation that found the issue might also be able to help with their tooling to restrict cross-repo behavior.
+
+To read Invariant’s post on their findings, the disclosure post is [on their blog.](https://invariantlabs.ai/blog/mcp-github-vulnerability)
+
+===
+
+# 12 MCP Servers That Will Make You A More Productive Developer
+
+We’ve all seen how much of a wave MCP is making in the AI space, and how everyone and their dog now has an MCP server that can make the tea and do the washing. But did you know that MCP servers don’t just assist an LLM in production, but they can also help you in your development workflows! Wait, you haven’t heard about an MCP server before? Where have you been hiding? Here’s a one-paragraph catch-up, just in case!
+
+## What is an MCP Server?
+
+**MCP** stands for **Model Context Protocol**. An MCP server is an orchestration layer providing a structured way for an LLM or agent to manage **context**, **tools**, and **task flow**. It’s kind of like middleware for LLMs. You define the tools that an agent can use, and the LLM can choose to use them, like services, when it feels they would provide the assistance needed to complete a specific task. This is why the naming and descriptions of the MCP server are so important!
+
+### Just show me the list!
+
+Wow, you’re impatient! Ok, here’s the full list. Which have you used before? Which are new to you? What have we missed out? Let us know on [Twitter](https://twitter.com/ainativedev) or [Bluesky](https://bsky.app/profile/ainativedev.bsky.social)!
+
+1.  Desktop Commander MCP
+2.  Docker MCP
+3.  DuckDuckGo MCP
+4.  Playwright MCP
+5.  Sequential Thinking MCP
+6.  Context7 MCP
+7.  Supabase MCP
+8.  GitHub MCP
+9.  Slack MCP
+10.  Linear MCP
+11.  Notion MCP
+12.  Snyk MCP
+
+That’s quite the list. Let’s break them up into categories and give you an insight into what they do and where you can try them out.
+
+## System & Automation
+
+### 1\. Desktop Commander MCP
+
+The [Desktop Commander MCP server](https://desktopcommander.app/) enables LLM agents to control the local OS: shell commands, apps, file management. From a software development perspective, it offers the ability to:
+
+*   Create and update big projects
+*   Perform code reviews
+*   Run security audits on your code
+*   Add test coverage to your codebase
+
+Other features are also available for folks in the DevOps, design, and technical writer roles.
+
+### 2\. Docker MCP
+
+If you use Docker pretty often, this open-source [Docker MCP server](https://github.com/QuantGeekDev/docker-mcp) allows you to perform everyday tasks pretty easily, including:
+
+*   Creating and instantiating containers
+*   Docker Compose stack deployment
+*   Container logs retrieval
+*   Container listing and status monitoring
+
+Also, a [Kubernetes MCP Server](https://github.com/Flux159/mcp-server-kubernetes) is available if that’s more your flavor.
+
+## Web Browsing & Search
+
+Depending on your preferences and needs for web search or even automation, here are a few MCP servers that could be pretty useful.
+
+### 3\. DuckDuckGo MCP
+
+If you value the privacy that DuckDuckGo provides, you’ll be sure to want the same for your LLM agents that require real-time interactions with information on the web. The [DuckDuckGo MCP server](https://github.com/nickclyde/duckduckgo-mcp-server) offers:
+
+*   Web Search: Search DuckDuckGo with advanced rate limiting and result formatting
+*   Content Fetching: Retrieve and parse webpage content with intelligent text extraction
+*   LLM-Friendly Output: Results formatted specifically for large language model consumption
+
+### 4\. Playwright MCP
+
+Microsoft’s [Playwright MCP Server](https://github.com/microsoft/playwright-mcp) provides access to the popular [Playwright](https://playwright.dev/) tool. You can install it directly into vanilla VS Code, Cursor or Windsurf or of course in Claude Desktop. As you’d expect, you can:
+
+*   Test or scrape content cross-browser on Chromium, Firefox, and WebKit
+*   Test on Windows, Linux, and macOS
+*   Test headless or headed
+
+## Reasoning & Planning
+
+### 5\. Sequential Thinking MCP
+
+The [Sequential Thinking MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/sequentialthinking) performs problem-solving through structured thinking. As we’ve become quite used to in recent times, this is another tool that likes to reason out loud before taking actions, such as:
+
+*   Break down complex problems into manageable steps
+*   Revise and refine thoughts as understanding deepens
+*   Branch into alternative paths of reasoning
+*   Generate and verify solution hypotheses
+
+### 6\. Context7 MCP
+
+We’ve all been through the frustration of using out-of-date docs and information, right? [Context7](https://github.com/upstash/context7) pulls the latest up-to-date, version-specific documentation and code examples directly into your prompt for the LLM to use as context. You can use it to:
+
+*   Pull in code examples rather than relying on old or incorrect training data samples
+*   Have a higher chance of the LLM using a real API over one it has hallucinated
+*   Write prompts naturally with example code
+
+## Backend & App Integrations
+
+### 7\. Supabase MCP
+
+Many of the database providers offer MCP servers now, so be sure to check the one you use. I’ll pick on [Supabase MCP Server](https://supabase.com/docs/guides/getting-started/mcp) here, which allows you:
+
+*   Query your database directly, just by using natural language in your prompts
+*   Create, pause and restore Supabase projects
+*   Debug issues with direct access to your Supabase logs
+
+### 8\. GitHub MCP
+
+Hey, [my good friend Bap wrote about this just recently](https://ainativedev.io/news/github-mcp-server)! You should totally read his post to see how the [GitHub MCP Server](https://github.com/github/github-mcp-server) can:
+
+*   Automate GitHub workflows and processes, such as issue creation or PR code reviews
+*   Extract and analyze data from GitHub repositories.
+
+### 9\. Slack MCP
+
+As a collaboration tool, the [Slack MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/slack) brings collaboration into AI workflows and even into our IDE. With this MCP Server, it feels like you have very basic Slack API access, allowing you to:
+
+*   List channels, and get channel history
+*   Post messages or reply to threads, and add reactions
+*   Get users and user profile information
+
+### 10\. Linear MCP
+
+If you’re one of the cool kids using Linear to track your issues and manage your projects, consider using a [Linear MCP Server](https://github.com/jerhadf/linear-mcp-server) to:
+
+*   Create, update or search through Linear issues
+*   Get issues for a particular user
+*   Add a comment to a Linear issue
+
+### 11\. Notion MCP
+
+Well, if you’re a cool kid using Linear, you’re almost certainly using Notion as well! The official [Notion MCP Server](https://github.com/makenotion/notion-mcp-server) essentially exposes the Notion API, allowing you to:
+
+*   Create pages, update content
+*   Add comments to existing pages and content
+*   Perform Notion searches and query Notion databases
+
+## Security
+
+### 12\. Snyk MCP
+
+Finally, I can’t write a list like this and not mention the [Snyk MCP Server](https://docs.snyk.io/snyk-cli/snyk-mcp-experimental), can I? As we write code, we want it to be secure! With this MCP server, we can make sure of this by:
+
+*   Trigger CLI security scans for code, dependencies, or configurations in your codebase
+*   Obtain Snyk security findings directly in your MCP-enabled tool or environment.
+
+## Wrapping up
+
+To summarise, there’s an MCP server for everything, and you shouldn’t just add them all, but recognise how you can empower yourself within your LLM prompts to make sure you’re making life easier for yourself.
+
+I’d love to know your thoughts on the MCP Servers I chose. Did I miss a killer MCP Service that you can’t live without? Let me know!
+
+===
+
+# The Best Bits From AI Native DevCon Spring 2025
+
+## The best bits from AI Native DevCon Spring 2025
+
+Last week, we wrapped up one of the most exhilarating events of the year, **AI Native DevCon Spring 2025,** and what a fun experience! We were very fortunate to call upon many friends and partners, and had a very healthy response to our CFP that we launched earlier in the year to put together a great program of speakers for the event. A few standout names and sessions included:
+
+*   **Mathias Biilmann**, CEO of Netlify, delivered a [powerful keynote on the importance of agentic experience](https://www.youtube.com/watch?v=jNaPmha4mA4&t=1s) for our future dev workflows.
+*   **Guy Podjarny**, Founder and CEO of Tessl, shares his [vision on the evolution of existing AI tools and the shift toward AI Native development](https://www.youtube.com/watch?v=SUoV3LXsWk0&t=7s) practices.
+*   **Des Traynor**, Co-founder and Chief Strategy Officer at Intercom, in a fireside chat that explored [how production-ready agentic AI is, discussed Intercom’s agentic tool, Fin](https://www.youtube.com/watch?v=3tGcEjIUUZE&t=488s&pp=0gcJCY0JAYcqIYzv).
+*   **Danny Allan**, CTO at Snyk, [dove into the role of security](https://www.youtube.com/watch?v=8pG_A2N7C1Y&t=1s) in a world where AI has accelerated how much code, and as a result, vulnerabilities can now be generated so quickly.
+*   **Gene Kim**, author and researcher, introduced the powerful concept of [Chat-Oriented Programming](https://www.youtube.com/watch?v=0aJRtCn_WqM) and its implications for future software delivery models.
+*   **Annie Vella**, Distinguished Engineer at Westpac New Zealand, tackled one of the big questions on everyone’s mind: [What happens to developer jobs in a world of AI-first workflows](https://www.youtube.com/watch?v=53yziql9h-U&t=2s&pp=0gcJCY0JAYcqIYzv)?
+*   **Josh Long,** Developer Advocate at Broadcom, gives an educational and entertaining session on using [Spring AI to create a pet adoption application and an MCP Server](https://www.youtube.com/watch?v=ZLvVeKxKVyI)!
+
+To view all the session replays, please check out [the playlist on YouTube](https://www.youtube.com/playlist?list=PLISstAySqk7Lt1qUF0qWS2F15qBNesyzU).
+
+With almost **3,500 registrants**, **30 incredible speakers**, and **26 sessions** across **3 curated tracks**, the energy, insight, and community spirit were just what we hoped for.
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/e13cf05f2488930acecba5c3f63243dbd49c9f02-1600x900.jpg)
+
+The conference was designed to include a mix of sessions that interested developers and technical leaders, ranging from AI adoption strategy and dev tool industry insights to deep and detailed live coding and practical AI implementation techniques. It celebrated how developers are embracing AI today and reimagining their craft tomorrow.
+
+## The vibe was real, both on stage and off!
+
+During the event, attendees shared a bunch of love over the chat as well as on social media:
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/8a2323d0096016905af3d9c9eb1b82d668dcc207-1600x900.jpg)
+
+During the break, I had the absolute pleasure of running a **live vibe-coding session** with Petra Evans, who helped behind the scenes during the conference and runs the People team at Tessl.
+
+One of my most interesting moments was coding the classic game **Snake** live. We tried on both [BASE44](https://base44.com/) and [Bolt.new](https://bolt.new/), and Petra, a teammate who had never written code before, had that “Aha” moment when we got the game to run after some back-and-forth prompting. The “it’s working!” reaction was pure gold. It reminded me of the same spark we as developers feel when we hit that magical moment of success after hours spent in a messy codebase or log. Hmmm, maybe I just mean my code!
+
+It’s fun to see these experiences enjoyed by people who are creators, but not usually through software. **We’re in an age where we can make software development more accessible** and more joyful to many more people.
+
+**Until Next Time…**
+
+Thanks to all our speakers, hosts, panelists, and attendees for making this event unforgettable. The future of development is AI Native, and with this community, it’s looking brighter than ever.
+
+Watch your favorite sessions again [here](https://www.youtube.com/playlist?list=PLISstAySqk7Lt1qUF0qWS2F15qBNesyzU), or catch those you’ve missed, since they’re all up on YouTube now!
+
+Stay tuned for more. We hope to share news of our next event soon!
+
+![](https://cdn.sanity.io/images/7rhhj7zk/production/afdecd5c7549634b8d7a22e6493387e9b9746a98-1920x1080.jpg)

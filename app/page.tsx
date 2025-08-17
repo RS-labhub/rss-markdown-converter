@@ -8,8 +8,10 @@ import { Footer } from "@/components/footer"
 import { RSSFeedSection } from "@/components/rss-feed-section"
 import { ContentPreview } from "@/components/content-preview"
 import { AIToolsSection } from "@/components/ai-tools-section"
+import { AuthorContentGenerator } from "@/components/author-content-generator"
 import { apiKeyManager, type APIProvider } from "@/lib/api-key-manager"
-import { Zap, Brain, MessageSquare } from "lucide-react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Zap, Brain, MessageSquare, FileText, Users } from "lucide-react"
 
 interface RSSItem {
   title: string
@@ -338,58 +340,88 @@ export default function RSSMarkdownPlatform() {
         <div className="container mx-auto p-6 max-w-7xl">
           <Header />
 
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            <RSSFeedSection
-              rssUrl={rssUrl}
-              setRssUrl={setRssUrl}
-              rssItems={rssItems}
-              selectedItem={selectedItem}
-              setSelectedItem={setSelectedItem}
-              loading={loading}
-              filters={filters}
-              setFilters={setFilters}
-              showFilters={showFilters}
-              setShowFilters={setShowFilters}
-              recentFeeds={recentFeeds}
-              removeRecentFeed={removeRecentFeed}
-              fetchRSSFeed={fetchRSSFeed}
-              filteredItems={filteredItems}
-              uniqueAuthors={uniqueAuthors}
-            />
+          <Tabs defaultValue="content-tools" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-6">
+              <TabsTrigger value="content-tools" className="flex items-center gap-2">
+                <FileText className="w-4 h-4" />
+                Content Tools
+              </TabsTrigger>
+              <TabsTrigger value="author-generator" className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Author-Based Generator
+              </TabsTrigger>
+            </TabsList>
 
-            <ContentPreview selectedItem={selectedItem} rssItems={rssItems} copyToClipboard={copyToClipboard}>
-              <AIToolsSection
-                postType={postType}
-                setPostType={setPostType}
-                customPostType={customPostType}
-                setCustomPostType={setCustomPostType}
-                keywords={keywords}
-                setKeywords={setKeywords}
-                aiProvider={aiProvider}
-                setAiProvider={setAiProvider}
-                selectedKeyId={selectedKeyId}
-                selectedModel={selectedModel}
-                setSelectedModel={setSelectedModel}
-                showAPIKeyDialog={showAPIKeyDialog}
-                setShowAPIKeyDialog={setShowAPIKeyDialog}
-                generateAIContent={generateAIContent}
-                aiLoading={aiLoading}
-                generatedContent={generatedContent}
-                currentGenerationType={currentGenerationType}
-                copyToClipboard={copyToClipboard}
-                handleKeyAdded={handleKeyAdded}
-                aiProviders={aiProviders}
-                generatedContentRef={generatedContentRef}
-                lastError={lastError}
-                lastErrorDetails={lastErrorDetails}
-                onRetryGeneration={retryGeneration}
-                selectedItem={selectedItem}
-                // New props for includeSourceLink
-                includeSourceLink={includeSourceLink}
-                setIncludeSourceLink={setIncludeSourceLink}
-              />
-            </ContentPreview>
-          </div>
+            <TabsContent value="content-tools">
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                <RSSFeedSection
+                  rssUrl={rssUrl}
+                  setRssUrl={setRssUrl}
+                  rssItems={rssItems}
+                  selectedItem={selectedItem}
+                  setSelectedItem={setSelectedItem}
+                  loading={loading}
+                  filters={filters}
+                  setFilters={setFilters}
+                  showFilters={showFilters}
+                  setShowFilters={setShowFilters}
+                  recentFeeds={recentFeeds}
+                  removeRecentFeed={removeRecentFeed}
+                  fetchRSSFeed={fetchRSSFeed}
+                  filteredItems={filteredItems}
+                  uniqueAuthors={uniqueAuthors}
+                />
+
+                <ContentPreview selectedItem={selectedItem} rssItems={rssItems} copyToClipboard={copyToClipboard}>
+                  <AIToolsSection
+                    postType={postType}
+                    setPostType={setPostType}
+                    customPostType={customPostType}
+                    setCustomPostType={setCustomPostType}
+                    keywords={keywords}
+                    setKeywords={setKeywords}
+                    aiProvider={aiProvider}
+                    setAiProvider={setAiProvider}
+                    selectedKeyId={selectedKeyId}
+                    selectedModel={selectedModel}
+                    setSelectedModel={setSelectedModel}
+                    showAPIKeyDialog={showAPIKeyDialog}
+                    setShowAPIKeyDialog={setShowAPIKeyDialog}
+                    generateAIContent={generateAIContent}
+                    aiLoading={aiLoading}
+                    generatedContent={generatedContent}
+                    currentGenerationType={currentGenerationType}
+                    copyToClipboard={copyToClipboard}
+                    handleKeyAdded={handleKeyAdded}
+                    aiProviders={aiProviders}
+                    generatedContentRef={generatedContentRef}
+                    lastError={lastError}
+                    lastErrorDetails={lastErrorDetails}
+                    onRetryGeneration={retryGeneration}
+                    selectedItem={selectedItem}
+                  />
+                </ContentPreview>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="author-generator">
+              <div className="grid grid-cols-1 gap-6">
+                <AuthorContentGenerator
+                  rssItems={rssItems}
+                  aiProvider={aiProvider}
+                  setAiProvider={setAiProvider}
+                  selectedKeyId={selectedKeyId}
+                  selectedModel={selectedModel}
+                  setSelectedModel={setSelectedModel}
+                  showAPIKeyDialog={showAPIKeyDialog}
+                  setShowAPIKeyDialog={setShowAPIKeyDialog}
+                  handleKeyAdded={handleKeyAdded}
+                  aiProviders={aiProviders}
+                  copyToClipboard={copyToClipboard}
+                />
+              </div>
+            </TabsContent>
+          </Tabs>
 
           <Footer />
         </div>

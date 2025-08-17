@@ -15,15 +15,32 @@ const geminiClient = createGoogleGenerativeAI({
 })
 
 // Load training data from text files
-async function loadPersonaTrainingData(personaName: string): Promise<string | null> {
+async function loadPersonaTrainingData(personaName: string, contentType?: "posts" | "blogs"): Promise<string | null> {
   try {
     const fs = await import("fs").catch(() => null)
     const path = await import("path").catch(() => null)
 
     if (fs && path) {
-      const filePath = path.join(process.cwd(), "training-data", `${personaName}-posts.txt`)
+      // Determine which file to load based on content type and platform
+      let fileName = `${personaName}-posts.txt` // default
+
+      if (contentType === "blogs") {
+        fileName = `${personaName}-blogs.txt`
+      } else if (contentType === "posts") {
+        fileName = `${personaName}-posts.txt`
+      }
+
+      const filePath = path.join(process.cwd(), "training-data", fileName)
       if (fs.existsSync(filePath)) {
         return fs.readFileSync(filePath, "utf-8")
+      }
+
+      // Fallback to posts if blogs don't exist
+      if (contentType === "blogs") {
+        const fallbackPath = path.join(process.cwd(), "training-data", `${personaName}-posts.txt`)
+        if (fs.existsSync(fallbackPath)) {
+          return fs.readFileSync(fallbackPath, "utf-8")
+        }
       }
     }
   } catch (error) {
@@ -170,7 +187,7 @@ const getPlatformGuidelines = (platform: string) => {
           "Avoid long walls of text — split into multiple messages if needed",
           "Use @mentions only when relevant and necessary",
           "Include links as plain URLs or embedded if supported",
-          "Encourage replies and community engagement with open-ended questions"
+          "Encourage replies and community engagement with open-ended questions",
         ],
       }
 
@@ -306,8 +323,8 @@ const generateStyledPlatformPrompt = async (
   content: string,
   link: string,
   keywords: string,
-  extractedLinks: Array<{ url: string, text: string }> = [],
-  includeSourceLink: boolean = false,
+  extractedLinks: Array<{ url: string; text: string }> = [],
+  includeSourceLink = false,
   clientPersonaTrainingData?: string | null,
 ) => {
   const platformGuidelines = getPlatformGuidelines(platform)
@@ -315,25 +332,26 @@ const generateStyledPlatformPrompt = async (
     return null
   }
 
+  // Determine content type based on platform
+  const blogPlatforms = ["medium", "devto", "hashnode"]
+  const contentType = blogPlatforms.includes(platform) ? "blogs" : "posts"
+
   // Format links based on platform support
-  const formatLinks = (links: Array<{ url: string, text: string }>) => {
+  const formatLinks = (links: Array<{ url: string; text: string }>) => {
     if (links.length === 0) return ""
 
     if (platformGuidelines.supportsMarkdown) {
-      return links.map(link => `[${link.text}](${link.url})`).join(", ")
+      return links.map((link) => `[${link.text}](${link.url})`).join(", ")
     } else {
-      return links.map(link => link.url).join(", ")
+      return links.map((link) => link.url).join(", ")
     }
   }
 
   const formattedLinks = formatLinks(extractedLinks)
-  const linksInstruction = extractedLinks.length > 0
-    ? `Include these relevant links from the article: ${formattedLinks}`
-    : ""
+  const linksInstruction =
+    extractedLinks.length > 0 ? `Include these relevant links from the article: ${formattedLinks}` : ""
 
-  const sourceInstruction = includeSourceLink
-    ? `Include the source article link (${link}) for proper attribution.`
-    : ""
+  const sourceInstruction = includeSourceLink ? `Include the source article link (${link}) for proper attribution.` : ""
 
   // Check if it's a trained persona
   const standardPostTypes = ["devrel", "technical", "tutorial", "opinion", "news", "story", "custom"]
@@ -342,32 +360,35 @@ const generateStyledPlatformPrompt = async (
   if (isPersona) {
     let trainingData = clientPersonaTrainingData
     if (!trainingData) {
-      trainingData = await loadPersonaTrainingData(postType)
+      trainingData = await loadPersonaTrainingData(postType, contentType)
     }
 
     if (trainingData) {
       const keywordText = keywords ? `Include these keywords naturally: ${keywords}.` : ""
+      const contentTypeText = contentType === "blogs" ? "blog-style" : "social media post-style"
 
-      return `You are an expert content creator. Study the writing examples below and learn the author's unique voice, tone, style, and language patterns. Then create a ${platformGuidelines.format} in that exact same style.
+      return `You are an expert content creator. Study the ${contentTypeText} writing examples below and learn the author's unique voice, tone, style, and language patterns. Then create a ${platformGuidelines.format} in that exact same style.
 
-WRITING EXAMPLES TO LEARN FROM:
+WRITING EXAMPLES TO LEARN FROM (${contentType.toUpperCase()} STYLE):
 ${trainingData}
 
 PLATFORM REQUIREMENTS for ${platformGuidelines.format}:
 ${platformGuidelines.guidelines.map((guide) => `- ${guide}`).join("\n")}
 
 TASK:
-Create a ${platformGuidelines.format} about the article below, written in the exact same style as the examples above. ${keywordText} ${linksInstruction} ${sourceInstruction}
+Create a ${platformGuidelines.format} about the article below, written in the exact same ${contentTypeText} style as the examples above. ${keywordText} ${linksInstruction} ${sourceInstruction}
 
 Article: "${title}"
 Content: ${content}
 ${link ? `${link}` : ""}
 
-${platformGuidelines.supportsMarkdown
-          ? "Format links using markdown: [text](url)"
-          : "Include links as plain URLs without markdown formatting"}
+${
+  platformGuidelines.supportsMarkdown
+    ? "Format links using markdown: [text](url)"
+    : "Include links as plain URLs without markdown formatting"
+}
 
-Write as if you are the same person who wrote the examples above, but adapt your natural style to fit the ${platform} platform requirements.`
+Write as if you are the same person who wrote the examples above, adapting your natural ${contentTypeText} writing style to fit the ${platform} platform requirements.`
     }
   }
 
@@ -391,9 +412,11 @@ Article: "${title}"
 Content: ${content}
 ${link ? `${link}` : ""}
 
-${platformGuidelines.supportsMarkdown
-        ? "Format links using markdown: [text](url)"
-        : "Include links as plain URLs without markdown formatting"}`
+${
+  platformGuidelines.supportsMarkdown
+    ? "Format links using markdown: [text](url)"
+    : "Include links as plain URLs without markdown formatting"
+}`
   }
 
   // Fallback to standard platform content
@@ -409,9 +432,11 @@ Article: "${title}"
 Content: ${content}
 ${link ? `${link}` : ""}
 
-${platformGuidelines.supportsMarkdown
-      ? "Format links using markdown: [text](url)"
-      : "Include links as plain URLs without markdown formatting"}`
+${
+  platformGuidelines.supportsMarkdown
+    ? "Format links using markdown: [text](url)"
+    : "Include links as plain URLs without markdown formatting"
+}`
 }
 
 export async function POST(request: NextRequest) {
@@ -509,17 +534,18 @@ STRUCTURE GUIDELINES:
 Generate ONLY the Mermaid diagram code following the exact format above:`
     } else {
       // Handle platform-specific content with styling
-      prompt = await generateStyledPlatformPrompt(
-        type,
-        postType,
-        title,
-        content,
-        link || "",
-        keywords,
-        extractedLinks,
-        includeSourceLink,
-        personaTrainingData,
-      ) ?? ""
+      prompt =
+        (await generateStyledPlatformPrompt(
+          type,
+          postType,
+          title,
+          content,
+          link || "",
+          keywords,
+          extractedLinks,
+          includeSourceLink,
+          personaTrainingData,
+        )) ?? ""
 
       if (!prompt) {
         return NextResponse.json({ error: "Invalid generation type" }, { status: 400 })
@@ -536,7 +562,7 @@ Generate ONLY the Mermaid diagram code following the exact format above:`
     let finalContent = text
     if (type === "mermaid") {
       // Remove markdown code blocks
-      finalContent = finalContent.replace(/\`\`\`mermaid\n?/gi, "").replace(/\`\`\`/g, "")
+      finalContent = finalContent.replace(/```mermaid\n?/gi, "").replace(/```/g, "")
 
       // Remove any explanatory text before the diagram
       const lines = finalContent.split("\n")

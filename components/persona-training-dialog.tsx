@@ -1,36 +1,34 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useEffect } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Upload, Brain, FileText, Trash2, Plus, Download, AlertTriangle } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { Brain, Upload, Download, Trash2, Plus, FileText, MessageSquare, BookOpen, AlertCircle } from "lucide-react"
 import {
-  downloadPersonaData,
-  uploadPersonaData,
+  savePersonaTrainingDataWithType,
+  getPersonaTrainingDataWithType,
   getAllPersonaData,
   removePersonaTrainingData,
+  downloadPersonaData,
+  uploadPersonaData,
 } from "@/lib/persona-training"
+import { useToast } from "@/hooks/use-toast"
 
 interface PersonaTrainingDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onPersonaAdded: (personaName: string) => void
+  onPersonaAdded?: (personaName: string) => void
   currentPersona?: string
-}
-
-interface TrainedPersona {
-  name: string
-  createdAt: string
-  postCount: number
-  characterCount: number
-  isBuiltIn: boolean
 }
 
 export function PersonaTrainingDialog({
@@ -40,474 +38,371 @@ export function PersonaTrainingDialog({
   currentPersona,
 }: PersonaTrainingDialogProps) {
   const [personaName, setPersonaName] = useState("")
-  const [rawContent, setRawContent] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [trainedPersonas, setTrainedPersonas] = useState<TrainedPersona[]>([])
+  const [contentType, setContentType] = useState<"posts" | "blogs" | "mixed">("mixed")
+  const [trainingContent, setTrainingContent] = useState("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [existingPersonas, setExistingPersonas] = useState<any[]>([])
+  const [selectedPersona, setSelectedPersona] = useState<string>("")
+  const [mode, setMode] = useState<"create" | "edit" | "view">("create")
+
   const { toast } = useToast()
 
-  // Load trained personas when dialog opens
+  // Load existing personas when dialog opens
   useEffect(() => {
     if (open) {
-      loadTrainedPersonas()
-    }
-  }, [open])
-
-  const loadTrainedPersonas = async () => {
-    const allPersonas = getAllPersonaData()
-    // Filter out any personas named 'bap' or 'simon' to avoid duplicates
-    const filteredPersonas = allPersonas.filter((persona) => persona.name !== "bap" && persona.name !== "simon")
-
-    const personaDetails = filteredPersonas.map((persona) => {
-      const posts = persona.rawContent
-        ? persona.rawContent.split(/\n\s*---\s*\n|\n\s*===\s*\n/).filter((p: string) => p.trim().length > 50)
-        : []
-      return {
-        name: persona.name,
-        createdAt: persona.createdAt,
-        postCount: posts.length,
-        characterCount: persona.rawContent?.length || 0,
-        isBuiltIn: persona.isBuiltIn || false,
-      }
-    })
-    setTrainedPersonas(personaDetails)
-  }
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
-    if (file) {
-      if (file.name.endsWith(".json")) {
-        // Handle persona backup file
-        uploadPersonaData(file)
-          .then((persona) => {
-            toast({
-              title: "Persona Imported",
-              description: `${persona.name} has been successfully imported`,
-            })
-            loadTrainedPersonas()
-            onPersonaAdded(persona.name)
-          })
-          .catch((error) => {
-            toast({
-              title: "Import Failed",
-              description: error.message,
-              variant: "destructive",
-            })
-          })
-      } else {
-        // Handle text file
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const content = e.target?.result as string
-          setRawContent(content)
-          toast({
-            title: "File Loaded",
-            description: `Loaded ${content.length} characters from ${file.name}`,
-          })
-        }
-        reader.readAsText(file)
+      loadExistingPersonas()
+      if (currentPersona) {
+        setSelectedPersona(currentPersona)
+        setMode("edit")
+        loadPersonaData(currentPersona)
       }
     }
-  }
+  }, [open, currentPersona])
 
-  const handleTrainPersona = async () => {
-    if (!personaName.trim() || !rawContent.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please provide both persona name and training content",
-        variant: "destructive",
-      })
-      return
-    }
-
-    // Prevent creating personas named 'bap' or 'simon' to avoid conflicts
-    if (personaName.toLowerCase() === "bap" || personaName.toLowerCase() === "simon") {
-      toast({
-        title: "Reserved Name",
-        description: "The names 'bap' and 'simon' are reserved. Please choose a different name.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsProcessing(true)
+  const loadExistingPersonas = () => {
     try {
-      const response = await fetch("/api/persona-training", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "add",
-          name: personaName,
-          rawContent: rawContent,
-        }),
-      })
+      const personas = getAllPersonaData()
+      setExistingPersonas(personas)
+    } catch (error) {
+      console.error("Error loading personas:", error)
+    }
+  }
 
-      const data = await response.json()
-
-      if (data.success) {
-        toast({
-          title: "Persona Trained Successfully",
-          description: `${personaName} has been trained on ${rawContent.length} characters of content`,
-        })
-
-        // Save to local storage
-        const { savePersonaTrainingData } = await import("@/lib/persona-training")
-        savePersonaTrainingData(personaName, rawContent)
-
-        // Notify parent component
-        onPersonaAdded(personaName)
-
-        // Reset form and reload personas
-        setPersonaName("")
-        setRawContent("")
-        loadTrainedPersonas()
-      } else {
-        throw new Error(data.error || "Training failed")
+  const loadPersonaData = (name: string) => {
+    try {
+      const persona = getPersonaTrainingDataWithType(name)
+      if (persona) {
+        setPersonaName(persona.name)
+        setTrainingContent(persona.rawContent)
+        setContentType(persona.contentType || "mixed")
       }
     } catch (error) {
+      console.error("Error loading persona data:", error)
+    }
+  }
+
+  const handleSave = async () => {
+    if (!personaName.trim() || !trainingContent.trim()) {
       toast({
-        title: "Training Failed",
-        description: error instanceof Error ? error.message : "Failed to train persona. Please try again.",
+        title: "Missing Information",
+        description: "Please provide both persona name and training content.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      savePersonaTrainingDataWithType(personaName.trim().toLowerCase(), trainingContent.trim(), contentType)
+
+      toast({
+        title: "Persona Saved",
+        description: `${personaName} persona has been saved successfully.`,
+      })
+
+      if (onPersonaAdded) {
+        onPersonaAdded(personaName.trim().toLowerCase())
+      }
+
+      // Reset form
+      setPersonaName("")
+      setTrainingContent("")
+      setContentType("mixed")
+      setMode("create")
+      loadExistingPersonas()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save persona. Please try again.",
         variant: "destructive",
       })
     } finally {
-      setIsProcessing(false)
+      setIsLoading(false)
     }
   }
 
-  const handleRemovePersona = (name: string) => {
-    const success = removePersonaTrainingData(name)
-    if (success) {
+  const handleDelete = async (name: string) => {
+    try {
+      removePersonaTrainingData(name)
       toast({
-        title: "Persona Removed",
-        description: `${name} has been removed from trained personas`,
+        title: "Persona Deleted",
+        description: `${name} persona has been deleted.`,
       })
-      loadTrainedPersonas()
-    } else {
+      loadExistingPersonas()
+      if (selectedPersona === name) {
+        setSelectedPersona("")
+        setPersonaName("")
+        setTrainingContent("")
+        setMode("create")
+      }
+    } catch (error) {
       toast({
-        title: "Cannot Remove",
-        description: "Failed to remove persona",
+        title: "Error",
+        description: "Failed to delete persona.",
         variant: "destructive",
       })
     }
   }
 
-  const handleDownloadPersona = (name: string) => {
-    downloadPersonaData(name)
-    toast({
-      title: "Download Started",
-      description: `${name} persona backup file is downloading`,
-    })
-  }
-
-  const handleDownloadAllTrainingContent = () => {
-    const allPersonas = getAllPersonaData()
-    const allContent = allPersonas
-      .map((persona) => {
-        if (!persona.rawContent) return ""
-        return `=== ${persona.name.toUpperCase()} POSTS ===\n\n${persona.rawContent}\n\n`
-      })
-      .filter((content) => content.length > 0)
-      .join("\n")
-
-    if (allContent) {
-      const blob = new Blob([allContent], { type: "text/plain" })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
-      a.download = `all-persona-training-content-${new Date().toISOString().split("T")[0]}.txt`
-      document.body.appendChild(a)
-      a.click()
-      document.body.removeChild(a)
-      URL.revokeObjectURL(url)
-
+  const handleDownload = (name: string) => {
+    try {
+      downloadPersonaData(name)
       toast({
         title: "Download Started",
-        description: "All training content is downloading as a text file",
+        description: `${name} persona backup is being downloaded.`,
       })
-    } else {
+    } catch (error) {
       toast({
-        title: "No Content",
-        description: "No training content available to download",
+        title: "Error",
+        description: "Failed to download persona data.",
         variant: "destructive",
       })
     }
   }
 
-  const getContentStats = () => {
-    if (!rawContent) return null
+  const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
 
-    const posts = rawContent.split(/\n\s*---\s*\n|\n\s*===\s*\n/).filter((p) => p.trim().length > 50)
-    const hashtags = (rawContent.match(/#[\w]+/g) || []).length
-    const questions = (rawContent.match(/\?/g) || []).length
+    try {
+      const persona = await uploadPersonaData(file)
+      toast({
+        title: "Persona Imported",
+        description: `${persona.name} persona has been imported successfully.`,
+      })
+      loadExistingPersonas()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to import persona data.",
+        variant: "destructive",
+      })
+    }
 
-    return { posts: posts.length, hashtags, questions }
+    // Reset file input
+    event.target.value = ""
   }
 
-  const stats = getContentStats()
+  const resetForm = () => {
+    setPersonaName("")
+    setTrainingContent("")
+    setContentType("mixed")
+    setSelectedPersona("")
+    setMode("create")
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl h-[90vh] flex flex-col p-0">
+        <DialogHeader className="flex-shrink-0 p-6 pb-0">
           <DialogTitle className="flex items-center gap-2">
             <Brain className="w-5 h-5" />
-            Train Custom Personas
+            Persona Training Manager
           </DialogTitle>
           <DialogDescription>
-            Upload raw text files containing examples of someone's writing style to train custom personas
+            Train AI personas with writing samples to generate content in specific styles. You can create personas for
+            different content types (posts vs blogs) or mixed content.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {/* Training Form */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Add New Persona</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Persona Name</Label>
-                  <Input
-                    placeholder="e.g., John Doe, Tech Expert"
-                    value={personaName}
-                    onChange={(e) => setPersonaName(e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Note: Names 'bap' and 'simon' are reserved for built-in personas
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label>Upload Text File</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      type="file"
-                      accept=".txt,.md,.json"
-                      onChange={handleFileUpload}
-                      className="file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-primary file:text-primary-foreground"
+        <div className="flex-1 overflow-hidden p-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
+            {/* Existing Personas Sidebar */}
+            <div className="lg:col-span-1 h-full">
+              <Card className="h-full flex flex-col">
+                <CardHeader className="pb-3 flex-shrink-0">
+                  <CardTitle className="text-base">Existing Personas</CardTitle>
+                  <CardDescription className="text-sm">Manage your trained personas</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden p-0">
+                  <ScrollArea className="h-full px-4">
+                    <div className="space-y-2 pb-4">
+                      {existingPersonas.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">
+                          <Brain className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No personas created yet</p>
+                        </div>
+                      ) : (
+                        existingPersonas.map((persona) => (
+                          <Card
+                            key={persona.name}
+                            className={`p-3 cursor-pointer transition-colors ${
+                              selectedPersona === persona.name
+                                ? "ring-2 ring-primary bg-primary/5"
+                                : "hover:bg-muted/50"
+                            }`}
+                            onClick={() => {
+                              setSelectedPersona(persona.name)
+                              loadPersonaData(persona.name)
+                              setMode("edit")
+                            }}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-sm capitalize">{persona.name}</span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {persona.contentType || "mixed"}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground">
+                                  Created: {new Date(persona.createdAt).toLocaleDateString()}
+                                </p>
+                                <p className="text-xs text-muted-foreground">{persona.rawContent.length} characters</p>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDownload(persona.name)
+                                  }}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Download className="w-3 h-3" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleDelete(persona.name)
+                                  }}
+                                  className="h-6 w-6 p-0 text-destructive hover:text-destructive"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </Card>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Training Form */}
+            <div className="lg:col-span-2 h-full">
+              <Card className="h-full flex flex-col">
+                <CardHeader className="pb-3 flex-shrink-0">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">
+                        {mode === "create" ? "Create New Persona" : `Edit ${personaName}`}
+                      </CardTitle>
+                      <CardDescription className="text-sm">
+                        {mode === "create"
+                          ? "Add writing samples to train a new persona"
+                          : "Modify the selected persona's training data"}
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" onClick={resetForm}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        New
+                      </Button>
+                      <div className="relative">
+                        <input
+                          type="file"
+                          accept=".json"
+                          onChange={handleUpload}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        <Button variant="outline" size="sm">
+                          <Upload className="w-4 h-4 mr-2" />
+                          Import
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="flex-1 flex flex-col space-y-4 overflow-hidden">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-shrink-0">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Persona Name</Label>
+                      <Input
+                        placeholder="e.g., tech-blogger, casual-writer"
+                        value={personaName}
+                        onChange={(e) => setPersonaName(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Content Type</Label>
+                      <Select
+                        value={contentType}
+                        onValueChange={(value: "posts" | "blogs" | "mixed") => setContentType(value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="mixed">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4" />
+                              Mixed (Posts & Blogs)
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="posts">
+                            <div className="flex items-center gap-2">
+                              <MessageSquare className="w-4 h-4" />
+                              Social Media Posts
+                            </div>
+                          </SelectItem>
+                          <SelectItem value="blogs">
+                            <div className="flex items-center gap-2">
+                              <BookOpen className="w-4 h-4" />
+                              Blog Articles
+                            </div>
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 flex-1 flex flex-col overflow-hidden">
+                    <Label className="text-sm font-medium">Training Content</Label>
+                    <Textarea
+                      placeholder="Paste writing samples here. Include multiple examples separated by --- or === to help the AI learn the writing style..."
+                      value={trainingContent}
+                      onChange={(e) => setTrainingContent(e.target.value)}
+                      className="flex-1 font-mono text-sm resize-none"
                     />
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Training Content</Label>
-                <Textarea
-                  placeholder="Paste raw text content here, or upload a file above. Include multiple posts separated by --- or === lines."
-                  value={rawContent}
-                  onChange={(e) => setRawContent(e.target.value)}
-                  className="min-h-[200px] font-mono text-sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Tip: Include 10-20 posts for best results. Separate posts with --- or === on new lines.
-                </p>
-              </div>
-
-              {stats && (
-                <div className="p-3 bg-muted rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <FileText className="w-4 h-4" />
-                    <span className="text-sm font-medium">Content Analysis</span>
-                  </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <span className="text-muted-foreground">Characters:</span>
-                      <span className="ml-2 font-mono">{rawContent.length.toLocaleString()}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Posts:</span>
-                      <span className="ml-2 font-mono">{stats.posts}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Hashtags:</span>
-                      <span className="ml-2 font-mono">{stats.hashtags}</span>
-                    </div>
-                    <div>
-                      <span className="text-muted-foreground">Questions:</span>
-                      <span className="ml-2 font-mono">{stats.questions}</span>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>
+                        Include 3-5 writing samples. Separate different pieces with "---" or "===". More samples =
+                        better style learning.
+                      </span>
                     </div>
                   </div>
-                </div>
-              )}
 
-              <Button
-                onClick={handleTrainPersona}
-                disabled={isProcessing || !personaName.trim() || !rawContent.trim()}
-                className="w-full"
-              >
-                {isProcessing ? (
-                  <>
-                    <Brain className="w-4 h-4 mr-2 animate-pulse" />
-                    Training Persona...
-                  </>
-                ) : (
-                  <>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Train Persona
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+                  <Separator className="flex-shrink-0" />
 
-          {/* Trained Personas */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg">Custom Trained Personas</CardTitle>
-                <div className="flex items-center gap-2">
-                  <Badge variant="outline">{trainedPersonas.length} personas</Badge>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleDownloadAllTrainingContent}
-                    className="h-8 bg-transparent"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download All
-                  </Button>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {trainedPersonas.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No custom personas trained yet</p>
-                  <p className="text-sm mt-1">Train your first persona above</p>
-                  <p className="text-xs mt-2 text-muted-foreground">
-                    Built-in personas (Bap & Simon) are available in the post type dropdown
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {trainedPersonas.map((persona) => (
-                    <div key={persona.name} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <Brain className="w-4 h-4 text-primary" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium capitalize">{persona.name}</span>
-                            {currentPersona === persona.name && (
-                              <Badge variant="default" className="text-xs">
-                                Active
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>{persona.postCount} posts</span>
-                            <span>{persona.characterCount.toLocaleString()} chars</span>
-                            <span>{new Date(persona.createdAt).toLocaleDateString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            onPersonaAdded(persona.name)
-                            onOpenChange(false)
-                          }}
-                          disabled={currentPersona === persona.name}
-                        >
-                          {currentPersona === persona.name ? "Active" : "Use Persona"}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDownloadPersona(persona.name)}
-                          title="Download persona backup"
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleRemovePersona(persona.name)}
-                          className="text-destructive hover:text-destructive"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
+                  <div className="flex justify-between items-center flex-shrink-0">
+                    <div className="text-sm text-muted-foreground">
+                      {trainingContent.length} characters • {trainingContent.split(/---+|===+/).length} samples detected
                     </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Instructions */}
-          <Card className="bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                Important: Download Your Training Content
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <p className="text-yellow-800 dark:text-yellow-200">
-                <strong>Always download your training content for safety!</strong> Your training data is stored locally
-                and will be lost if you clear browser data or switch devices.
-              </p>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-yellow-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
-                  💾
-                </div>
-                <div>
-                  <p className="font-medium">Backup Strategy</p>
-                  <p className="text-muted-foreground">
-                    Use "Download All" to get all training content in one text file, or download individual personas as
-                    JSON backups.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-muted/30">
-            <CardHeader>
-              <CardTitle className="text-lg">How to Use</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3 text-sm">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
-                  1
-                </div>
-                <div>
-                  <p className="font-medium">Collect Writing Samples</p>
-                  <p className="text-muted-foreground">
-                    Gather 10-20 posts from the person's social media (LinkedIn, Twitter, etc.)
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
-                  2
-                </div>
-                <div>
-                  <p className="font-medium">Format the Content</p>
-                  <p className="text-muted-foreground">
-                    Separate each post with --- or === on new lines in a text file
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
-                  3
-                </div>
-                <div>
-                  <p className="font-medium">Train & Generate</p>
-                  <p className="text-muted-foreground">
-                    Upload the file, train the persona, then use it in the post type selector
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                    <div className="flex gap-2">
+                      <Button variant="outline" onClick={() => onOpenChange(false)}>
+                        Cancel
+                      </Button>
+                      <Button
+                        onClick={handleSave}
+                        disabled={isLoading || !personaName.trim() || !trainingContent.trim()}
+                      >
+                        {isLoading ? "Saving..." : mode === "create" ? "Create Persona" : "Update Persona"}
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

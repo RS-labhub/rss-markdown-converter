@@ -25,7 +25,7 @@ interface ContentPreviewProps {
   selectedItem: RSSItem | null
   rssItems: RSSItem[]
   copyToClipboard: (text: string) => void
-  children?: React.ReactNode // For AI Tools tab content
+  children?: React.ReactElement<{ selectedItem: RSSItem | null }>
 }
 
 export function ContentPreview({ selectedItem, rssItems, copyToClipboard, children }: ContentPreviewProps) {
@@ -176,8 +176,8 @@ export function ContentPreview({ selectedItem, rssItems, copyToClipboard, childr
           </TabsContent>
 
           <TabsContent value="ai" className="space-y-6">
-            {/* Pass selectedItem to AI Tools */}
-            {React.cloneElement(children as React.ReactElement, { selectedItem })}
+            {/* Pass selectedItem safely to children */}
+            {children && React.cloneElement(children, { selectedItem })}
           </TabsContent>
         </Tabs>
       </CardContent>
