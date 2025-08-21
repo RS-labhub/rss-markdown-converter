@@ -3,6 +3,7 @@
 interface PersonaData {
   name: string
   rawContent: string
+  instructions?: string
   createdAt: string
   isBuiltIn?: boolean
   contentType?: "posts" | "blogs" | "mixed"
@@ -63,11 +64,12 @@ export function savePersonaTrainingData(name: string, rawContent: string): void 
   }
 }
 
-// Update savePersonaTrainingData to include content type
+// Update savePersonaTrainingData to include content type and instructions
 export function savePersonaTrainingDataWithType(
   name: string,
   rawContent: string,
   contentType: "posts" | "blogs" | "mixed" = "mixed",
+  instructions?: string,
 ): void {
   if (typeof window === "undefined") return
 
@@ -76,6 +78,7 @@ export function savePersonaTrainingDataWithType(
     const newPersona: PersonaData = {
       name: name.toLowerCase(),
       rawContent,
+      instructions: instructions?.trim() || undefined,
       createdAt: new Date().toISOString(),
       isBuiltIn: false,
       contentType,
@@ -155,9 +158,11 @@ export function downloadPersonaData(name: string): void {
   const dataToDownload = {
     name: persona.name,
     rawContent: persona.rawContent,
+    instructions: persona.instructions,
     createdAt: persona.createdAt,
+    contentType: persona.contentType,
     exportedAt: new Date().toISOString(),
-    version: "1.0",
+    version: "1.1",
   }
 
   const blob = new Blob([JSON.stringify(dataToDownload, null, 2)], {
@@ -189,13 +194,14 @@ export async function uploadPersonaData(file: File): Promise<PersonaData> {
         const persona: PersonaData = {
           name: data.name.toLowerCase(),
           rawContent: data.rawContent,
+          instructions: data.instructions,
           createdAt: data.createdAt || new Date().toISOString(),
           isBuiltIn: false,
           contentType: data.contentType || "mixed",
         }
 
         // Save the persona
-        savePersonaTrainingData(persona.name, persona.rawContent)
+        savePersonaTrainingDataWithType(persona.name, persona.rawContent, persona.contentType, persona.instructions)
         resolve(persona)
       } catch (error) {
         reject(new Error("Failed to parse persona backup file"))
@@ -215,5 +221,64 @@ function getStoredPersonaData(): PersonaData[] {
   } catch (error) {
     console.error("Error parsing stored persona data:", error)
     return []
+  }
+}
+
+// Save custom instructions for built-in personas
+export function saveBuiltInPersonaInstructions(
+  name: string,
+  instructions: string,
+  contentType: "posts" | "blogs" | "mixed" = "mixed",
+): void {
+  if (typeof window === "undefined") return
+
+  try {
+    const existingData = getStoredPersonaData()
+    const instructionsPersona: PersonaData = {
+      name: `${name.toLowerCase()}-instructions`,
+      rawContent: "", // Empty for instructions-only personas
+      instructions: instructions.trim(),
+      createdAt: new Date().toISOString(),
+      isBuiltIn: true,
+      contentType,
+    }
+
+    // Remove existing instructions for this built-in persona
+    const filteredData = existingData.filter((p) => p.name !== `${name.toLowerCase()}-instructions`)
+    const updatedData = [...filteredData, instructionsPersona]
+
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData))
+  } catch (error) {
+    console.error("Error saving built-in persona instructions:", error)
+    throw new Error("Failed to save built-in persona instructions")
+  }
+}
+
+// Get custom instructions for built-in personas
+export function getBuiltInPersonaInstructions(name: string): string | null {
+  if (typeof window === "undefined") return null
+
+  try {
+    const stored = getStoredPersonaData()
+    const instructionsPersona = stored.find((p) => p.name === `${name.toLowerCase()}-instructions` && p.isBuiltIn)
+    return instructionsPersona?.instructions || null
+  } catch (error) {
+    console.error("Error getting built-in persona instructions:", error)
+    return null
+  }
+}
+
+// Remove custom instructions for built-in personas
+export function removeBuiltInPersonaInstructions(name: string): boolean {
+  if (typeof window === "undefined") return false
+
+  try {
+    const existingData = getStoredPersonaData()
+    const filteredData = existingData.filter((p) => p.name !== `${name.toLowerCase()}-instructions`)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(filteredData))
+    return true
+  } catch (error) {
+    console.error("Error removing built-in persona instructions:", error)
+    return false
   }
 }

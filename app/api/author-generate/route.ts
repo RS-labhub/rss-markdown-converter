@@ -30,6 +30,15 @@ interface RSSItem {
   markdown: string
 }
 
+interface PersonaData {
+  name: string
+  rawContent: string
+  instructions?: string
+  createdAt: string
+  isBuiltIn?: boolean
+  contentType?: "posts" | "blogs" | "mixed"
+}
+
 // Load built-in persona training data
 async function loadBuiltInPersonaData(personaName: string, contentType: "posts" | "blogs"): Promise<string | null> {
   try {
@@ -58,16 +67,9 @@ async function loadBuiltInPersonaData(personaName: string, contentType: "posts" 
   return null
 }
 
-// Load custom persona training data
-async function loadCustomPersonaData(personaName: string): Promise<string | null> {
-  try {
-    // This would typically load from a database or file system
-    // For now, we'll return null and handle it in the client
-    return null
-  } catch (error) {
-    console.error(`Error loading custom persona ${personaName}:`, error)
-    return null
-  }
+// Load custom persona training data from request
+function getCustomPersonaData(customPersonas: PersonaData[], personaName: string): PersonaData | null {
+  return customPersonas.find((p) => p.name === personaName) || null
 }
 
 // Extract writing samples from RSS articles
@@ -86,70 +88,64 @@ ${article.content.substring(0, 2000)}${article.content.length > 2000 ? "..." : "
   return samples
 }
 
-// Define allowed platforms
-type PlatformKey = "linkedin" | "twitter" | "medium" | "devto"
-
-// Define return type
-interface PlatformGuidelines {
+type PlatformGuideline = {
   format: string
   guidelines: string[]
 }
 
-function getPlatformGuidelines(platform: string): PlatformGuidelines {
-  const guidelines: Record<PlatformKey, PlatformGuidelines> = {
-    linkedin: {
-      format: "LinkedIn post",
-      guidelines: [
-        "Start with a compelling hook",
-        "Keep it professional but engaging",
-        "Use line breaks for readability",
-        "Include 3-5 relevant hashtags",
-        "Maximum 1300 characters",
-        "Add a call-to-action",
-      ],
-    },
-    twitter: {
-      format: "Twitter/X thread",
-      guidelines: [
-        "Each tweet maximum 280 characters",
-        "Start with a compelling hook",
-        "Use emojis appropriately",
-        "Include relevant hashtags",
-        "Number each tweet (1/n, 2/n, etc.)",
-      ],
-    },
-    medium: {
-      format: "Medium article",
-      guidelines: [
-        "Write a compelling introduction",
-        "Create a detailed outline with main sections",
-        "Include subheadings",
-        "Make it suitable for Medium's audience",
-        "Use markdown formatting",
-      ],
-    },
-    devto: {
-      format: "Dev.to post",
-      guidelines: [
-        "Start with a developer-focused hook",
-        "Use technical language appropriately",
-        "Include relevant tags",
-        "Add code examples if applicable",
-        "Encourage community discussion",
-      ],
-    },
-  }
-
-  if (platform in guidelines) {
-    return guidelines[platform as PlatformKey]
-  }
-
-  return {
-    format: `${platform} post`,
-    guidelines: ["Create engaging content", "Use appropriate tone", "Include relevant hashtags"],
-  }
+// Get platform-specific guidelines
+const guidelines: Record<string, PlatformGuideline> = {
+  linkedin: {
+    format: "LinkedIn post",
+    guidelines: [
+      "Start with a compelling hook",
+      "Keep it professional but engaging",
+      "Use line breaks for readability",
+      "Include 3-5 relevant hashtags",
+      "Maximum 1300 characters",
+      "Add a call-to-action",
+    ],
+  },
+  twitter: {
+    format: "Twitter/X thread",
+    guidelines: [
+      "Each tweet maximum 280 characters",
+      "Start with a compelling hook",
+      "Use emojis appropriately",
+      "Include relevant hashtags",
+      "Number each tweet (1/n, 2/n, etc.)",
+    ],
+  },
+  medium: {
+    format: "Medium article",
+    guidelines: [
+      "Write a compelling introduction",
+      "Create a detailed outline with main sections",
+      "Include subheadings",
+      "Make it suitable for Medium's audience",
+      "Use markdown formatting",
+    ],
+  },
+  devto: {
+    format: "Dev.to post",
+    guidelines: [
+      "Start with a developer-focused hook",
+      "Use technical language appropriately",
+      "Include relevant tags",
+      "Add code examples if applicable",
+      "Encourage community discussion",
+    ],
+  },
 }
 
+function getPlatformGuidelines(platform: string): PlatformGuideline {
+  return (
+    guidelines[platform] || {
+      format: `${platform} post`,
+      guidelines: ["Create engaging content", "Use appropriate tone", "Include relevant hashtags"],
+    }
+  )
+}
 
 // Generate mixed content prompt
 async function generateMixedContentPrompt(
@@ -160,6 +156,7 @@ async function generateMixedContentPrompt(
   keywords: string,
   context: string,
   rssItems: RSSItem[],
+  customPersonas: PersonaData[] = [],
 ): Promise<string> {
   const platformGuidelines = getPlatformGuidelines(platform)
   const keywordText = keywords ? `Include these keywords naturally: ${keywords}.` : ""
@@ -167,6 +164,7 @@ async function generateMixedContentPrompt(
 
   let personaInstructions = ""
   let trainingExamples = ""
+  let customInstructions = ""
 
   // Process each selected persona
   for (const persona of selectedPersonas) {
@@ -187,9 +185,26 @@ async function generateMixedContentPrompt(
         trainingExamples += `\n\n### ${persona.name}'s Writing Style (${weight}% influence):\n${trainingData}`
         personaInstructions += `- ${weight}% of the content should reflect ${persona.name}'s writing style and voice\n`
       }
+
+      // Check for custom instructions for built-in personas
+      const builtInInstructions = customPersonas.find(
+        (p) => p.name === `${persona.name}-instructions` && p.isBuiltIn,
+      )?.instructions
+      if (builtInInstructions) {
+        customInstructions += `\n\n### Custom Instructions for ${persona.name} (${weight}% influence):\n${builtInInstructions}`
+      }
     } else if (persona.type === "trained-persona") {
-      // Load custom persona data (would be implemented based on storage solution)
-      personaInstructions += `- ${weight}% of the content should reflect ${persona.name}'s trained writing style\n`
+      // Load custom persona data
+      const customPersona = getCustomPersonaData(customPersonas, persona.name)
+      if (customPersona) {
+        trainingExamples += `\n\n### ${persona.name}'s Writing Style (${weight}% influence):\n${customPersona.rawContent}`
+        personaInstructions += `- ${weight}% of the content should reflect ${persona.name}'s trained writing style\n`
+
+        // Add custom instructions if available
+        if (customPersona.instructions) {
+          customInstructions += `\n\n### Custom Instructions for ${persona.name} (${weight}% influence):\n${customPersona.instructions}`
+        }
+      }
     }
   }
 
@@ -200,6 +215,8 @@ ${trainingExamples}
 
 STYLE MIXING INSTRUCTIONS:
 ${personaInstructions}
+
+${customInstructions ? `CUSTOM WRITING INSTRUCTIONS:${customInstructions}` : ""}
 
 PLATFORM REQUIREMENTS for ${platformGuidelines.format}:
 ${platformGuidelines.guidelines.map((guide: any) => `- ${guide}`).join("\n")}
@@ -213,6 +230,8 @@ The content should feel natural and cohesive, not like separate sections from di
 - Technical depth and approach
 - Engagement style and personality
 - Vocabulary and expressions
+
+${customInstructions ? "Follow the custom instructions provided for each persona while maintaining their specified influence weight." : ""}
 
 Make it feel like a single, unified piece of content that incorporates the best elements of each style according to their weights.`
 }
@@ -230,6 +249,7 @@ export async function POST(request: NextRequest) {
       apiKey,
       model,
       rssItems = [],
+      customPersonas = [],
     } = await request.json()
 
     if (!selectedPersonas || selectedPersonas.length === 0) {
@@ -277,6 +297,7 @@ export async function POST(request: NextRequest) {
       keywords || "",
       context || "",
       rssItems,
+      customPersonas,
     )
 
     const { text } = await generateText({

@@ -13,7 +13,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { Brain, Upload, Download, Trash2, Plus, FileText, MessageSquare, BookOpen, AlertCircle } from "lucide-react"
+import {
+  Brain,
+  Upload,
+  Download,
+  Trash2,
+  Plus,
+  FileText,
+  MessageSquare,
+  BookOpen,
+  AlertCircle,
+  Lightbulb,
+} from "lucide-react"
 import {
   savePersonaTrainingDataWithType,
   getPersonaTrainingDataWithType,
@@ -21,6 +32,9 @@ import {
   removePersonaTrainingData,
   downloadPersonaData,
   uploadPersonaData,
+  saveBuiltInPersonaInstructions,
+  getBuiltInPersonaInstructions,
+  removeBuiltInPersonaInstructions,
 } from "@/lib/persona-training"
 import { useToast } from "@/hooks/use-toast"
 
@@ -40,10 +54,12 @@ export function PersonaTrainingDialog({
   const [personaName, setPersonaName] = useState("")
   const [contentType, setContentType] = useState<"posts" | "blogs" | "mixed">("mixed")
   const [trainingContent, setTrainingContent] = useState("")
+  const [instructions, setInstructions] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [existingPersonas, setExistingPersonas] = useState<any[]>([])
   const [selectedPersona, setSelectedPersona] = useState<string>("")
   const [mode, setMode] = useState<"create" | "edit" | "view">("create")
+  const [isBuiltInInstructionsMode, setIsBuiltInInstructionsMode] = useState(false)
 
   const { toast } = useToast()
 
@@ -62,7 +78,28 @@ export function PersonaTrainingDialog({
   const loadExistingPersonas = () => {
     try {
       const personas = getAllPersonaData()
-      setExistingPersonas(personas)
+
+      // Add built-in personas with their instructions if they exist
+      const builtInPersonas = [
+        {
+          name: "bap",
+          rawContent: "Built-in BAP persona",
+          instructions: getBuiltInPersonaInstructions("bap"),
+          createdAt: new Date().toISOString(),
+          isBuiltIn: true,
+          contentType: "mixed",
+        },
+        {
+          name: "simon",
+          rawContent: "Built-in Simon persona",
+          instructions: getBuiltInPersonaInstructions("simon"),
+          createdAt: new Date().toISOString(),
+          isBuiltIn: true,
+          contentType: "mixed",
+        },
+      ]
+
+      setExistingPersonas([...builtInPersonas, ...personas])
     } catch (error) {
       console.error("Error loading personas:", error)
     }
@@ -70,11 +107,22 @@ export function PersonaTrainingDialog({
 
   const loadPersonaData = (name: string) => {
     try {
-      const persona = getPersonaTrainingDataWithType(name)
-      if (persona) {
-        setPersonaName(persona.name)
-        setTrainingContent(persona.rawContent)
-        setContentType(persona.contentType || "mixed")
+      // Check if it's a built-in persona
+      if (name === "bap" || name === "simon") {
+        setPersonaName(name)
+        setTrainingContent("") // Built-in personas don't have editable training content
+        setInstructions(getBuiltInPersonaInstructions(name) || "")
+        setContentType("mixed")
+        setIsBuiltInInstructionsMode(true)
+      } else {
+        const persona = getPersonaTrainingDataWithType(name)
+        if (persona) {
+          setPersonaName(persona.name)
+          setTrainingContent(persona.rawContent)
+          setInstructions(persona.instructions || "")
+          setContentType(persona.contentType || "mixed")
+          setIsBuiltInInstructionsMode(false)
+        }
       }
     } catch (error) {
       console.error("Error loading persona data:", error)
@@ -82,10 +130,19 @@ export function PersonaTrainingDialog({
   }
 
   const handleSave = async () => {
-    if (!personaName.trim() || !trainingContent.trim()) {
+    if (!personaName.trim()) {
       toast({
         title: "Missing Information",
-        description: "Please provide both persona name and training content.",
+        description: "Please provide a persona name.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!isBuiltInInstructionsMode && !trainingContent.trim()) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide training content.",
         variant: "destructive",
       })
       return
@@ -93,12 +150,33 @@ export function PersonaTrainingDialog({
 
     setIsLoading(true)
     try {
-      savePersonaTrainingDataWithType(personaName.trim().toLowerCase(), trainingContent.trim(), contentType)
+      if (isBuiltInInstructionsMode) {
+        // Save instructions for built-in persona
+        if (instructions.trim()) {
+          saveBuiltInPersonaInstructions(personaName.trim().toLowerCase(), instructions.trim(), contentType)
+        } else {
+          // Remove instructions if empty
+          removeBuiltInPersonaInstructions(personaName.trim().toLowerCase())
+        }
 
-      toast({
-        title: "Persona Saved",
-        description: `${personaName} persona has been saved successfully.`,
-      })
+        toast({
+          title: "Instructions Saved",
+          description: `Custom instructions for ${personaName} have been saved.`,
+        })
+      } else {
+        // Save custom persona
+        savePersonaTrainingDataWithType(
+          personaName.trim().toLowerCase(),
+          trainingContent.trim(),
+          contentType,
+          instructions.trim() || undefined,
+        )
+
+        toast({
+          title: "Persona Saved",
+          description: `${personaName} persona has been saved successfully.`,
+        })
+      }
 
       if (onPersonaAdded) {
         onPersonaAdded(personaName.trim().toLowerCase())
@@ -107,13 +185,15 @@ export function PersonaTrainingDialog({
       // Reset form
       setPersonaName("")
       setTrainingContent("")
+      setInstructions("")
       setContentType("mixed")
       setMode("create")
+      setIsBuiltInInstructionsMode(false)
       loadExistingPersonas()
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to save persona. Please try again.",
+        description: "Failed to save. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -133,7 +213,9 @@ export function PersonaTrainingDialog({
         setSelectedPersona("")
         setPersonaName("")
         setTrainingContent("")
+        setInstructions("")
         setMode("create")
+        setIsBuiltInInstructionsMode(false)
       }
     } catch (error) {
       toast({
@@ -186,9 +268,11 @@ export function PersonaTrainingDialog({
   const resetForm = () => {
     setPersonaName("")
     setTrainingContent("")
+    setInstructions("")
     setContentType("mixed")
     setSelectedPersona("")
     setMode("create")
+    setIsBuiltInInstructionsMode(false)
   }
 
   return (
@@ -214,7 +298,7 @@ export function PersonaTrainingDialog({
                   <CardTitle className="text-base">Existing Personas</CardTitle>
                   <CardDescription className="text-sm">Manage your trained personas</CardDescription>
                 </CardHeader>
-                <CardContent className="flex-1 overflow-hidden p-0">
+                <CardContent className="flex-1 p-0 overflow-hidden">
                   <ScrollArea className="h-full px-4">
                     <div className="space-y-2 pb-4">
                       {existingPersonas.length === 0 ? (
@@ -244,11 +328,19 @@ export function PersonaTrainingDialog({
                                   <Badge variant="outline" className="text-xs">
                                     {persona.contentType || "mixed"}
                                   </Badge>
+                                  {persona.instructions && (
+                                    <Lightbulb className="w-3 h-3 text-amber-500" aria-label="Has custom instructions" />
+                                  )}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
                                   Created: {new Date(persona.createdAt).toLocaleDateString()}
                                 </p>
                                 <p className="text-xs text-muted-foreground">{persona.rawContent.length} characters</p>
+                                {persona.instructions && (
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    Instructions: {persona.instructions.substring(0, 50)}...
+                                  </p>
+                                )}
                               </div>
                               <div className="flex gap-1">
                                 <Button
@@ -285,7 +377,7 @@ export function PersonaTrainingDialog({
             </div>
 
             {/* Training Form */}
-            <div className="lg:col-span-2 h-full">
+            <div className="lg:col-span-2 h-full" style={{ overflowY: "auto" }}>
               <Card className="h-full flex flex-col">
                 <CardHeader className="pb-3 flex-shrink-0">
                   <div className="flex items-center justify-between">
@@ -320,7 +412,7 @@ export function PersonaTrainingDialog({
                   </div>
                 </CardHeader>
 
-                <CardContent className="flex-1 flex flex-col space-y-4 overflow-hidden">
+                <CardContent className="flex-1 flex flex-col space-y-4 overflow-y">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-shrink-0">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium">Persona Name</Label>
@@ -364,28 +456,60 @@ export function PersonaTrainingDialog({
                     </div>
                   </div>
 
-                  <div className="space-y-2 flex-1 flex flex-col overflow-hidden">
-                    <Label className="text-sm font-medium">Training Content</Label>
+                  {/* Custom Instructions */}
+                  <div className="space-y-2 flex-shrink-0">
+                    <Label className="text-sm font-medium flex items-center gap-2">
+                      <Lightbulb className="w-4 h-4" />
+                      Custom Instructions (Optional)
+                    </Label>
                     <Textarea
-                      placeholder="Paste writing samples here. Include multiple examples separated by --- or === to help the AI learn the writing style..."
-                      value={trainingContent}
-                      onChange={(e) => setTrainingContent(e.target.value)}
-                      className="flex-1 font-mono text-sm resize-none"
+                      placeholder="Provide specific instructions on how you want the AI to write. For example: 'Write in a conversational tone, use emojis sparingly, focus on actionable tips, keep sentences short and punchy...'"
+                      value={instructions}
+                      onChange={(e) => setInstructions(e.target.value)}
+                      className="min-h-[100px] resize-none"
                     />
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>
-                        Include 3-5 writing samples. Separate different pieces with "---" or "===". More samples =
-                        better style learning.
-                      </span>
-                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      These instructions will guide the AI on your preferred writing style and approach.
+                    </p>
                   </div>
+
+                  {!isBuiltInInstructionsMode && (
+                    <div className="space-y-2 flex-1 flex flex-col overflow-hidden">
+                      <Label className="text-sm font-medium">Training Content</Label>
+                      <Textarea
+                        placeholder="Paste writing samples here. Include multiple examples separated by --- or === to help the AI learn the writing style..."
+                        value={trainingContent}
+                        onChange={(e) => setTrainingContent(e.target.value)}
+                        className="flex-1 font-mono text-sm resize-none"
+                      />
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground flex-shrink-0">
+                        <AlertCircle className="w-5 h-5" />
+                        <span>
+                          Include 3-5 writing samples. Separate different pieces with "---" or "===". More samples =
+                          better style learning.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {isBuiltInInstructionsMode && (
+                    <div className="space-y-2 flex-shrink-0">
+                      <Label className="text-sm font-medium">Built-in Persona</Label>
+                      <div className="p-3 bg-muted/30 rounded-lg">
+                        <p className="text-sm text-muted-foreground">
+                          This is a built-in persona with pre-trained writing samples. You can only add custom
+                          instructions to modify how it writes.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <Separator className="flex-shrink-0" />
 
                   <div className="flex justify-between items-center flex-shrink-0">
                     <div className="text-sm text-muted-foreground">
                       {trainingContent.length} characters • {trainingContent.split(/---+|===+/).length} samples detected
+                      {instructions && ` • Custom instructions added`}
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -393,7 +517,11 @@ export function PersonaTrainingDialog({
                       </Button>
                       <Button
                         onClick={handleSave}
-                        disabled={isLoading || !personaName.trim() || !trainingContent.trim()}
+                        disabled={
+                          isLoading ||
+                          (!isBuiltInInstructionsMode && !personaName.trim()) ||
+                          (!isBuiltInInstructionsMode && !trainingContent.trim())
+                        }
                       >
                         {isLoading ? "Saving..." : mode === "create" ? "Create Persona" : "Update Persona"}
                       </Button>

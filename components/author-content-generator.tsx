@@ -24,6 +24,7 @@ import {
   Wand2,
   Save,
   FileText,
+  Lightbulb,
 } from "lucide-react"
 import { PersonaTrainingDialog } from "@/components/persona-training-dialog"
 import { APIKeyDialog } from "@/components/api-key-dialog"
@@ -112,17 +113,26 @@ export function AuthorContentGenerator({
   const [trainedPersonas, setTrainedPersonas] = useState<string[]>([])
   const [savedContents, setSavedContents] = useState<SavedContent[]>([])
   const [selectedSavedContent, setSelectedSavedContent] = useState<string | null>(null)
+  const [builtInInstructions, setBuiltInInstructions] = useState<Record<string, string>>({})
 
   const { toast } = useToast()
   const generatedContentRef = useRef<HTMLDivElement>(null)
 
-  // Load trained personas
+  // Load trained personas and built-in instructions
   useEffect(() => {
     const loadPersonas = async () => {
-      const { getAllPersonaData } = await import("@/lib/persona-training")
+      const { getAllPersonaData, getBuiltInPersonaInstructions } = await import("@/lib/persona-training")
       const personas = getAllPersonaData()
       const customPersonas = personas.filter((p) => p.name !== "bap" && p.name !== "simon").map((p) => p.name)
       setTrainedPersonas(customPersonas)
+
+      // Load built-in persona instructions
+      const bapInstructions = getBuiltInPersonaInstructions("bap")
+      const simonInstructions = getBuiltInPersonaInstructions("simon")
+      setBuiltInInstructions({
+        bap: bapInstructions || "",
+        simon: simonInstructions || "",
+      })
     }
     loadPersonas()
   }, [showPersonaTrainingDialog])
@@ -274,6 +284,24 @@ export function AuthorContentGenerator({
     setLastErrorDetails("")
 
     try {
+      // Load all persona data including custom personas and built-in instructions
+      const { getAllPersonaData } = await import("@/lib/persona-training")
+      const allPersonaData = getAllPersonaData()
+
+      // Add built-in persona instructions to the data
+      const builtInInstructionsData = [
+        {
+          name: "bap-instructions",
+          instructions: builtInInstructions.bap,
+          isBuiltIn: true,
+        },
+        {
+          name: "simon-instructions",
+          instructions: builtInInstructions.simon,
+          isBuiltIn: true,
+        },
+      ].filter((p) => p.instructions) // Only include if instructions exist
+
       const requestBody = {
         selectedPersonas,
         contentType,
@@ -285,6 +313,7 @@ export function AuthorContentGenerator({
         rssItems: rssItems.filter((item) =>
           selectedPersonas.some((p) => p.type === "rss-author" && p.name === item.author),
         ),
+        customPersonas: [...allPersonaData, ...builtInInstructionsData],
       }
 
       // Add custom model and API key for custom providers
@@ -615,25 +644,33 @@ export function AuthorContentGenerator({
                     <div className="space-y-3">
                       <Label className="text-sm font-medium text-muted-foreground">Built-in Personas</Label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {["bap", "simon"].map((persona) => (
-                          <Card
-                            key={persona}
-                            className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
-                            onClick={() =>
-                              addPersona({
-                                id: `built-in-${persona}`,
-                                name: persona,
-                                type: "built-in",
-                                weight: 1,
-                              })
-                            }
-                          >
-                            <div className="flex items-center gap-2">
-                              <Brain className="w-4 h-4 text-primary" />
-                              <span className="font-medium text-sm capitalize">{persona} Style</span>
-                            </div>
-                          </Card>
-                        ))}
+                        {["bap", "simon"].map((persona) => {
+                          const hasInstructions = builtInInstructions[persona]
+                          return (
+                            <Card
+                              key={persona}
+                              className="p-3 cursor-pointer hover:bg-muted/50 transition-colors"
+                              onClick={() =>
+                                addPersona({
+                                  id: `built-in-${persona}`,
+                                  name: persona,
+                                  type: "built-in",
+                                  weight: 1,
+                                })
+                              }
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <Brain className="w-4 h-4 text-primary" />
+                                  <span className="font-medium text-sm capitalize">{persona} Style</span>
+                                  {hasInstructions && (
+                                    <Lightbulb className="w-3 h-3 text-amber-500" aria-label="Has custom instructions" />
+                                  )}
+                                </div>
+                              </div>
+                            </Card>
+                          )
+                        })}
                       </div>
                     </div>
 
@@ -684,6 +721,9 @@ export function AuthorContentGenerator({
                                 <Badge variant="outline" className="text-xs">
                                   {persona.type === "rss-author" ? "RSS Author" : "Persona"}
                                 </Badge>
+                                {persona.type === "built-in" && builtInInstructions[persona.name] && (
+                                  <Lightbulb className="w-3 h-3 text-amber-500" aria-label="Has custom instructions" />
+                                )}
                               </div>
                               <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-1">
