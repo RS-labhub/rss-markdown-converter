@@ -13,6 +13,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 import {
   Brain,
   Upload,
@@ -256,7 +257,7 @@ export function PersonaTrainingDialog({
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to import persona data.",
+        description: error instanceof Error ? error.message : "Failed to import persona data.",
         variant: "destructive",
       })
     }
@@ -396,18 +397,30 @@ export function PersonaTrainingDialog({
                         <Plus className="w-4 h-4 mr-2" />
                         New
                       </Button>
-                      <div className="relative">
-                        <input
-                          type="file"
-                          accept=".json"
-                          onChange={handleUpload}
-                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                        <Button variant="outline" size="sm">
-                          <Upload className="w-4 h-4 mr-2" />
-                          Import
-                        </Button>
-                      </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div className="relative">
+                              <input
+                                type="file"
+                                accept=".json,.txt"
+                                onChange={handleUpload}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                              />
+                              <Button variant="outline" size="sm">
+                                <Upload className="w-4 h-4 mr-2" />
+                                Import
+                              </Button>
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Import persona from .json or .txt file</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Text files: Use "-posts" or "-blogs" suffix for type detection
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
                   </div>
                 </CardHeader>

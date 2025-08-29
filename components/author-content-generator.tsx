@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import {
   Copy,
   Users,
@@ -25,6 +26,7 @@ import {
   Save,
   FileText,
   Lightbulb,
+  ChevronDown,
 } from "lucide-react"
 import { PersonaTrainingDialog } from "@/components/persona-training-dialog"
 import { APIKeyDialog } from "@/components/api-key-dialog"
@@ -114,6 +116,7 @@ export function AuthorContentGenerator({
   const [savedContents, setSavedContents] = useState<SavedContent[]>([])
   const [selectedSavedContent, setSelectedSavedContent] = useState<string | null>(null)
   const [builtInInstructions, setBuiltInInstructions] = useState<Record<string, string>>({})
+  const [referenceInfo, setReferenceInfo] = useState<string>("")
 
   const { toast } = useToast()
   const generatedContentRef = useRef<HTMLDivElement>(null)
@@ -302,7 +305,7 @@ export function AuthorContentGenerator({
         },
       ].filter((p) => p.instructions) // Only include if instructions exist
 
-      const requestBody = {
+      const requestBody: any = {
         selectedPersonas,
         contentType,
         platform,
@@ -321,8 +324,20 @@ export function AuthorContentGenerator({
         const { apiKeyManager } = await import("@/lib/api-key-manager")
         const apiKey = apiKeyManager.getAPIKey(selectedKeyId)
         if (!apiKey) {
+          console.error("API key not found for selectedKeyId:", selectedKeyId)
           throw new Error("API key not found")
         }
+        console.log("Adding API key to request for provider:", aiProvider)
+        requestBody.apiKey = apiKey
+        if (selectedModel) {
+          requestBody.model = selectedModel
+        }
+      } else if (aiProvider === "openai" || aiProvider === "anthropic") {
+        console.error("No API key selected for provider:", aiProvider)
+        setLastError(`${aiProvider === "openai" ? "OpenAI" : "Anthropic"} API key required`)
+        setLastErrorDetails("Please configure your API key to use this provider.")
+        setAiLoading(false)
+        return
       }
 
       const response = await fetch("/api/author-generate", {
@@ -341,6 +356,21 @@ export function AuthorContentGenerator({
 
       setGeneratedContent(data.content)
       setSelectedSavedContent(null) // Clear selected saved content when generating new
+
+      // Create reference info
+      const refInfo = selectedPersonas.map(persona => {
+        if (persona.type === "rss-author") {
+          const articles = rssItems.filter(item => item.author === persona.name)
+          return `${persona.name}: Using ${Math.min(articles.length, 10)} articles`
+        } else if (persona.type === "trained-persona") {
+          return `${persona.name}: Using trained writing samples`
+        } else if (persona.type === "built-in") {
+          return `${persona.name}: Using built-in persona data`
+        }
+        return ""
+      }).filter(Boolean).join(" • ")
+      
+      setReferenceInfo(refInfo)
 
       // Scroll to generated content after a short delay
       setTimeout(() => {
@@ -710,51 +740,121 @@ export function AuthorContentGenerator({
                         Selected Writing Styles ({selectedPersonas.length})
                       </Label>
                       <div className="space-y-2">
-                        {selectedPersonas.map((persona) => (
-                          <Card key={persona.id} className="p-3">
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                {persona.type === "rss-author" && <User className="w-4 h-4" />}
-                                {persona.type === "built-in" && <Brain className="w-4 h-4 text-primary" />}
-                                {persona.type === "trained-persona" && <Brain className="w-4 h-4 text-green-600" />}
-                                <span className="font-medium text-sm capitalize">{persona.name}</span>
-                                <Badge variant="outline" className="text-xs">
-                                  {persona.type === "rss-author" ? "RSS Author" : "Persona"}
-                                </Badge>
-                                {persona.type === "built-in" && builtInInstructions[persona.name] && (
-                                  <Lightbulb className="w-3 h-3 text-amber-500" aria-label="Has custom instructions" />
+                        {selectedPersonas.map((persona) => {
+                          const authorArticles = persona.type === "rss-author" 
+                            ? rssItems.filter(item => item.author === persona.name)
+                            : []
+                          
+                          return (
+                            <Card key={persona.id} className="p-3">
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-2">
+                                    {persona.type === "rss-author" && <User className="w-4 h-4" />}
+                                    {persona.type === "built-in" && <Brain className="w-4 h-4 text-primary" />}
+                                    {persona.type === "trained-persona" && <Brain className="w-4 h-4 text-green-600" />}
+                                    <span className="font-medium text-sm capitalize">{persona.name}</span>
+                                    <Badge variant="outline" className="text-xs">
+                                      {persona.type === "rss-author" ? "RSS Author" : "Persona"}
+                                    </Badge>
+                                    {persona.type === "built-in" && builtInInstructions[persona.name] && (
+                                      <Lightbulb className="w-3 h-3 text-amber-500" aria-label="Has custom instructions" />
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => updatePersonaWeight(persona.id, persona.weight - 0.1)}
+                                        disabled={persona.weight <= 0.1}
+                                      >
+                                        <Minus className="w-3 h-3" />
+                                      </Button>
+                                      <span className="text-sm font-mono w-12 text-center">
+                                        {(persona.weight * 100).toFixed(0)}%
+                                      </span>
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => updatePersonaWeight(persona.id, persona.weight + 0.1)}
+                                      >
+                                        <Plus className="w-3 h-3" />
+                                      </Button>
+                                    </div>
+                                    <Button variant="outline" size="sm" onClick={() => removePersona(persona.id)}>
+                                      <Minus className="w-3 h-3" />
+                                    </Button>
+                                  </div>
+                                </div>
+                                {persona.type === "rss-author" && authorArticles.length > 0 && (
+                                  <div className="pl-6 text-xs text-muted-foreground">
+                                    <span className="flex items-center gap-1">
+                                      <BookOpen className="w-3 h-3" />
+                                      Using {Math.min(authorArticles.length, 10)} recent articles for reference
+                                    </span>
+                                  </div>
+                                )}
+                                {persona.type === "trained-persona" && (
+                                  <div className="pl-6 text-xs text-muted-foreground">
+                                    <span className="flex items-center gap-1">
+                                      <FileText className="w-3 h-3" />
+                                      Using trained writing samples
+                                    </span>
+                                  </div>
                                 )}
                               </div>
-                              <div className="flex items-center gap-2">
-                                <div className="flex items-center gap-1">
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => updatePersonaWeight(persona.id, persona.weight - 0.1)}
-                                    disabled={persona.weight <= 0.1}
-                                  >
-                                    <Minus className="w-3 h-3" />
-                                  </Button>
-                                  <span className="text-sm font-mono w-12 text-center">
-                                    {(persona.weight * 100).toFixed(0)}%
-                                  </span>
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => updatePersonaWeight(persona.id, persona.weight + 0.1)}
-                                  >
-                                    <Plus className="w-3 h-3" />
-                                  </Button>
-                                </div>
-                                <Button variant="outline" size="sm" onClick={() => removePersona(persona.id)}>
-                                  <Minus className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
+                            </Card>
+                          )
+                        })}
                       </div>
                     </div>
+                  )}
+
+                  {/* Reference Content Preview */}
+                  {selectedPersonas.some(p => p.type === "rss-author") && (
+                    <Collapsible>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" className="w-full justify-between p-2 h-auto">
+                          <span className="text-sm font-medium flex items-center gap-2">
+                            <BookOpen className="w-4 h-4" />
+                            Reference Articles Preview
+                          </span>
+                          <ChevronDown className="w-4 h-4" />
+                        </Button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="mt-2 space-y-3 max-h-64 overflow-y-auto">
+                          {selectedPersonas
+                            .filter(p => p.type === "rss-author")
+                            .map(persona => {
+                              const articles = rssItems
+                                .filter(item => item.author === persona.name)
+                                .slice(0, 5)
+                              
+                              if (articles.length === 0) return null
+                              
+                              return (
+                                <div key={persona.id} className="space-y-2">
+                                  <p className="text-sm font-medium text-muted-foreground">
+                                    {persona.name}'s Recent Articles:
+                                  </p>
+                                  <div className="space-y-1 pl-4">
+                                    {articles.map((article, idx) => (
+                                      <div key={idx} className="text-xs">
+                                        <span className="font-medium">{idx + 1}.</span> {article.title}
+                                        <span className="text-muted-foreground ml-2">
+                                          ({new Date(article.date).toLocaleDateString()})
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
                   )}
 
                   {/* Generate Button */}
@@ -781,18 +881,25 @@ export function AuthorContentGenerator({
                   {generatedContent && (
                     <Card className="p-4" ref={generatedContentRef}>
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Label className="text-base font-medium">Generated Content</Label>
-                          <Badge variant="secondary" className="text-xs">
-                            {contentType === "blog" ? "Blog Article" : "Social Post"}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {platform}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs flex items-center gap-1">
-                            {aiProviders[aiProvider].icon}
-                            {aiProviders[aiProvider].name}
-                          </Badge>
+                        <div className="flex flex-col gap-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Label className="text-base font-medium">Generated Content</Label>
+                            <Badge variant="secondary" className="text-xs">
+                              {contentType === "blog" ? "Blog Article" : "Social Post"}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              {platform}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs flex items-center gap-1">
+                              {aiProviders[aiProvider].icon}
+                              {aiProviders[aiProvider].name}
+                            </Badge>
+                          </div>
+                          {referenceInfo && (
+                            <p className="text-xs text-muted-foreground">
+                              References: {referenceInfo}
+                            </p>
+                          )}
                         </div>
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" onClick={saveGeneratedContent}>
@@ -807,7 +914,7 @@ export function AuthorContentGenerator({
                       </div>
                       <Textarea
                         value={generatedContent}
-                        readOnly
+                        onChange={(e) => setGeneratedContent(e.target.value)}
                         className="min-h-[400px] resize-y font-mono text-sm"
                       />
                     </Card>

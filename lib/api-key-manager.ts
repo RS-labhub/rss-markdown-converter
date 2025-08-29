@@ -190,6 +190,8 @@ export class APIKeyManager {
         return key.startsWith("gsk_") && key.length > 20
       case "gemini-custom":
         return key.length > 20 && !key.includes(" ")
+      case "huggingface":
+        return key.startsWith("hf_") && key.length > 20
       default:
         return key.length > 0
     }

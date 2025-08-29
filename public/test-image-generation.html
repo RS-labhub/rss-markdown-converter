@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Generation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #cce5ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <h1>Image Generation Test</h1>
+    
+    <div class="test-section">
+        <h2>1. Direct Pollinations AI Test</h2>
+        <p>Testing direct URL generation:</p>
+        <div id="pollinations-status" class="status loading">Loading...</div>
+        <img id="pollinations-img" alt="Pollinations test" style="display:none;">
+    </div>
+
+    <div class="test-section">
+        <h2>2. API Endpoint Test</h2>
+        <button onclick="testAPI()">Test API Endpoint</button>
+        <div id="api-status" class="status" style="display:none;"></div>
+        <pre id="api-response" style="display:none;"></pre>
+    </div>
+
+    <script>
+        // Test 1: Direct Pollinations AI
+        const prompt = "A beautiful tech blog cover with abstract shapes and gradient colors";
+        const width = 512;
+        const height = 512;
+        const seed = Math.floor(Math.random() * 1000000);
+        const pollinationsUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+        
+        const img = document.getElementById('pollinations-img');
+        const status = document.getElementById('pollinations-status');
+        
+        img.onload = function() {
+            status.className = 'status success';
+            status.textContent = 'Success! Image loaded from Pollinations AI';
+            img.style.display = 'block';
+        };
+        
+        img.onerror = function() {
+            status.className = 'status error';
+            status.textContent = 'Error: Failed to load image from Pollinations AI';
+        };
+        
+        img.src = pollinationsUrl;
+        
+        // Test 2: API Endpoint
+        async function testAPI() {
+            const apiStatus = document.getElementById('api-status');
+            const apiResponse = document.getElementById('api-response');
+            
+            apiStatus.style.display = 'block';
+            apiStatus.className = 'status loading';
+            apiStatus.textContent = 'Testing API endpoint...';
+            
+            try {
+                const response = await fetch('/api/test-image');
+                const data = await response.json();
+                
+                apiStatus.className = 'status success';
+                apiStatus.textContent = 'API endpoint working!';
+                
+                apiResponse.style.display = 'block';
+                apiResponse.textContent = JSON.stringify(data, null, 2);
+                
+                if (data.imageUrl) {
+                    const testImg = document.createElement('img');
+                    testImg.src = data.imageUrl;
+                    testImg.style.marginTop = '10px';
+                    apiResponse.parentElement.appendChild(testImg);
+                }
+            } catch (error) {
+                apiStatus.className = 'status error';
+                apiStatus.textContent = 'API Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

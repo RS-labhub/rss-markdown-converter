@@ -1,31 +1,27 @@
 I've been exploring some tools that are making waves in the AI development space, and I wanted to share these:
 
-1. Kiro: If you struggled to keep up with your agent workflows, Kiro brings a spec-first philosophy (something I write a little about at the AI Native Dev), helping you structure your requirements and design from the start. 
+• Kiro: If you struggled to keep up with your agent workflows, Kiro brings a spec-first philosophy (something I write a little about at the AI Native Dev), helping you structure your requirements and design from the start. 
 
 They're back on their waitlist: kiro.dev
 
-2. Vibetunnel: Fun tool to manage multiple Claude sessions. This orchestration shell lets you handle multiple sessions and scale your tools efficiently. 
+• Vibetunnel: Fun tool to manage multiple Claude sessions. This orchestration shell lets you handle multiple sessions and scale your tools efficiently. 
 
-vibetunnel.sh/
-
-3. Claude Code Usage Monitor: Every token counts, and keeping track of your costs in real-time to never get surprised by development expenses. Perfect for watching your budget while scaling your development.
-
-Little nudge to star this cool repository: https://lnkd.in/e7Hbx9eM
+• Claude Code Usage Monitor: Every token counts, and keeping track of your costs in real-time to never get surprised by development expenses. Perfect for watching your budget while scaling your development.
 
 What tools are you using in your AI development stack?
 
 ---
 
-GitHub’s MCP Server: 𝐘𝐨𝐮 𝐜𝐚𝐧 𝐧𝐨𝐰 𝐭𝐚𝐥𝐤 𝐭𝐨 𝐲𝐨𝐮𝐫 𝐫𝐞𝐩𝐨𝐬.
+GitHub's MCP Server: 𝐘𝐨𝐮 𝐜𝐚𝐧 𝐧𝐨𝐰 𝐭𝐚𝐥𝐤 𝐭𝐨 𝐲𝐨𝐮𝐫 𝐫𝐞𝐩𝐨𝐬.
 
-Instead of flipping between tabs, you can ask Copilot to “list open PRs touching the payment module” and get an answer on the spot.
+Instead of flipping between tabs, you can ask Copilot to "list open PRs touching the payment module" and get an answer on the spot.
 
-Under the hood sits a new Go-based MCP server, the first official bridge between agents and GitHub’s own APIs.
+Under the hood sits a new Go-based MCP server, the first official bridge between agents and GitHub's own APIs.
 
 Key touches:
-- get_me for plain-language queries.
-- Custom tool descriptions to limit what an agent touches.
-- Native support in VS Code.
+• get_me for plain-language queries.
+• Custom tool descriptions to limit what an agent touches.
+• Native support in VS Code.
 
 The pattern feels familiar: more context for the AI, fewer detours for the developer, with a manual review as the last step.
 
@@ -38,14 +34,14 @@ ainativedev.co/art
 
 GitHub Unveils Copilot Coding Agent at Build 2025
 
-Ask directly on GitHub, “Refactor this query into its own class,” and it creates a branch, drafts a pull request, then waits for your review (CI checks and branch rules still in place).
+Ask directly on GitHub, "Refactor this query into its own class," and it creates a branch, drafts a pull request, then waits for your review (CI checks and branch rules still in place).
 
 Early testers note it shines on low-level chores, letting humans stay on design work.
 
 A few patterns stand out:
-- PR drafts run off-editor, sharing logs so you can trace every step.
-- MCP hooks mean the agent can tap other tools or data without much hand holding.
-- Clear acceptance criteria and solid tests seem to raise the quality of its output.
+• PR drafts run off-editor, sharing logs so you can trace every step.
+• MCP hooks mean the agent can tap other tools or data without much hand holding.
+• Clear acceptance criteria and solid tests seem to raise the quality of its output.
 
 Some devs are questioning what this means for junior talent (rightly so) or secret keys slipping into commits, which suggests careful prompts and tight safeguards will matter.
 
@@ -58,25 +54,24 @@ You can find the full news piece, and helpful nuggets on: ainativedev.co/up9
 The AI Native DevCon is on today.
 
 Take home from this virtual free conference: 
-- Proven agentic workflows from leaders at Netlify, JetBrains, and Qodo
-- Live walkthroughs of code‑generation and data‑pipeline tools 
-- Templates that slash iteration time and ship multimodal models faster
+• Proven agentic workflows from leaders at Netlify, JetBrains, and Qodo
+• Live walkthroughs of code‑generation and data‑pipeline tools 
+• Templates that slash iteration time and ship multimodal models faster
 
 Sessions I'm looking forward to are:
-- “Vibe Coding” Through Physics Engines – Nathan Peck (AWS)
-- Using Fine-Tuning in Completions and Agents – Nick Frolov (Refact.ai)
-- Will Agentic Coders Ever Be Production-Grade? – Ben Galbraith (Tessl) and Des Traynor (Intercom)
-- AI for the Other 70% of Engineering – Kyle Forster (RunWhen)
-- From Completions to Agentic Flows – Anton Arhipov (JetBrains)
-- Refactor Legacy Code With AI – Scott Wierschem (Keep Calm & Refactor)
-- From Vibe Coding to AI Native Dev as a Craft – Guy Podjarny (Tessl)
+• "Vibe Coding" Through Physics Engines – Nathan Peck (AWS)
+• Using Fine-Tuning in Completions and Agents – Nick Frolov (Refact.ai)
+• Will Agentic Coders Ever Be Production-Grade? – Ben Galbraith (Tessl) and Des Traynor (Intercom)
+• AI for the Other 70% of Engineering – Kyle Forster (RunWhen)
+• From Completions to Agentic Flows – Anton Arhipov (JetBrains)
+• Refactor Legacy Code With AI – Scott Wierschem (Keep Calm & Refactor)
+• From Vibe Coding to AI Native Dev as a Craft – Guy Podjarny (Tessl)
 
 This is a conference made by AI explorers, for AI explorers. 
 
 Share it with your relevant network.
 
 ⏰ 4 PM UK time (11 AM Eastern)
-➡️ Free registration link: https://lnkd.in/emjDBU9d
 
 ---
 
@@ -84,27 +79,25 @@ Windsurf just made Cursor look expensive
 
 We are in a free-tier war for AI coding IDE tools, including incumbents like GitHub Copilot, Cursor, Windsurf and more. 
 
-Windsurf is providing GPT 4.1 (OpenAI’s best coding model) with 5 times more free credits, as well as unlimited completions —something the competition doesn’t do just yet. If you are an AI explorer, a developer or a junior developer, this is an interesting opportunity to play around with Windsurf. 
+Windsurf is providing GPT 4.1 (OpenAI's best coding model) with 5 times more free credits, as well as unlimited completions —something the competition doesn't do just yet. If you are an AI explorer, a developer or a junior developer, this is an interesting opportunity to play around with Windsurf. 
 
 More importantly, Openai decided to acquire Windsurf. 
 
-- Maybe Windsurf gets access to cheaper or better models? 
-- Will it be better to develop software using this IDE? 
-- Should you commit to Windsurf already? 
+• Maybe Windsurf gets access to cheaper or better models? 
+• Will it be better to develop software using this IDE? 
+• Should you commit to Windsurf already? 
 
 Keeping up with this space is challenging—upskilling is even more so. 
 
 This is why our team (Sam Hepburn, Simon Maple, Patrick Debois, Dion Almaer) is organising a free virtual 1-day event on May 13th:
 
-- Proven agentic workflows from Netlify, JetBrains, Qodo and more
-- Live walkthroughs of code generation
-- Templates that slash iteration time and ship multimodal models faster
+• Proven agentic workflows from Netlify, JetBrains, Qodo and more
+• Live walkthroughs of code generation
+• Templates that slash iteration time and ship multimodal models faster
 
 AI NativeDevCon is a conference 𝐛𝐮𝐢𝐥𝐭 𝐛𝐲 𝐀𝐈 𝐞𝐱𝐩𝐥𝐨𝐫𝐞𝐫𝐬, 𝐟𝐨𝐫 𝐀𝐈 𝐞𝐱𝐩𝐥𝐨𝐫𝐞𝐫𝐬. 
 
 Know of folks who would be interested? Click on the "Send" button and share it with them :) 
-
-⬇️ Free Registration link in comments
 
 #AiNews #AITools #AINativeDevelopment #Conference
 
@@ -112,33 +105,31 @@ Know of folks who would be interested? Click on the "Send" button and share it w
 
 Lovable flipped the switch on 2.0. But is it the Visual Basic of the AI era?
 
-𝐖𝐡𝐚𝐭’𝐬 𝐧𝐞𝐰:
-- Chat Mode Agent hunts files, queries DBs, and debugs on cue
-- Real-time Multiplayer for better collabs (pairs on Pro, squadrons on Teams)
-- Instant deploy with custom domains baked in (no more DNS set ups!)
-- Increased code security, plus a freer-range Dev Mode
+𝐖𝐡𝐚𝐭'𝐬 𝐧𝐞𝐰:
+• Chat Mode Agent hunts files, queries DBs, and debugs on cue
+• Real-time Multiplayer for better collabs (pairs on Pro, squadrons on Teams)
+• Instant deploy with custom domains baked in (no more DNS set ups!)
+• Increased code security, plus a freer-range Dev Mode
 
-That said, early Reddit threads are flagging concerns (mostly around code quality) with some wondering if Lovable might’ve traded performance for cost savings.
+That said, early Reddit threads are flagging concerns (mostly around code quality) with some wondering if Lovable might've traded performance for cost savings.
 
-Zooming out, it’s part of a bigger pattern: each wave of abstraction in tech history (think assembly -> Python -> serverless) opens the door to more builders. 
+Zooming out, it's part of a bigger pattern: each wave of abstraction in tech history (think assembly -> Python -> serverless) opens the door to more builders. 
 
-Lovable’s abstraction and optional control is a familiar trend in dev evolution, and one that's set to accelerate with AI-native platforms.
+Lovable's abstraction and optional control is a familiar trend in dev evolution, and one that's set to accelerate with AI-native platforms.
 
-For anyone curious about fast prototyping or exploring agent workflows, Lovable 2.0 looks like it’s worth a spin (but with eyes open!).
-
-Full article in comments ⬇️
+For anyone curious about fast prototyping or exploring agent workflows, Lovable 2.0 looks like it's worth a spin (but with eyes open!).
 
 #AINews #AITools #AINativeDevelopment
 
 ---
 
-It seems Windsurf is quietly resetting what “free” means for an AI IDE.
+It seems Windsurf is quietly resetting what "free" means for an AI IDE.
 
 The refreshed plan gives room to tinker without opening the wallet.
 
-- ~100 GPT-4.1 / o4-mini prompts a month (25 credits)
-- Unlimited Cascade + tab completions
-- Live preview and one app deploy per day
+• ~100 GPT-4.1 / o4-mini prompts a month (25 credits)
+• Unlimited Cascade + tab completions
+• Live preview and one app deploy per day
 
 All of that sits behind a single prompt-meter, so usage stays visible even when the agent branches out.
 
@@ -149,8 +140,6 @@ The offer also nudges Copilot and Cursor to raise the bar or watch users wander.
 OpenAI's acquisition adds a twist. Could the price of experimentation drop even further? Exclusive access to models? 
 
 Either way, keeping Windsurf in your rotation seems like a low-risk hedge while the free-tier contest unfolds.
-
-You can find the article in the comments ⬇️
 
 #AINews #AITools #AINativeDevelopment
 
@@ -164,7 +153,7 @@ Benchmarks are supposed to help, but right now, they're causing confusion.
 
 GPT-4.1 might outperform its predecessors on SWE-bench but stumble elsewhere (especially in front of Gemini and Claude).
 
-It’s a reminder: benchmarks aren't the full story; real-world applicability matters more.
+It's a reminder: benchmarks aren't the full story; real-world applicability matters more.
 
 Developers are also tired of juggling fragmented model features and inconsistent APIs.
 
@@ -179,7 +168,5 @@ The future is moving from manual model picking toward intelligent, automatic inf
 Less guesswork, more building.
 
 If you're feeling the "model maze" frustration, you're not alone.
-
-Check out the full article (in comments) to see where AI-native development is headed—and how we are in this together.
 
 ---

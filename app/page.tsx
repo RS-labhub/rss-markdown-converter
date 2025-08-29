@@ -11,7 +11,7 @@ import { AIToolsSection } from "@/components/ai-tools-section"
 import { AuthorContentGenerator } from "@/components/author-content-generator"
 import { apiKeyManager, type APIProvider } from "@/lib/api-key-manager"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Zap, Brain, MessageSquare, FileText, Users } from "lucide-react"
+import { Zap, Brain, MessageSquare, FileText, Users, Wand2 } from "lucide-react"
 
 interface RSSItem {
   title: string
@@ -79,6 +79,18 @@ export default function RSSMarkdownPlatform() {
 
   const { toast } = useToast()
   const generatedContentRef = useRef<HTMLDivElement>(null!)
+
+  // Update selectedKeyId when provider changes
+  useEffect(() => {
+    if (aiProvider === "openai" || aiProvider === "anthropic") {
+      const configs = apiKeyManager.getConfigs(aiProvider)
+      if (configs.length > 0) {
+        setSelectedKeyId(configs[0].id)
+      } else {
+        setSelectedKeyId("")
+      }
+    }
+  }, [aiProvider])
 
   // Load recent feeds from localStorage on component mount
   useEffect(() => {
@@ -217,6 +229,31 @@ export default function RSSMarkdownPlatform() {
         includeSourceLink,
       }
 
+      // Check if the selected postType is a persona and get its training data
+      const standardPostTypes = ["devrel", "technical", "tutorial", "opinion", "news", "story", "custom"]
+      const isPersona = finalPostType && !standardPostTypes.includes(finalPostType)
+      
+      if (isPersona) {
+        // Import required functions at the top of the file if not already imported
+        const { getPersonaTrainingDataWithType, getBuiltInPersonaInstructions } = await import("@/lib/persona-training")
+        
+        // Get persona training data
+        const personaData = getPersonaTrainingDataWithType(finalPostType)
+        if (personaData) {
+          // For custom personas, include both training data and instructions
+          requestBody.personaTrainingData = personaData.rawContent
+          if (personaData.instructions) {
+            requestBody.personaTrainingData += `\n\nCUSTOM INSTRUCTIONS:\n${personaData.instructions}`
+          }
+        } else {
+          // Check if it's a built-in persona with custom instructions
+          const builtInInstructions = getBuiltInPersonaInstructions(finalPostType)
+          if (builtInInstructions) {
+            requestBody.personaTrainingData = `CUSTOM INSTRUCTIONS:\n${builtInInstructions}`
+          }
+        }
+      }
+
       // Add custom model and API key for custom providers
       if ((aiProvider === "openai" || aiProvider === "anthropic") && selectedKeyId) {
         const apiKey = apiKeyManager.getAPIKey(selectedKeyId)
@@ -306,24 +343,41 @@ export default function RSSMarkdownPlatform() {
       id: "openai",
       name: "OpenAI",
       icon: <Brain className="w-4 h-4" />,
-      description: "GPT models with excellent reasoning and creative capabilities",
-      model: "GPT-4",
+      description: "GPT-4o for high-quality content, GPT-4o-mini for fast generation",
+      model: "GPT-4o",
       requiresKey: true,
       keyPlaceholder: "sk-...",
       keyValidation: (key: string) => key.startsWith("sk-") && key.length > 20,
-      defaultModels: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"],
+      defaultModels: ["gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
       supportsCustomModels: true,
     },
     anthropic: {
       id: "anthropic",
       name: "Anthropic",
       icon: <MessageSquare className="w-4 h-4" />,
-      description: "Claude models with strong reasoning and safety features",
-      model: "Claude 3.5 Sonnet",
+      description: "Claude 3 Opus for best blog quality, Sonnet for balanced performance",
+      model: "Claude 3 Opus",
       requiresKey: true,
       keyPlaceholder: "sk-ant-...",
       keyValidation: (key: string) => key.startsWith("sk-ant-") && key.length > 20,
-      defaultModels: ["claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"],
+      defaultModels: ["claude-3-opus-20240229", "claude-3-5-sonnet-20241022", "claude-opus-4-1-20250805", "claude-3-5-haiku-20241022", "claude-3-haiku-20240307"],
+      supportsCustomModels: true,
+    },
+    huggingface: {
+      id: "huggingface",
+      name: "Hugging Face",
+      icon: <Wand2 className="w-4 h-4" />,
+      description: "Access open-source models for image generation including FLUX, SDXL, and Stable Diffusion",
+      model: "FLUX.1 Schnell",
+      requiresKey: true,
+      keyPlaceholder: "hf_...",
+      keyValidation: (key: string) => key.startsWith("hf_") && key.length > 20,
+      defaultModels: [
+        "black-forest-labs/FLUX.1-schnell",
+        "stabilityai/stable-diffusion-xl-base-1.0",
+        "runwayml/stable-diffusion-v1-5",
+        "CompVis/stable-diffusion-v1-4"
+      ],
       supportsCustomModels: true,
     },
   }
@@ -390,6 +444,7 @@ export default function RSSMarkdownPlatform() {
                     generateAIContent={generateAIContent}
                     aiLoading={aiLoading}
                     generatedContent={generatedContent}
+                    setGeneratedContent={setGeneratedContent}
                     currentGenerationType={currentGenerationType}
                     copyToClipboard={copyToClipboard}
                     handleKeyAdded={handleKeyAdded}

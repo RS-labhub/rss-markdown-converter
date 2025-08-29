@@ -6,13 +6,11 @@ If you're curious where IDEs and developer tools are headed, links to the full e
 
 ---
 
-* What is your favorite AI Code Generation Tool? Bolt.new? Base44? Cursor?
-* What development skills are more critical now than ever before?
-* Do you trust agentic AI to process large-scale automation for you?
+• What is your favorite AI Code Generation Tool? Bolt.new? Base44? Cursor?
+• What development skills are more critical now than ever before?
+• Do you trust agentic AI to process large-scale automation for you?
 
 The State of AI Native Dev survey is NOW OPEN! If you could do me a solid and spend 10-15 mins filling out your experiences with AI Dev Tooling, or share this post/link far and wide, I would forever appreciate you!
-
-https://lnkd.in/eBBZaDp3
 
 Your voice matters!
 
@@ -22,42 +20,33 @@ One of my ALL TIME favourite tech games is Galdalf, where you have to trick the 
 
 How can the LLM reason about or decide upon whether or not it's action is secure or insecure, right or wrong? Mateo Rojas-Carulla Co-founder and Chief Scientist at Lakera talks to Guy Podjarny from Tessl on the AI Native Dev. Be sure to watch the episode below:
 
-👉 Full episode: https://tessl.co/41xBdrX
-📺 YouTube: https://tessl.co/3Riktjy
-🎙️ Spotify: https://tessl.co/3FCdCyV
-🍎 Apple: https://tessl.co/3Fz4sDg
-
 ---
 
 Many companies failed to adopt DevOps because they didn't prepare for change fast enough in their team culture. We NEED to learn from those mistakes in the era of AI. Here are my learnings in chatting with Hannah Foxwell:
 
-* Bottom-Up and Top-Down Adoption: AI adoption mirrors DevOps in its grassroots enthusiasm among engineers but contrasts with a much stronger top-down demand from leadership eager for productivity gains - are dev leads feeling AI adoption pressures from their management?
+• Bottom-Up and Top-Down Adoption: AI adoption mirrors DevOps in its grassroots enthusiasm among engineers but contrasts with a much stronger top-down demand from leadership eager for productivity gains - are dev leads feeling AI adoption pressures from their management?
 
-* Learning Curve for Mid-Level Developers: Experienced engineers can leverage AI effectively due to their expertise, while junior engineers grow up as "AI natives." However, mid-level engineers may face challenges adapting and require targeted mentorship and training.
+• Learning Curve for Mid-Level Developers: Experienced engineers can leverage AI effectively due to their expertise, while junior engineers grow up as "AI natives." However, mid-level engineers may face challenges adapting and require targeted mentorship and training.
 
-* Rethinking Prioritization: With AI accelerating the build process, organizations must invest in better prioritization as they will be able to deliver much more, faster. How can we avoid feature bloat and ensure meaningful product improvements?
+• Rethinking Prioritization: With AI accelerating the build process, organizations must invest in better prioritization as they will be able to deliver much more, faster. How can we avoid feature bloat and ensure meaningful product improvements?
 
-* The Evolution of Bottlenecks: Today the bottleneck is building applications - If AI shifts the bottleneck from code creation to other areas like product management, hypothesis testing, and prioritization. Teams must now focus on refining build-measure-learn cycles to ensure they can build effectively.
+• The Evolution of Bottlenecks: Today the bottleneck is building applications - If AI shifts the bottleneck from code creation to other areas like product management, hypothesis testing, and prioritization. Teams must now focus on refining build-measure-learn cycles to ensure they can build effectively.
 
-* AI's Dual Impact: Unlike DevOps, which was developer-centric, AI touches every role across an organization. This expands the reach, creating both opportunities and challenges, necessitating cross-departmental strategies and guidelines.
+• AI's Dual Impact: Unlike DevOps, which was developer-centric, AI touches every role across an organization. This expands the reach, creating both opportunities and challenges, necessitating cross-departmental strategies and guidelines.
 
 Many more great points made, and I really enjoyed the discussion! Thanks, Hannah Foxwell.
 
-Please share and subscribe for future episodes! Links in comments!
+Please share and subscribe for future episodes!
 
 ---
 
 First episode of the new year just landed on the AI Native Dev! I really enjoyed chatting with Macey Baker about her learnings and tips around the best way of constructing LLM prompts. Some of the gems we talked about include:
 
- - Use Task Framing rather than ordering constraints in your prompts. This avoids LLMs ignoring your requests
- - Give examples to your LLM in the prompts - tell it what good and bad responses look like in tagged sections
- - Structure your inputs in digestible ways. Consider XML like tagging to achieve this 
- - Prompts are disposable, specs aren't, but we can use LLMs to *help* us get better specs
- - Invoke a thought process and throw away the answer - At Tessl, Macey uses the say() mechanism to prime an LLM before asking requests that require a response.
-
-Full Episode: https://lnkd.in/eXr8kb3v 
-Apple Podcasts: https://lnkd.in/eugn77DH
-Spotify: https://lnkd.in/epWduVy8
+• Use Task Framing rather than ordering constraints in your prompts. This avoids LLMs ignoring your requests
+• Give examples to your LLM in the prompts - tell it what good and bad responses look like in tagged sections
+• Structure your inputs in digestible ways. Consider XML like tagging to achieve this 
+• Prompts are disposable, specs aren't, but we can use LLMs to help us get better specs
+• Invoke a thought process and throw away the answer - At Tessl, Macey uses the say() mechanism to prime an LLM before asking requests that require a response.
 
 This session was hugely practical and valuable to anyone who could benefit from structuring better prompts.
 
@@ -92,3 +81,5 @@ This is why we build Atlas by Ariga. Originally, to prevent developers from shoo
 We literally have a policy called "Prevent destructive changes". 
 
 The next phase for LLMs isn't larger context windows or cheaper inference - it's back to the fundamentals that make software usable: determinism and safety.
+
+---

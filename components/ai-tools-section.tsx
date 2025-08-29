@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Dispatch, SetStateAction, useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,16 +30,18 @@ import {
   Brain,
   ExternalLink,
   Link,
-  MessageCircle
+  MessageCircle,
+  Image
 } from "lucide-react"
 import { APIKeyDialog } from "@/components/api-key-dialog"
 import { PersonaTrainingDialog } from "@/components/persona-training-dialog"
 import { ModelSelector } from "@/components/model-selector"
+import { ImageGenerationDialog } from "@/components/image-generation-dialog"
 import type { APIProvider } from "@/lib/api-key-manager"
 import type React from "react"
 import { ErrorState } from "@/components/error-state"
 
-type AIProvider = "groq" | "gemini" | "openai" | "anthropic"
+type AIProvider = "groq" | "gemini" | "openai" | "anthropic" | "huggingface"
 
 interface RSSItem {
   title: string
@@ -60,7 +62,7 @@ interface AIToolsSectionProps {
   keywords: string
   setKeywords: (keywords: string) => void
   aiProvider: AIProvider
-  setAiProvider: (provider: AIProvider) => void
+  setAiProvider: Dispatch<SetStateAction<AIProvider>>
   selectedKeyId: string
   selectedModel: string
   setSelectedModel: (model: string) => void
@@ -69,6 +71,7 @@ interface AIToolsSectionProps {
   generateAIContent: (type: string) => void
   aiLoading: boolean
   generatedContent: string
+  setGeneratedContent: (content: string) => void
   currentGenerationType: string
   copyToClipboard: (text: string) => void
   handleKeyAdded: (provider: string, keyId: string) => void
@@ -97,6 +100,7 @@ export function AIToolsSection({
   generateAIContent,
   aiLoading,
   generatedContent,
+  setGeneratedContent,
   currentGenerationType,
   copyToClipboard,
   handleKeyAdded,
@@ -109,6 +113,7 @@ export function AIToolsSection({
 }: AIToolsSectionProps) {
   const [showPersonaTrainingDialog, setShowPersonaTrainingDialog] = useState(false)
   const [trainedPersonas, setTrainedPersonas] = useState<string[]>([])
+  const [showImageGenerationDialog, setShowImageGenerationDialog] = useState(false)
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -124,6 +129,7 @@ export function AIToolsSection({
   const contentTools = [
     { id: "summary", name: "Summary", icon: <Sparkles className="w-4 h-4" />, color: "bg-blue-500" },
     { id: "mermaid", name: "Workflow Diagram", icon: <Workflow className="w-4 h-4" />, color: "bg-purple-600" },
+    { id: "image", name: "AI Image", icon: <Image className="w-4 h-4" />, color: "bg-green-600" },
   ]
 
   const socialPlatforms = [
@@ -147,6 +153,7 @@ export function AIToolsSection({
     const platformMap: Record<string, { name: string; icon: React.ReactNode; color: string }> = {
       summary: { name: "Summary", icon: <Sparkles className="w-3 h-3" />, color: "bg-blue-500" },
       mermaid: { name: "Workflow Diagram", icon: <Workflow className="w-3 h-3" />, color: "bg-purple-600" },
+      image: { name: "AI Image", icon: <Image className="w-3 h-3" />, color: "bg-green-600" },
       linkedin: { name: "LinkedIn", icon: <MessageSquare className="w-3 h-3" />, color: "bg-blue-600" },
       twitter: { name: "X/Twitter", icon: <Share2 className="w-3 h-3" />, color: "bg-black" },
       instagram: { name: "Instagram", icon: <Instagram className="w-3 h-3" />, color: "bg-pink-500" },
@@ -364,7 +371,13 @@ export function AIToolsSection({
                   <Button
                     key={tool.id}
                     variant="outline"
-                    onClick={() => generateAIContent(tool.id)}
+                    onClick={() => {
+                      if (tool.id === "image") {
+                        setShowImageGenerationDialog(true)
+                      } else {
+                        generateAIContent(tool.id)
+                      }
+                    }}
                     disabled={aiLoading}
                     className="flex items-center gap-2 h-auto p-3 sm:p-4 flex-col"
                   >
@@ -510,7 +523,7 @@ export function AIToolsSection({
               {/* Smaller font and responsive min-height on mobile for better fit */}
               <Textarea
                 value={generatedContent}
-                readOnly
+                onChange={(e) => setGeneratedContent(e.target.value)}
                 className="h-auto min-h-48 sm:min-h-60 md:min-h-[400px] resize-y font-mono text-xs sm:text-sm"
               />
             </Card>
@@ -543,6 +556,14 @@ export function AIToolsSection({
         onOpenChange={setShowPersonaTrainingDialog}
         onPersonaAdded={handlePersonaAdded}
         currentPersona={isTrainedPersona(postType) ? postType : undefined}
+      />
+
+      <ImageGenerationDialog
+        open={showImageGenerationDialog}
+        onClose={() => setShowImageGenerationDialog(false)}
+        selectedItem={selectedItem}
+        aiProvider={aiProvider}
+        selectedKeyId={selectedKeyId}
       />
     </>
   )

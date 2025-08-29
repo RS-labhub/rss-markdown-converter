@@ -153,10 +153,11 @@ const getPlatformGuidelines = (platform: string) => {
           "Keep it professional but engaging and conversational",
           "Use line breaks for readability",
           "Include 3-5 relevant hashtags at the end",
-          "Maximum 1300 characters",
-          "Add a call-to-action or question to encourage engagement",
-          "Use emojis sparingly but effectively",
-          "Include relevant links as plain URLs not more than 2-3 (no markdown formatting)",
+          "Target 600-800 characters for optimal readability",
+          "Maximum 1000 characters to keep it concise",
+          "Add a question to encourage engagement",
+          "NO EMOJIS - maintain professional tone without visual elements",
+          "Use bullet points (•) for lists",
         ],
       }
 
@@ -167,11 +168,12 @@ const getPlatformGuidelines = (platform: string) => {
         guidelines: [
           "Each tweet maximum 280 characters",
           "Start with a compelling hook in the first tweet",
-          "Use emojis appropriately to add personality",
-          "Include relevant hashtags (2-3 per tweet max)",
+          "NO EMOJIS - keep tweets clean and professional",
+          "Include relevant hashtags (2-3 maximum)",
           "End with an engagement question or call-to-action",
           "Number each tweet (1/n, 2/n, etc.)",
-          "Include relevant links as plain URLs not more than 2-3(no markdown formatting)",
+          "Keep thread concise - 3-5 tweets maximum",
+          "Use bullet points (•) for lists",
         ],
       }
 
@@ -197,12 +199,12 @@ const getPlatformGuidelines = (platform: string) => {
         supportsMarkdown: false,
         guidelines: [
           "Start with an attention-grabbing hook",
-          "Use emojis strategically throughout",
-          "Include relevant hashtags (10-15 hashtags)",
+          "NO EMOJIS - focus on compelling text content",
+          "Include relevant hashtags (20-30 hashtags at the end)",
           "Add a call-to-action",
-          "Keep it engaging and visual",
+          "Keep it engaging through words not visuals",
           "Maximum 2200 characters",
-          "Include relevant links as plain URLs not more than 2-3 in bio reference",
+          "No external links (mention 'link in bio' only if necessary)",
         ],
       }
 
@@ -213,11 +215,11 @@ const getPlatformGuidelines = (platform: string) => {
         guidelines: [
           "Start with an engaging hook",
           "Keep it conversational and friendly",
-          "Use emojis moderately",
+          "NO EMOJIS - keep content clean and professional",
           "Include a call-to-action",
           "Encourage comments and shares",
           "Maximum 500 words",
-          "Include relevant links as plain URLs not more than 2-3 as plain URLs",
+          "Only include links if they provide significant value",
         ],
       }
 
@@ -242,10 +244,11 @@ const getPlatformGuidelines = (platform: string) => {
         guidelines: [
           "Start with a developer-focused hook",
           "Use technical language appropriately",
-          "Include relevant tags",
+          "NO EMOJIS - maintain technical professionalism",
+          "Include relevant tags (4-5 maximum)",
           "Add code examples if applicable",
           "Encourage community discussion",
-          "Format for developer audience",
+          "Only link to documentation or resources when essential",
           "Use markdown formatting for links: [text](url)",
         ],
       }
@@ -369,6 +372,13 @@ const generateStyledPlatformPrompt = async (
 
       return `You are an expert content creator. Study the ${contentTypeText} writing examples below and learn the author's unique voice, tone, style, and language patterns. Then create a ${platformGuidelines.format} in that exact same style.
 
+
+STRICT CONTENT RULES:
+- DO NOT use any emojis anywhere in the content
+- Focus on professional, clean text formatting
+- Only include links when they are specifically asked in the custom instructions
+- Never output links as a standalone line or as a list. Only mention a link inside a paragraph if the sentence is specifically discussing that link or resource.
+
 WRITING EXAMPLES TO LEARN FROM (${contentType.toUpperCase()} STYLE):
 ${trainingData}
 
@@ -399,6 +409,13 @@ Write as if you are the same person who wrote the examples above, adapting your 
 
     return `Create a ${platformGuidelines.format} in ${postTypeStyle.voice} based on this article. ${keywordText} ${linksInstruction} ${sourceInstruction}
 
+
+STRICT RULES:
+- DO NOT use any emojis anywhere in the content
+- Focus on professional, clean text formatting
+- Only include links when they add significant value
+- Never output links as a standalone line or as a list. Only mention a link inside a paragraph if the sentence is specifically discussing that link or resource.
+
 ${postTypeStyle.voice} Characteristics:
 ${postTypeStyle.characteristics.map((char) => `- ${char}`).join("\n")}
 
@@ -424,6 +441,12 @@ ${
   const styleText = postType ? `Make it ${postType} style.` : ""
 
   return `Create a ${platformGuidelines.format} based on this article. ${styleText} ${keywordText} ${linksInstruction} ${sourceInstruction}
+
+
+STRICT RULES:
+- DO NOT use any emojis anywhere in the content
+- Focus on professional, clean text formatting
+- Never output links as a standalone line or as a list. Only mention a link inside a paragraph if the sentence is specifically discussing that link or resource.
 
 Guidelines:
 ${platformGuidelines.guidelines.map((guide) => `- ${guide}`).join("\n")}
@@ -475,14 +498,24 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "OpenAI API key is required" }, { status: 400 })
         }
         const openaiClient = createOpenAI({ apiKey })
-        aiModel = openaiClient.chat(model || "gpt-4o")
+        // Determine best model based on content type
+        let defaultOpenAIModel = "gpt-4o-mini"; // Default for posts
+        if (type === "medium" || type === "devto" || type === "hashnode") {
+          defaultOpenAIModel = "gpt-4o"; // Better model for blog content
+        }
+        aiModel = openaiClient.chat(model || defaultOpenAIModel)
         break
       case "anthropic":
         if (!apiKey) {
           return NextResponse.json({ error: "Anthropic API key is required" }, { status: 400 })
         }
         const anthropicClient = createAnthropic({ apiKey })
-        aiModel = anthropicClient(model || "claude-3-5-sonnet-20241022")
+        // Use Claude Opus for blog content, Sonnet for posts
+        let defaultAnthropicModel = "claude-3-5-sonnet-20241022"; // Default for posts
+        if (type === "medium" || type === "devto" || type === "hashnode") {
+          defaultAnthropicModel = "claude-opus-4-1-20250805"; // Best for blog content
+        }
+        aiModel = anthropicClient(model || defaultAnthropicModel)
         break
       default:
         return NextResponse.json({ error: "Invalid provider" }, { status: 400 })

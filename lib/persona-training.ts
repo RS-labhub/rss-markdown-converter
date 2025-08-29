@@ -185,26 +185,67 @@ export async function uploadPersonaData(file: File): Promise<PersonaData> {
     reader.onload = async (e) => {
       try {
         const content = e.target?.result as string
-        const data = JSON.parse(content)
-
-        if (!data.name || !data.rawContent) {
-          throw new Error("Invalid persona backup file format")
+        
+        // Check if file is JSON or TXT
+        const isJson = file.name.toLowerCase().endsWith('.json')
+        const isTxt = file.name.toLowerCase().endsWith('.txt')
+        
+        if (!isJson && !isTxt) {
+          throw new Error("Only .json and .txt files are supported")
         }
-
-        const persona: PersonaData = {
-          name: data.name.toLowerCase(),
-          rawContent: data.rawContent,
-          instructions: data.instructions,
-          createdAt: data.createdAt || new Date().toISOString(),
-          isBuiltIn: false,
-          contentType: data.contentType || "mixed",
+        
+        let persona: PersonaData
+        
+        if (isJson) {
+          // Parse JSON file
+          const data = JSON.parse(content)
+          
+          if (!data.name || !data.rawContent) {
+            throw new Error("Invalid persona backup file format")
+          }
+          
+          persona = {
+            name: data.name.toLowerCase(),
+            rawContent: data.rawContent,
+            instructions: data.instructions,
+            createdAt: data.createdAt || new Date().toISOString(),
+            isBuiltIn: false,
+            contentType: data.contentType || "mixed",
+          }
+        } else {
+          // Handle text file
+          // Extract name from filename (remove .txt extension)
+          const nameFromFile = file.name.replace(/\.txt$/i, '')
+          
+          // Try to detect content type from filename
+          let detectedContentType: "posts" | "blogs" | "mixed" = "mixed"
+          if (nameFromFile.toLowerCase().includes('-posts')) {
+            detectedContentType = "posts"
+          } else if (nameFromFile.toLowerCase().includes('-blogs')) {
+            detectedContentType = "blogs"
+          }
+          
+          // Clean up the name (remove -posts/-blogs suffixes if present)
+          const cleanName = nameFromFile
+            .toLowerCase()
+            .replace(/-posts$/i, '')
+            .replace(/-blogs$/i, '')
+          
+          persona = {
+            name: cleanName,
+            rawContent: content,
+            instructions: "", // No instructions in plain text files
+            createdAt: new Date().toISOString(),
+            isBuiltIn: false,
+            contentType: detectedContentType,
+          }
         }
 
         // Save the persona
         savePersonaTrainingDataWithType(persona.name, persona.rawContent, persona.contentType, persona.instructions)
         resolve(persona)
       } catch (error) {
-        reject(new Error("Failed to parse persona backup file"))
+        reject(new Error(error instanceof Error ? error.message : "Failed to parse persona file"))
       }
     }
     reader.onerror = () => reject(new Error("Failed to read file"))
