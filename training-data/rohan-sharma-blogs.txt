@@ -1,0 +1,2355 @@
+# Quira: Monetise your Open-Source work 💸
+
+Tik tok... Knock knock... Who's on the door? It's **Quira**. 🚀
+
+But why Quira??? After walking miles barefooted, I found something that might `fix: thirst of all open-source enthusiasts`. So, without wasting time, let me open the PR(pull request) so that the reviewers(you) can give suggestions, if any and quickly merge it!
+
+&nbsp;
+
+## What is [Quira](https://quira.sh/?utm_source=rohan)❓
+Quira is an organization designed in London and built remotely. It helps developers build and monetise their skill sets by completing quests on GitHub. You can earn rewards and develop new skills by contributing to open source or creating new projects.
+
+For Developers, Quira offers two features:
+    1. Devrank
+    2. Quests
+
+### Devrank 🪄 
+_Reputation quantification in Quira_
+
+DevRank in Quira is the first reputation metric and is a function of two types of reputation-flows in the GitHub ecosystem. Intuitively, it captures the impact that you've had on the growth of open-source projects. It takes into consideration how and when you contributed to popular repos, and the DevRank of the people that starred or imported those repos. A higher value means more reputation.
+
+Check the below screenshot as an example:
+![leaderboard based on Devrank](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/cfu9uf9o91evgaguc8cy.png)
+<figcaption>Devrank Leaderboard</figcaption>
+
+&nbsp;
+Check your devrank here: https://quira.sh/leaderboards
+&nbsp;
+
+### Quests ⚒️
+_Quira Quests allow you to earn rewards for your open source contributions 💸_
+
+[Quira Quests](https://quira.sh/quests) are paid coding challenges that take the form of contribution opportunities orchestrated by commercial open-source software (OSS) organizations.
+
+Quira offers two types of Quests - Creator Quest & Solver Quest.
+
+- **🧑‍💻 Creator Quest**:
+A Creator Quest is a special type of coding challenge that _rewards software developers for their creativity and ideas_.
+
+&nbsp;
+Link to Creator Quest: https://quira.sh/quests/creator
+
+![Creator Quest](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/h3qzothpm2hjil98mx7e.png)
+<figcaption>Creator Quest Image</figcaption>
+
+&nbsp;
+
+- **💃 Solver Quest**:
+A Solver Quest is a special type of coding challenge that rewards software developers for _resolving open Issues in the OSS organization's GitHub repositories_. `Solver Quests are accessed by invitation`. The Issues you will typically be invited to help solve will be matched against your abilities based on your prior contributions.
+
+&nbsp;
+Link to Solver Quest: https://quira.sh/quests/solver/join
+
+![Solver Quest](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3rryk39qfltmz5r5juw1.png)
+<figcaption>Solver Quest Image</figcaption>
+
+&nbsp;
+
+## Just a little more... 😜
+Quira is awesome, supportive, and educational. You can learn many things from the Quests. Still have trust issues? Aah! Wait let me send me my own dashboard screenshot to you. 😑
+
+![my dashboard](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/x8y2ysp586rkc0pkndd4.png)
+<figcaption>My Dashboard @RohanSrma</figcaption>
+
+&nbsp;
+
+This is what it looks like, now I have a balance of 83 USD on my account./. which I can claim anytime. 💸
+
+> NOTE: You must have a value **greater than or equal to 50 USD** present to withdraw your amount!
+
+And wait wait wait... I forget to tell you something. For making a valid submission in the creator quest, you'll be awarded a special badge which has its unique identity! That's super cool 🎉
+
+If you want to join the Quira Discord Community, here's the link: https://discord.gg/quira
+
+💝 Thanks for the time you gave in reading this post! Be blessed always. Good forces on your side. Thank you 🥰
+
+{% cta https://quira.sh/ %} Visit Quira Now 🚀 {% endcta %}
+
+---
+
+# Here's how I created a Real-Time Discord Badge for Github Readme 🌠
+
+Hello all, I'm back with another project. This time, I built a Real-Time Discord badge that shows the total member count.
+
+![badge](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/8yztmdptnhn446z4xeds.png)
+
+
+In this blog, I will share with you:
+- Why did I build this?
+- Why add a dynamic Discord badge to your GitHub Readme?
+- A step-by-step guide to adding this badge to your GitHub README, including how to customize it.
+- How I handled real-time Discord data, added Redis caching, managed rate limits, and made it fast.
+
+So, let's start. 3... 2... 1... 🌱
+
+&nbsp;
+
+## Why did I build this?
+I want to tell you a super short story for this. The company for which I'm working wanted me to add a dynamic Discord badge to their GitHub README that shows the total member count.
+
+I tried searching on the web. After a lot of searching, I found that Discord already provides a "Server Widget JSON API". For this, you have to go to your Discord server settings > engagement, and then turn on the widget, and you will be able to find the API link and the Server ID.
+
+![server widget](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ro0h159xjg6nrwpmiqc3.png)
+
+You can create a badge using this Server ID as shown below:
+```md
+[![demo](https://img.shields.io/discord/YOUR_SERVER_ID?logo=discord)](https://discord.gg/INVITE_CODE)
+```
+
+But the thing is, **it will only show the online members count and not all the members**. 
+
+![online count badge](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/300d01qxln8nn1gd3vfo.png)
+
+I tried to search a lot about "how to show all members' count", but I wasn't able to find any.
+
+And thus, I decided to create one. It was super easy. When I built it for my company, I realized there may be more people who want this badge as well, so I made it public for the community.
+
+I don't know if such badges are already there in the market or not. I tried to find a lot, and the disappointment made me build it. **If you know any such badges or methods to show dynamic Discord badges that update in real-time, then please let me know in the comment section.**
+
+&nbsp;
+
+## Why add `Discord Live Members Count Badge` to your GitHub Readme?
+Many open-source projects and communities wanted to showcase their Discord server growth on their GitHub READMEs because:
+- **The bigger the community, the more trust it builds.** Thus, showing your total Discord members count will not only market your product, but also build trust in future users.
+
+- **Real-time metrics make your README dynamic.** It gives a sense that the project is active and maintained.
+
+- **Attracts contributors and collaborators.** A growing community signals engagement, which can draw in more developers.
+
+- **Helps community managers track growth.** Badges provide a quick glance at server stats without needing to log into Discord.
+
+- **Encourages more users to join.** Seeing a badge with large numbers can trigger FOMO and boost Discord join rates.
+
+- **Improves project credibility.** Just like stars and forks, community size becomes a social proof metric.
+
+- **Easier comparison between similar projects.** Potential users can quickly evaluate community support through visible numbers.
+
+And the most important point, "**SNEAK-PEEK YOUR RIVALS OR ENEMY, OR FRIEND DISCORD COMMUNITY MEMBERS**". I don't know about you, but I do it. All you need is their Server ID. Keep reading the blog, and I will tell you how to do this. (I'm not promoting any such activities. It's bad. Anyway, I don't care. 😂)
+
+&nbsp;
+
+## Step-by-Step Guide: Adding `Discord Live Members Count Badge` to Your GitHub README
+Let's get your Discord badge up and running in less than 5 minutes!
+
+### Step 1: Add the `Live Count Bot` to Your Server
+
+First, you need to invite my bot to your Discord server:
+
+**[🤖 Click here to add the bot](https://discord.com/oauth2/authorize?client_id=1388440480102092860&permissions=1040&integration_type=0&scope=bot)**
+
+The bot needs minimal permissions:
+- **View Channels** (to access your server)
+- **Manage Channels** (for member counting)
+
+### Step 2: Enable Server Widget
+This is crucial - without this step, your badges won't work!
+
+1. Right-click your server name → **Server Settings**
+2. Navigate to **Engagement** → **Server Widget**
+3. **Toggle ON** the "Enable Server Widget" option
+4. **Copy your Server ID** (you'll need this!)
+
+Still facing difficulty? Follow the [**Documentation here**](https://discord-live-members-count-badge.vercel.app/documentation)
+
+What if you're not a core member of the Discord server? The above option is present only for the server owner, admins, and moderators (sometimes). But if you're none of them and still want to add this badge? Remember, I told you above the "**Sneak-Peek**" thing? We will apply it here.
+
+**If you're not a core member** and still want to add this badge or want to sneak peek, then follow the steps below:
+1. Open your **Users Settings**
+2. Navigate to **Advanced**
+3. **Toggle ON** the "Developer Mode" option
+4. Now, right-click on any server and you will get an option to **Copy Server ID**
+
+> **_NOTE:_** _The Live Members Count must be present in that server._
+
+### Step 3. Customize your Badge
+Let's make it fast and as simple as possible.
+
+Copy this template, add your Server ID and Invite Link(optional, but important) in the corresponding places, and paste it in your GitHub Readme.
+```
+[![discord members](https://discord-live-members-count-badge.vercel.app/api/discord-members?guildId=YOUR_SERVER_ID_HERE)](https://discord.gg/YOUR_NEVER_EXPIRY_INVITE_CODE_HERE)
+```
+
+It will show the total Discord member counts (including the bots).
+
+I have made multiple endpoints, check it out here:
+![endpoints](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/t8el1cae3333gjz6mcv2.png)
+
+You can check the endpoints using this link:
+1. **Discord Members**: 
+  ```
+  https://discord-live-members-count-badge.vercel.app/api/discord-members?guildId=YOUR_SERVER_ID_HERE
+  ```
+2\. **Discord Bots**: 
+  ```
+  https://discord-live-members-count-badge.vercel.app/api/discord-bots?guildId=YOUR_SERVER_ID_HERE
+  ```
+3\. **Discord Total**: 
+  ```
+  https://discord-live-members-count-badge.vercel.app/api/discord-total?guildId=YOUR_SERVER_ID_HERE
+  ```
+
+**But, do you like to customize it more??**
+Well, I have this. I have included three extra parameters to make it more customizable for you.
+- color (optional) - Hex color without `#` (default: 7289DA)
+- label (optional) - Custom text label (default: varies by endpoint)
+- scale (optional) - Size multiplier from 0.5 to 10.0 (default: 1)
+
+You can use them as:
+Badge Code:
+```md
+[![discord members](https://discord-live-members-count-badge.vercel.app/api/discord-members?guildId=YOUR_SERVER_ID&color=27ae60&label=Users&scale=2)](https://discord.gg/your-invite)
+```
+Endpoint:
+```md
+https://discord-live-members-count-badge.vercel.app/api/discord-members?guildId=YOUR_SERVER_ID&color=27ae60&label=Users&scale=2
+```
+
+Output:
+![custom](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ykgbh5rr3an78dgx9hw9.png)
+
+> _Same for other endpoints._ Btw, pink is my favorite color. I don't know why I created a green badge. Maybe the devil made me do it.
+
+There's a possibility that you might get frustrated because you have to change the color and scale multiple times to get your best. Each time, you have to wait for the page to reload or hit `enter`.
+
+**To become your HERO again, I built the website too.**
+{% embed https://discord-live-members-count-badge.vercel.app/ %}
+
+The interface is simple. But there are two things to be noticed:
+### 1. Badge Generator
+This is simple, add your Server ID and Invite Link. Click on Generate, and your badges will be generated. Copy and paste it directly into the readme.
+
+![generator](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/9fcrgftu347kixpwrr2y.png)
+
+### 2. Interactive Playground
+Don't want to manually customize badges? I built an interactive playground where you can:
+- **🎨 Pick colors** from presets or use custom hex codes
+- **📝 Edit labels** with live preview
+- **📏 Adjust scaling** with a visual slider
+- **📋 Copy ready-to-use** markdown code
+
+**[🚀 Try the Playground](https://discord-live-members-count-bot.vercel.app)**
+
+![Playground Screenshot](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/7jhigmj0gyo2qdbwoy72.png)
+
+&nbsp;
+
+## How did I build it?
+In this section, I will try to explain how I built this web application.
+
+## Step 1. Creating the Discord Bot
+1. Go to [**Discord Developer Portal**](https://discord.com/developers/applications)
+2. Create a new application
+3. Go to the **Bot** section
+4. Create a bot and copy the token
+5. Invite the bot to your server with these permissions:
+   - View Channels
+   - Manage Channels
+
+> _In Privileged Gateway Intents, `Presence Intent` and `Server Members Intent` must be enabled._
+
+**Bot Permissions**
+For this case, the bot needs minimal permissions:
+- **View Channels** (1024)
+- **Manage Channels** (16)
+
+Total permission integer: `1040`
+
+## Step 2. Routes and API
+
+### `discord-members` API
+It fetches the approximate member count using Discord's `/guilds/{guildId}?with_counts=true` endpoint.
+
+```ts
+const r = await axios.get(`https://discord.com/api/v10/guilds/${guildId}?with_counts=true`, {
+  headers: { Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}` },
+});
+```
+
+**Caching ** is not implemented in this route due to the approximate and fast nature of the API call.
+
+### `discord-bots` API
+It counts bots in a guild using the `fetchAllMembers()` utility.
+
+```ts
+const members = await fetchAllMembers(guildId);
+const botCount = members.filter((m) => m.user.bot).length;
+```
+
+**Key Points:**
+
+* Calls Discord's `/guilds/{guildId}/members` endpoint (paginated).
+* Requires member intent (Privileged Intent must be enabled).
+* Filters bot users using `m.user.bot`.
+* Uses caching to reduce repeated heavy calls. (in utils)
+
+### `discord-total` API
+It combines both bot and human user counts.
+
+```ts
+const members = await fetchAllMembers(guildId);
+const botCount = members.filter((m) => m.user.bot).length;
+const humanCount = members.length - botCount;
+```
+
+**Key Points:**
+
+* Same logic and fetching as `discord-bots`.
+* Shows combined info like `22 users, 5 bots`.
+
+### `fetchAllMembers` Utility
+Paginate through all members of a guild using Discord's API.
+
+```ts
+while (keepFetching) {
+  const res = await axios.get(`https://discord.com/api/v10/guilds/${guildId}/members`, {
+    headers: { Authorization: `Bot ${DISCORD_BOT_TOKEN}` },
+    params: { limit: 1000, after },
+  });
+  ...
+}
+```
+
+**Caching:**
+
+* Tries Redis first using key `guild:{guildId}:members`.
+  ```ts
+  if (redis) {
+    try {
+      const cached = await redis.get(cacheKey);
+      if (cached) {
+        console.log(`[Cache] HIT for ${guildId}`);
+        return JSON.parse(cached);
+      } else {
+        console.log(`[Cache] MISS for ${guildId}`);
+      }
+    } catch (err) {
+      console.warn(`[Cache] Redis error on GET: ${err.message}`);
+    }
+  }
+  ```
+* On cache MISS, fetches from Discord and caches the result.
+* TTL is controlled via `CACHE_TTL` environment variable (default 300 seconds).
+
+
+
+**Rate Limiting Handling:**
+
+* If API responds with 429, waits for `retry_after` seconds, and retries.
+* Adds `setTimeout` between requests to avoid hitting limits.
+
+```ts
+if (err.response?.status === 429) {
+  const retryAfter = err.response.data?.retry_after || 1;
+  await new Promise((r) => setTimeout(r, retryAfter * 1000));
+  continue;
+}
+```
+
+---
+
+### Badge Generation
+
+All routes use the `badge-maker` package:
+
+```ts
+let svg = makeBadge({
+  label,
+  message,
+  color,
+  style: 'flat',
+  logoBase64: `data:image/svg+xml;base64,${discordLogoBase64}`,
+});
+```
+
+**Scaling:** Optional `scale` param adjusts badge size.
+
+```ts
+if (scale !== 1) {
+  svg = svg
+    .replace(/<svg([^>]+?)width="(\d+)" height="(\d+)"/, ...)
+    .replace(/<svg[^>]*>/, `$1<g transform="scale(${scale})">`)
+    .replace(/<\/svg>/, '</g></svg>');
+}
+```
+
+**Error Handling:** If any call fails, a red "error" badge is returned.
+
+---
+
+### Quick Summary
+* `discord-members` = fast estimate, no intents.
+* `discord-bots` & `discord-total` = precise, uses member list and cache.
+* `fetchAllMembers` handles paging, rate limits, and caching.
+
+The setup supports scaling, CDN caching, and proper Discord rate limit compliance.
+
+## Step 3. Create UI and Deploy.
+You can use any AI tool for creating the UI. I used V0 by Vercel. Also, for deploying my application, I used Vercel.
+
+[**See it in Action**](https://discord-live-members-count-badge.vercel.app/)
+
+&nbsp;
+
+**Check out the GitHub repository for the Source Code (liked this project? Star it 🌠)**:
+{% embed https://github.com/RS-labhub/Discord-Live-Members-Count-Badge %}
+
+&nbsp;
+
+**Wait, wait, wait! Did you just ask for a Video Explanation?** I have it for you already. Check it out here:
+{% embed https://youtu.be/jSLE3u_2vag %}
+
+&nbsp;
+
+## [ ] PROMOTION:
+For the default badges on the website and the readme, I have used LLMWare's Discord Server with their consent. If you don't know, llmware just launched "**Model HQ: Your Private AI Companion**". The interesting part is that it runs locally and without internet.
+
+Want to know more about it? Read it here
+{% embed https://dev.to/llmware/how-to-run-ai-models-privately-on-your-ai-pc-with-model-hq-no-cloud-no-code-3o9k %}
+
+&nbsp;
+
+## Conclusion
+In short, try this once and let me know your feedback. I don't usually say it, but save this blog for the future and star the GitHub Repository.
+
+All links in one place:
+- [Discord Live Members Count Website](https://discord-live-members-count-badge.vercel.app/)
+- [Documentation](https://discord-live-members-count-badge.vercel.app/documentation)
+- [GitHub Repository](https://github.com/RS-labhub/Discord-Live-Members-Count-Badge) (**star it** 🌠)
+- [Video Explanation](https://youtu.be/jSLE3u_2vag) (**like and subscribe**)
+
+If you want me to **RAISE A PR for this badge on your GitHub repository**, then let me know in the comment section. 
+
+Also, in case you want to know more about me, here's my [**Portfolio**](https://rohan-sharma-portfolio.vercel.app/) (and yeah, **try to find out the secret page**, it's still waiting for you.)
+
+Thanks for reading till here. You're awesomeeeeeeeeeee. Here's a hug from me 🫂. Keep growing. You're the best. 🫀
+
+---
+
+# How to Run AI Models Privately on Your AI PC with Model HQ; No Cloud, No Code
+
+In an era where efficiency and data privacy are paramount, **Model HQ by** [**LLMWare**](https://llmware.ai) emerges as a game-changer for professionals and enthusiasts alike. Built by LLMWare, Model HQ is a groundbreaking desktop application that transforms your own PC or laptop into a fully private, high-performance AI workstation.
+
+Most AI tools rely on the cloud. **Model HQ** doesn’t.
+
+No more cloud latency. No more vendor lock-in. Just **100+ cutting-edge AI models**, blazing fast document search, and natural language tools; all running **locally** on your machine.
+
+&nbsp;
+
+## What is Model HQ?
+
+{% embed https://www.youtube.com/watch?v=Dbxb5qfsMaM %}
+
+**Model HQ** is a powerful, no-code desktop application that enables users to run enterprise-grade AI workflows **locally**, **securely**, and **at scale,** right from their own PC or laptop. Designed for simplicity and performance, it provides point-and-click access to **100+ state-of-the-art AI models**, ranging from **1B to 32B parameters**, with built-in optimization for AI PCs and Intel hardware. Whether you’re building AI applications, analyzing documents, or querying data, Model HQ automatically adapts to your device’s specs to ensure **fast, efficient inferencing,** even for large models that traditionally struggle on standard formats.
+
+What truly sets Model HQ apart is its **privacy-first, offline capability**. Once models are downloaded, they can be used without Wi-Fi, keeping **your data and sensitive information 100% on-device**. This makes it the fastest and most secure way to explore and deploy powerful AI tools without depending on the cloud or external APIs. From developers and researchers to enterprise teams, Model HQ delivers a **seamless, cost-effective, and private AI experience**; all in one sleek, local platform.
+
+&nbsp;
+
+## What Model HQ can do?
+![model hq](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ebpj6vk0qze2o2myp8qu.png)
+
+**1\. Chat:**
+The Chat feature allows users a fast way to start experimenting with chat models of various sizes, from Small (1–3 billion parameters), Medium (7–8 billion parameters) to Large (9 and above, up to 32 billion parameters).
+
+* **Small Model**:  
+    ~1–3 billion parameters — Fastest response time, suitable for basic chat.
+    
+* **Medium Model**:  
+    ~7–8 billion parameters — Balanced performance, ideal for chat, data analysis and standard RAG tasks.
+    
+* **Large Model**:  
+    ~9 up to 32 billion parameters — Most powerful chat, RAG, and best for advanced and complex analytical workloads.   
+
+[Watch Chat in Action](https://youtu.be/6z3kyUpsGys?si=4kYvkPEBUJN81nT6)
+
+---
+
+**2\. Agents**
+Agents in Model HQ are pre-configured or custom-built workflows that automate complex tasks using local AI models. They allow users to process files, extract insights, or perform multi-step operations; **all with point-and-click simplicity** and no coding required.
+
+Users can **build new agents from scratch**, **load existing ones** (either from built-in templates or previously created workflows), and manage them through a simple dropdown interface. From editing or deleting agents to running **batch operations** on multiple documents, the Agent system provides a flexible way to scale private, on-device AI workflows. Pre-created agents include powerful tools like **Contract Analyzer**, **Customer Support Bot**, **Financial Data Extractor**, **Image Tagger**, and more — each designed to handle specific tasks efficiently.
+
+[Watch Agents in Action](https://youtu.be/UTNQxspDi3I?si=yOaPilNSEqY1xLFy)
+
+---
+
+**3\. Bots**
+The Bots feature allows users to create their own custom Chat and RAG bots seamlessly for either the AI PC/edge device use case (Fast Start Chatbot and Model HQ Biz Bot) or via API deployment (Model HQ API Server Biz Bot).
+
+[Watch Bots in Action](https://youtu.be/uy53WKrMOXc?si=TAaS_hYj0AddXu2R)
+
+---
+
+**4\. RAG**
+RAG combines retrieval-based techniques with generative AI to allow models to answer questions more accurately by retrieving relevant information from external sources or documents. With RAG in Model HQ, you can create knowledge bases that you can query in the chat section or via a custom bot by uploading documents. The RAG section is used only to create the knowledge base.
+
+[Watch Rag in Action](https://youtu.be/FSjpAgIZnPM?si=5kMR_sXH_pCyNLvg)
+
+---
+
+**5\. Models**
+The Models section allows you to explore, manage, and test models within Model HQ. You can discover new models, manage downloaded models, review inference history, and run benchmark tests; all from a single interface.
+
+And this all can be done, while keeping your **data private, your workflows offline, and your AI performance fully optimized for your device** — no internet, no cloud, and no compromise. With its powerful features and user-friendly interface, Model HQ empowers you to leverage AI technology without compromising on security. Experience the future of AI today and transform the way you work!
+
+&nbsp;
+
+## System Requirements
+![sys_req](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/1nqbehtpmqis291asyjc.png)
+
+&nbsp;
+
+### Experience Model HQ Risk-Free
+We understand that trying new software can be a leap of faith. That’s why we’re offering a [***90-day free trial for developers***](https://llmware.ai/enterprise#developers-waitlist). Experience the full capabilities of Model HQ without any commitment. Sign up for the trial here and discover how it can transform your workflow.
+
+&nbsp;
+
+### A Powerful Collaboration with Intel
+LLMWare.ai has partnered with Intel to optimize Model HQ for peak performance on your devices. This collaboration ensures that you receive a reliable and efficient AI experience, making your tasks smoother and more productive. Learn more about this exciting partnership [***here***](https://llmware.ai/intel).
+
+Read the Intel Solution Brief here:
+{% embed https://www.intel.com/content/www/us/en/content-details/854280/local-ai-no-code-more-secure-with-ai-pcs-and-the-private-cloud.html %}
+
+&nbsp;
+
+### Take the Next Step Towards AI Empowerment
+Don’t miss the chance to elevate your productivity with Model HQ. Whether you’re a business professional, a developer, or a student, this application is designed to meet your needs and exceed your expectations.
+
+[**Purchase Model HQ Today!**](https://llmware-modelhq.checkoutpage.com/modelhq-client-app-for-windows)
+
+Ready to unlock the full potential of AI on your PC or laptop? Buy Model HQ now by clicking here and take the first step towards a smarter, more efficient future.
+
+&nbsp;
+
+### Learn More About Model HQ
+
+For additional information about Model HQ, including detailed features and user guides, [*visit our website*](https://llmware.ai). Don’t forget to check out our introductory video and explore our [*YouTube playlist*](https://youtube.com/playlist?list=PL1-dn33KwsmBiKZDobr9QT-4xI8bNJvIU&si=dLdhu0kMQWwgBwTE) for tutorials and tips.
+
+Join the [*LLMWare’s official Discord Server*](https://discord.gg/bphreFK4NJ) to interact with LLMWare's great community of users and if you have any questions or feedback.
+
+&nbsp;
+
+## Conclusion
+
+**Model HQ** isn’t just another AI app, it’s a complete, offline-first platform built for **speed, privacy, and control**. Whether you’re chatting with LLMs, building agents, analyzing documents, or deploying custom bots, everything runs **securely on your own PC or laptop**. With support for models up to **32B parameters**, RAG-enabled document search, natural language SQL, and no-code workflows, Model HQ brings enterprise-grade AI directly to your desktop, no cloud required.
+
+As the world moves toward AI-powered productivity, Model HQ ensures you’re ahead of the curve with a faster, safer, and smarter way to work.
+
+---
+
+# How to Create a Local Chatbot Without Coding in Less Than 10 Minutes on AI PCs
+
+> 🔖 _No cloud. No internet. No coding._ 
+> 🔖 _Just you, your laptop, and 100+ powerful AI models running locally._
+
+Imagine building your own chatbot that can answer your questions, summarize documents, analyze images, and even understand tables, all without needing an internet connection.
+
+Sounds futuristic?
+
+Thanks to **Model HQ**, this is now a reality.
+
+**Model HQ** developed by [LLMWare](http://llmware.ai), is an innovative application that allows you to create and run a chatbot locally on your PC or laptop **without an internet connection**. Best of all, this can be done with **NO CODE** in **less than 10 minutes**, even on older laptops up to 5 years old, provided they have 16GB or more of RAM.
+
+In this guide, we’ll walk you through how to create your own local chatbot using **Model HQ** ; a revolutionary AI desktop app by [LLMWare.ai](https://llmware.ai). Whether you’re a student, developer, or a professional looking for a private and offline AI assistant, this tool puts the power of cutting-edge AI models **directly on your laptop**.
+
+Let’s break it down.
+
+If you want to know about **Model HQ in detail**, then read the blog below:  
+{% embed https://dev.to/llmware/how-to-run-ai-models-privately-on-your-ai-pc-with-model-hq-no-cloud-no-code-3o9k %}
+
+&nbsp;
+
+## Step 1: Download Model HQ
+
+**Model HQ** is an AI desktop application that allows you to interact with over **100+ top-performing AI models**, including large ones with up to **32 billion parameters** — all running **locally on your PC**.
+
+Unlike cloud-based tools, there’s **no internet required**, and your data never leaves your machine. That means **more privacy, better speed**, and zero cost for each query you run.
+
+> In this blog, we will be looking into the **CHAT** feature of Model HQ that helps us to create a chatbot running locally on our machine.
+
+First, get the app.
+
+👉 [***Download or Buy Model HQ for Windows***](https://llmware-modelhq.checkoutpage.com/modelhq-client-app-for-windows)
+
+Not ready to buy? No problem.
+
+👉 [***Join the 90-Day Free Developer Trial***](https://llmware.ai/enterprise#developers-waitlist)
+
+Once installed, you’ll have access to an interface that feels like your own AI control panel.
+
+&nbsp;
+
+## Step 2: Choosing the Right AI Model
+
+Once installation is done, open the ModelHQ application, and then you will be prompted to add a setup method. The setup guide is provided after buying the application.
+
+After this, you will land in the main menu. Now, click on the Chat button.
+
+You’ll be prompted to select an AI model. If you’re unsure which model to choose, you can click on “choose for me,” and the application will select a suitable model based on your needs. Model HQ comes up with 100+ models.
+
+### Available Model Options:
+
+* **Small Model**:
+  ~1– 3 billion parameters:- Fastest response time, suitable for basic chat.
+    
+* **Medium Model**:
+  ~7– 8 billion parameters:- Balanced performance, ideal for chat, data analysis, and standard RAG tasks.
+    
+* **Large Model**:
+  ~9 – up to 32 billion parameters:- Most powerful chat, RAG, and best for advanced and complex analytical workloads.
+    
+
+By the way, Model HQ will pick a smart default based on your system and use case.
+
+> The size of the model you choose can significantly impact both speed and output quality. **Smaller models are faster but may provide less detailed responses**. Follow this simple rule:
+
+![table](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/vs5p0403z5nb9malw1g1.png)
+
+&nbsp;
+
+## Step 3. Downloading Models
+
+For demonstration purposes, we are selecting the **Small Model**.  
+If no models have been downloaded previously (e.g., in the **No Setup**, **Fast Setup**, or **Full Setup** paths), the selected model will begin downloading automatically.  
+This process typically takes **2–7 minutes**, depending on the model you selected and your internet speed. 
+
+> This is only a **one-time internet requirement**; once the models are downloaded, you don’t need internet anymore.
+
+&nbsp;
+
+## Step 4: Start Chatting
+
+Once you’ve selected a model, you can start a chat by typing in your questions. For example, you might ask a simple question like, “What are the top sites to see in Paris?” The model will generate a response based on its training data.
+
+### Customizing Your Chat Experience
+
+Model HQ allows you to customize your chat experience further. You can adjust settings such as the maximum output length and the randomness of the responses (known as temperature). By default, the app is set to generate up to 1,000 tokens, which is usually sufficient for smaller models. However, even if you’re using larger models, be cautious about increasing this limit, as it can consume more memory and take longer to generate responses. So, in short, you can adjust **generation settings**:
+
+* **Max Tokens**: How long should the response be?
+    
+* **Temperature**: Should the answer be creative or precise?
+    
+* **Stop/Restart**: Hit ❌ to stop a long generation anytime.
+
+&nbsp;    
+
+## Step 5: Integrating Sources for Enhanced Responses
+
+One of the standout features of Model HQ is its ability to integrate sources, such as documents and images, into your chat. To do this, simply click on the “source” button and upload a file, such as a PDF or Word document.
+
+### Example: Using a Document as a Source
+
+For instance, if you upload an executive employment agreement, you can ask specific questions about the clauses within the document. The model will reference the uploaded document to provide accurate answers. This feature is invaluable for fact-checking and ensuring that you have the right information at your fingertips.
+
+### Chatting with Images
+
+Model HQ also allows you to chat with images. By uploading an image, the application can analyze the content and answer questions based on what it sees. This capability opens up a world of possibilities for multimedia processing, all done locally on your machine without any additional costs.
+
+&nbsp;
+
+## Step 6: Saving and Downloading Results
+
+After you’ve finished your session, you can save the chat results for future reference. This is particularly useful if you need to compile information for reports or presentations. Simply download the results, and you’ll have everything you need at your fingertips.
+
+&nbsp;
+
+## Step 7: Exploring Advanced Features
+
+As you become more comfortable with Model HQ, you can explore its advanced features. For example, you can experiment with different models to see how they perform with various types of queries. You can also adjust the generation settings to fine-tune the responses based on your specific needs.
+
+If you’re a visual learner, then watch this YouTube walkthrough:
+
+{% embed https://youtu.be/6z3kyUpsGys %}
+
+&nbsp;
+
+### Future Updates and Community Engagement
+
+Stay engaged with the Model HQ community by following their updates and tutorials on platforms like YouTube. The [***Model HQ YouTube playlist***](https://youtube.com/playlist?list=PL1-dn33KwsmBiKZDobr9QT-4xI8bNJvIU&si=dLdhu0kMQWwgBwTE) offers valuable insights and tips to help you maximize your experience with the application.
+
+Join the [***LLMWare’s Official Discord Server***](https://discord.gg/bphreFK4NJ) to interact with LLMWare’s great community of users and if you have any questions or feedback.
+
+&nbsp;
+
+### Why This Matters
+
+Most AI apps require you to upload data to a cloud server. That’s slow, often expensive, and puts your privacy at risk.
+
+With **Model HQ**, everything runs on your own machine with:
+
+* ✅ No internet needed
+    
+* ✅ No Coding Required
+    
+* ✅ No API keys or credits
+    
+* ✅ No data leaves your PC
+    
+* ✅ Zero cost per query
+    
+
+It’s **your personal AI lab**, fully private and offline.
+
+&nbsp;
+
+## Conclusion: Get Started with Model HQ Today!
+
+Creating a chatbot that runs locally without coding and an internet connection has never been easier. With Model HQ, you have access to a powerful AI tool that can enhance your productivity and streamline your workflow. 
+
+Ready to experience the future of AI? Visit the [***LLMWare website***](https://llmware.ai) to learn more about Model HQ and its features. Don’t forget to sign up for the [***90-day free trial for developers here***](https://llmware.ai/enterprise#developers-waitlist) and explore the application firsthand. When you’re ready to make the leap, you can [***purchase Model HQ directly here***](https://llmware-modelhq.checkoutpage.com/modelhq-client-app-for-windows).
+
+Unlock the full potential of AI on your PC or laptop with Model HQ today, and take the first step towards creating your very own local chatbot!
+
+---
+
+# Creating a Chatbot from Scratch and Vibe Coding the UI💃
+
+Hey all,
+
+I hope you remember me. (Yes?? LMK in the comment section.)
+
+In this blog, I will discuss Radhika: Adaptive Reasoning & Intelligence Assistant. It provides specialized assistance across six distinct modes: General, Productivity, Wellness, Learning, Creative, and BFF.
+
+{% embed https://radhika-sharma.vercel.app/ %}
+
+(try it out, give feedback and suggestions, request changes)
+
+&nbsp;
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Framework**: Next.js 14 with App Router and React 18
+- **Styling**: Tailwind CSS with custom design system
+- **Components**: shadcn/ui component library
+- **Icons**: Lucide React icon library
+- **3D Graphics**: Three.js for particle visualizations
+- **Animations**: CSS transitions and keyframe animations
+
+### AI & Backend
+- **AI Integration**: Vercel AI SDK for unified LLM access
+- **Providers**: Groq, Google Gemini, OpenAI, Claude
+- **Speech**: WebKit Speech Recognition and Synthesis APIs
+- **Storage**: Browser localStorage for chat persistence and settings
+- **API**: Next.js API routes for secure LLM communication
+
+### Development
+- **Language**: TypeScript for type safety
+- **Build**: Next.js build system with optimizations
+- **Deployment**: Vercel-ready with environment variable support
+- **Performance**: Optimized bundle splitting and lazy loading
+
+&nbsp;
+
+## 🚀 Implementing Main Logic
+
+This section breaks down how the [`app/api/chat/route.ts`](https://github.com/RS-labhub/Radhika/blob/master/app/api/chat/route.ts) endpoint processes requests, selects models, applies system prompts, and streams responses using different AI providers.
+
+### 1. Parse Request
+
+The request handler begins by parsing the JSON body from the incoming POST request:
+
+```ts
+const body = await req.json();
+const { messages, mode = "general", provider = "groq", apiKey } = body;
+```
+
+* **`messages`**: The conversation history sent by the client.
+* **`mode`**: Determines which system prompt to use (e.g., `bff`, `learning`, etc.).
+* **`provider`**: Specifies the AI backend to use (`groq`, `openai`, `claude`, `gemini`).
+* **`apiKey`**: Required for OpenAI and Claude if a user key is needed.
+
+The code also validates whether the `messages` array exists and is non-empty.
+
+
+### 2. Assign System Prompt
+
+Based on the selected mode, a system prompt is selected to guide the assistant's personality and purpose:
+
+```ts
+const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.general;
+```
+
+Examples of modes include:
+
+* `productivity`
+* `bff`
+* `creative`
+* `wellness`
+
+
+### 3. Route to the Correct Provider
+
+The `provider` field determines which AI model backend to use:
+
+* **Gemini** (`google`): Uses Google's Gemini 2.0 model.
+* **OpenAI**: Uses GPT models (like `gpt-4o`, `gpt-3.5-turbo`).
+* **Claude**: Uses Anthropic models (like `claude-3-sonnet`).
+* **Groq**: Defaults to models like `llama-3` and `qwen`.
+
+Each provider has custom logic to instantiate the model, handle errors, and stream the response using:
+
+```ts
+await streamText({...})
+```
+
+### 4. Model Selection (Groq Only)
+
+If the provider is `groq`, model selection is dynamic. It analyzes the last message to determine the type of task:
+
+```ts
+if (lastMessage.includes("analyze") || lastMessage.includes("plan")) {
+  modelType = "reasoning";
+} else if (lastMessage.includes("creative") || lastMessage.includes("design")) {
+  modelType = "creative";
+} else {
+  modelType = "fast";
+}
+```
+
+RADHIKA automatically selects the best model based on your query complexity:
+
+```typescript
+// Determine which model to use based on conversation context
+let modelType = "fast"; // llama-3.1-8b-instant for quick responses
+
+// Use reasoning model for complex analytical tasks
+if (query.includes("analyze", "compare", "plan", "strategy", "decision", "problem")) {
+  modelType = "reasoning"; // llama-3.3-70b-versatile
+}
+
+// Use creative model for artistic and innovative tasks
+if (query.includes("creative", "brainstorm", "idea", "write", "design", "story")) {
+  modelType = "creative"; // qwen/qwen3-32b
+}
+```
+
+#### **Model Configuration**
+Customize model selection in the API route:
+
+```typescript
+const MODELS = {
+  groq: {
+    fast: "llama-3.1-8b-instant",
+    reasoning: "llama-3.3-70b-versatile", 
+    creative: "qwen/qwen3-32b"
+  },
+  gemini: { default: "gemini-2.0-flash" },
+  openai: { default: "gpt-4o" },
+  claude: { default: "claude-3-5-sonnet-20241022" }
+}
+```
+
+Then the appropriate model (`reasoning`, `creative`, or `fast`) is selected and used for the response.
+
+&nbsp;
+
+## 📄 Multi-Provider Flow
+
+![diagram](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hrcjqqlrevlqhvqh0l63.png)
+
+This approach allows a single API route to serve multiple model providers and assistant personalities while maintaining clean, scalable logic.
+
+&nbsp;
+
+If you're interested in knowing about the other logics like voice recognition and speech synthesis, light/dark mode, etc,. then please go over the github repo:
+
+{% embed https://github.com/RS-labhub/Radhika %}
+
+&nbsp;
+
+## Vibe Coding the UI
+When you have successfully implemented the main logic of your application, use the AI tools like v0, lovable, or bolt to create an interface according to your "thoughts".
+
+I used v0 and ChatGPT. Prompting... Prompting... and never-ending prompting... Check out the video below to see a simple, short explanation of this project with features. However, you still have **[live access](https://radhika-sharma.vercel.app/)** to it!
+
+{% embed https://www.youtube.com/watch?v=2FW6IJeOkzI %}
+
+**If you like it, then please star the repo 🌠 and follow me on GH.**
+
+&nbsp;
+
+## Key Highlights
+- 🤖 **Multi-Modal AI** - Six specialized assistant personalities in one app  
+- ⚡ **Multi-Provider Support** - Groq, Gemini, OpenAI, and Claude integration  
+- 🎤 **Advanced Voice** - Speech-to-text input and text-to-speech output  
+- 🎨 **Dynamic 3D Visuals** - Interactive particle system with mode-based colors  
+- 💾 **Smart Persistence** - Automatic chat history saving per mode  
+- 🚀 **Quick Actions** - One-click access to common tasks per mode  
+- 📊 **Real-time Analytics** - Live usage statistics and AI activity monitoring  
+- 🌙 **Beautiful UI** - Responsive design with dark/light themes  
+
+## Modes
+- **Productivity**: Task planning, project management, time optimization
+- **Wellness**: Health guidance, fitness routines, mental well-being support
+- **Learning**: Educational assistance, study plans, skill development  
+- **Creative**: Brainstorming, content creation, artistic inspiration
+- **General**: Problem-solving, decision-making, everyday conversations
+- **BFF**: Emotional support, casual chats, GenZ-friendly interactions
+
+Perfect for users who need a versatile AI assistant that adapts to different contexts, maintains conversation history across specialized domains, and provides an engaging visual experience with advanced voice capabilities.
+
+&nbsp;
+
+## Conclusion
+Radhika is a sophisticated AI-powered assistant built with Next.js and powered by multiple LLM providers including Groq, Gemini, OpenAI, and Claude. RADHIKA adapts to different modes of interaction, providing specialized assistance for productivity, wellness, learning, creative tasks, and even acts as your GenZ bestie!
+
+I personally suggest you try the "**BFF**" mode. You will like it for sure.
+
+Once again, here are the links you don't want to miss out:
+- **Live Demo**: https://radhika-sharma.vercel.app/ (added modern/pixel UI options)
+- **Github Repo**: https://github.com/RS-labhub/Radhika (Give it a star 🌠)
+- **Youtube Demo**: https://www.youtube.com/watch?v=2FW6IJeOkzI
+
+Thank you for reading. You're wonderful. And I mean it. Ba-bye, see you in the next blog. (and PLEASE SPAM THE COMMENT SECTION AS ALWAYS)
+
+---
+
+# Find My Portfolio’s Secret Page; If You Can 🤫
+
+Did you miss me? I guess, yeah, you did. Sorry for that. I was so busy with my DevRel work at llmware. (not flaunting)
+
+Btw, finally I'm able to complete my portfolio website. And this is what I wanted to share with my dev.to fam.
+
+Thanks to AI tools that accelerated the process. Vibe coding is not that bad; it saves a lot of time.
+
+So, let's start this super mini blog.
+
+3... 2... 1... 🟢
+
+
+## Welcome to `RS PORTFOLIO` 👋
+First of all, don't expect too much. It's just a normal portfolio. **IS IT?** Who knows.
+
+![image](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/w4d0bnmhw7epcyw0te0r.png)
+
+&nbsp;
+
+Before discussing more about it, let me tell you the tech stack I have used:
+- NextJs (frontend and backend)
+- Radix UI (UI Enhancements)
+- FormSpree (for creating free unlimited forms)
+- Vercel (hosting)
+
+And boom! These resources were enough to create a good-looking portfolio. Actually, my portfolio DP is the main reason for the clean UI. 🙂 (please say "yes")
+
+Btw, it's responsive also. BUT I SUGGEST YOU TAKE A LOOK AT A BIGGER SCREEN. Mobile view is not that great. (Of course, I'm NOT going to work on this again)
+
+&nbsp;
+
+{% embed https://rohan-sharma-portfolio.vercel.app/ %}
+
+&nbsp;
+
+## What makes my PORTFOLIO UNIQUE?
+- Simple and Professional UI?
+- Easy navigation?
+- Adding "not available for work" label in the experience page?
+- Printing Resume?
+- SECRET BUTTON?
+
+Every portfolio is unique, and I can't judge them. (btw, I always judge them, an in-built feature)
+
+My portfolio is also like other portfolio/. You can judge it as well. I tried to **WRITE AS MANY FAKE THINGS AND SHOWCASE FAKE EXPERTISE AS POSSIBLE**. What do you mean, everyone does it? 😂
+
+I don't want to emphasize more on the **`SECRET BUTTON`**. Because it is very unprofessional. But those who know me personally must have expected something like this from me. So, I have to stand on their beliefs.
+
+I, particularly, **WANT YOU TO TAKE A LOOK AT MY PORTFOLIO, EXPLORE EVERY SECTION, AND GIVE ME FEEDBACK**. (Feedback is important, you know. Doesn't matter whether I will implement them or not. Even if I'm implementing then, I can't say about the timespan. It may take decades.)
+
+If you're a dark mode lover, I have added a dark mode functionality. TOTALLY AI DEPENDENT to implement this feature. I don't want to spend much time on color change.
+
+I mostly used chatGPT for bug fixes (those F*** hydration errors) and v0 to amplify building and improved UI/.
+
+&nbsp;
+
+## The Mystery of SECRET BUTTON
+Again, before starting, I want to say, "Please don't go for it. It's just a random off-topic, unprofessional button, and made for fun".
+
+The secret button, as the name suggests, is very secret and so hidden. There's only one point to access that button. Yes, A SINGLE POINT.
+
+It can be present anywhere and in any section. If you want to see it, then you have to **FIND IT BY YOURSELF**.
+
+The `secret page` consists of nothing but my personal space, where I'm trying to change my relationship status from SINGLE TO BEING MINGLE. It's boring as there are long essays and boring paragraphs. **NOT DEVELOPER FRIENDLY**.
+
+A little glance of the `secret page`:
+![secret page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/7fxd0l6b1591oxmh8etd.png)
+
+What?? C'mon, I already told "A LITTLE". 
+
+&nbsp;
+
+## Jokes Apart, Time to Conclude
+Sorry for a short and promotional blog. I just wanted to share this with you guys. 
+
+Upcoming blog, going to be very cool. And you'll like it for sure!
+
+Sharing again the Portfolio link: https://rohan-sharma-portfolio.vercel.app/
+- If you liked my portfolio, then comment. 
+- If you found any bugs, then comment.
+- If you have any feedback, then comment.
+- If you want me to build an MCP (of your choice), then comment.
+
+Thanks for reading and your support. You're the best. Keep loving me!
+
+---
+
+# Access Granted!! Here's the recipe behind my AI DMS 🤞
+
+*This is a submission for the [Permit.io Authorization Challenge](https://dev.to/challenges/permit_io): AI Access Control*
+
+&nbsp;
+
+Hey there,
+Welcome back! This is my **2nd entry** for the Permit.io Authorization Challenge. (If you want to see the 1st one, here's the link: https://dev.to/rohan_sharma/access-control-handled-heres-how-i-built-my-dms-212)
+
+This project is not different than the last one. It's still a document management system, but it now has more powerful features and configurations.//..
+
+Welcome to **Radhika's AI DocManager**
+![logo](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ubhjtb7j1f8qruwmffep.png)
+
+**Radhika's AI DocManager** is still a DMS, but now it's come with the power of AI, new settings and configurations, modern UI (best dark mode), and powerful features. Test it on your local machine now!!! 👾
+
+This project demonstrates how to implement fine-grained authorization for both users and AI agents in a Next.js application using Permit.io. It's a document management system where users can create, view, edit, and delete documents based on their roles and document ownership, and AI agents can assist with document management based on their assigned permissions.
+
+### Features
+#### 1️⃣ User Authorization
+- **Role-Based Access Control (RBAC)**: Different roles (Admin, Editor, Viewer) have different permissions
+- **Attribute-Based Access Control (ABAC)**: Document owners have special privileges
+- **Fine-Grained Authorization**: Using Permit.io to implement complex authorization rules
+
+#### 2️⃣ AI Authorization
+- **AI Agent Roles**: Define different AI agent roles with specific capabilities
+- **Permission Levels**: Configure what AI agents can access and modify
+  - **No Access**: AI agent cannot access the resource at all
+  - **Read Only**: AI agent can only read but not modify resources
+  - **Suggest Only**: AI can suggest changes that require human approval
+  - **Full Access**: AI has full access to read and modify resources
+- **Approval Workflows**: Require human approval for sensitive AI operations
+- **Audit and Monitoring**: Track all AI actions and approvals
+
+#### 3️⃣ Document Intelligence
+- **Document Analysis**: AI-powered analysis of document content and structure
+- **Document Summarization**: Generate concise summaries of documents
+- **Content Improvement**: AI suggestions for improving document content
+
+&nbsp;
+
+## Demo
+{% embed https://youtu.be/Az8ENPFu4ls %}
+
+## Project Repo
+Github Repo: **https://github.com/RS-labhub/AI-DocManager**
+
+Documentation: **https://rs-labhub.github.io/AI-DocManager/**
+
+&nbsp;
+
+## My Journey
+As said in the last blog, it was quite difficult to create a DMS or document management system, as there are so many brainstorming behind this.
+
+Anyway, thanks to [Permit.io](https://www.permit.io/) for saving a lot of my time while creating policies. It's easy to use and enough to say goodbye to the old methods where we die while writing the code.
+
+I used Permit.io to achieve these things:
+- Role-Based Access Control or RBAC
+- Attribute-Based Access Control or ABAC
+
+Also, implemented the roles the AI should have. Here's both RBAC and ABAC are used. I used [GROQ Cloud](https://console.groq.com) for fast LLM inference and OpenAI compatibility.
+
+Overall, it was a fun experience building this project, and I enjoyed building it.
+
+If you want to see the whole implementation of the Permit.io, please read the project [Readme](https://github.com/RS-labhub/AI-DocManager/blob/main/README.md) file!
+
+&nbsp;
+
+## Authorization for AI Applications with Permit.io
+
+![landing page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/07ghtyw8i6pe7v38m20d.png)
+
+### Authorization Model
+#### User Authorization
+The application implements the following user authorization model:
+
+- **Admin**: Can create, view, edit, and delete any document, and access the admin panel
+- **Editor**: Can create, view, and edit documents, but can only delete their own documents
+- **Viewer**: Can only view documents
+
+Additionally, document owners have full control over their own documents regardless of their role.
+
+#### AI Authorization
+![ai authz](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/25tfd48745mi2k6nchhb.png)
+
+The application implements the following AI authorization model:
+
+- **AI Agent Roles**:
+  - **Assistant**: Helps with document organization and basic tasks
+  - **Editor**: Can edit and improve document content
+  - **Analyzer**: Analyzes document content and provides insights
+
+- **AI Capabilities**:
+  - **read_documents**: Ability to read document content
+  - **suggest_edits**: Ability to suggest edits to documents
+  - **edit_documents**: Ability to directly edit documents
+  - **create_documents**: Ability to create new documents
+  - **delete_documents**: Ability to delete documents
+  - **analyze_content**: Ability to analyze document content
+  - **summarize_content**: Ability to summarize documents
+  - **translate_content**: Ability to translate documents
+  - **generate_content**: Ability to generate new content
+
+- **Permission Levels**:
+  - **NO_ACCESS**: AI agent cannot access the resource at all
+  - **READ_ONLY**: AI agent can only read but not modify resources
+  - **SUGGEST_ONLY**: AI can suggest changes that require human approval
+  - **FULL_ACCESS**: AI has full access to read and modify resources
+
+&nbsp;
+
+### Implementation Details
+
+#### AI Authorization Implementation
+
+The application implements AI authorization through several key components:
+
+##### 1. AI Agent Management
+
+The `AIAgent` interface defines the structure of AI agents:
+
+```ts
+export interface AIAgent {
+  id: string;
+  name: string;
+  description: string;
+  role: AIAgentRole;
+  capabilities: AICapability[];
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+  isActive: boolean;
+}
+```
+
+Administrators can manage AI agents through the admin panel, defining their roles and capabilities.
+
+##### 2. Permission Levels
+
+The `AIPermissionLevel` enum defines the different levels of access that AI agents can have:
+
+```ts
+export enum AIPermissionLevel {
+  NO_ACCESS = "no_access",
+  READ_ONLY = "read_only",
+  SUGGEST_ONLY = "suggest_only",
+  FULL_ACCESS = "full_access",
+}
+```
+
+##### 3. AI Actions
+
+The `AIAction` interface defines the structure of actions that AI agents can perform:
+
+```ts
+export interface AIAction {
+  id: string;
+  agentId: string;
+  actionType: string;
+  resourceType: string;
+  resourceId: string;
+  status: AIActionStatus;
+  requestedAt: string;
+  completedAt?: string;
+  requestedBy: string;
+  approvedBy?: string;
+  rejectedBy?: string;
+  metadata: Record<string, any>;
+  result?: any;
+}
+```
+
+##### 4. Permission Checking
+
+The `checkAIPermission` function checks if an AI agent has permission to perform an action:
+
+```ts
+export function checkAIPermission(
+  agentId: string,
+  action: string,
+  resourceType: string,
+  resourceId?: string
+): {
+  permitted: boolean;
+  requiresApproval: boolean;
+  permissionLevel: AIPermissionLevel;
+} {
+  // Implementation details...
+}
+```
+
+##### 5. Approval Workflow
+
+The application implements an approval workflow for AI actions that require human oversight:
+
+```ts
+export async function requestAIAction(
+  agentId: string,
+  actionType: string,
+  resourceType: string,
+  resourceId: string,
+  documentTitle: string,
+  documentContent: string,
+  metadata: Record<string, any>
+): Promise<{ success: boolean; action?: AIAction; message?: string }> {
+  // Implementation details...
+}
+
+export async function approveAIAction(
+  actionId: string,
+  userId: string
+): Promise<{ success: boolean; action?: AIAction; message?: string }> {
+  // Implementation details...
+}
+
+export async function rejectAIAction(
+  actionId: string,
+  userId: string,
+  reason?: string
+): Promise<{ success: boolean; action?: AIAction; message?: string }> {
+  // Implementation details...
+}
+```
+
+#### Integration with Permit.io
+
+The application integrates with Permit.io through the `permit.ts` file, which provides functions for checking permissions:
+
+```ts
+import { Permit } from 'permitio';
+
+// Initialize Permit SDK
+const permit = new Permit({
+  pdp: process.env.PERMIT_PDP_URL,
+  token: process.env.PERMIT_SDK_TOKEN,
+});
+
+// Check if a user can perform an action on a resource
+export async function checkPermission(
+  userId: string,
+  action: string,
+  resourceType: string,
+  resourceAttributes: Record<string, any> = {}
+): Promise<boolean> {
+  try {
+    const permitted = await permit.check(userId, action, {
+      type: resourceType,
+      ...resourceAttributes,
+    });
+    return permitted;
+  } catch (error) {
+    console.error('Permission check failed:', error);
+    return false;
+  }
+}
+```
+
+&nbsp;
+
+## Conclusion
+This project demonstrates how to implement fine-grained authorization for both users and AI agents in a Next.js application using Permit.io. By externalizing authorization, we can create more secure, maintainable, and flexible applications that can safely leverage AI capabilities while maintaining appropriate controls.
+
+Please try to run it locally on your machine and let me know the feedback!
+
+Thank you for taking your time to read this blog. I hope you enjoyed it. Your support means the world to me. Thank youuuuuuuuuuuuuuuuu! ❣️
+
+---
+
+# Top 10 Open-Source RAG Frameworks you need!! 🧌
+
+The capabilities of Large Language Models (LLMs) are enhanced by **`Retrieval-Augmented Generation (RAG)`**. Thus, RAG comes up with a super powerful technique that distinguishes it from others.
+
+**`RAG Frameworks`** are tools and libraries that help developers build AI models that can retrieve relevant information from external sources (like databases or documents) and generate better responses based on that information.
+
+&nbsp;
+
+## RAG and it's Flowchart 🎴
+Imagine you have a big toy box filled with all your favorite toys. But sometimes, when you want to find your favorite teddy bear, it takes a long time because the toys are all mixed up.
+
+Now, think of RAG (Retrieval-Augmented Generation) as a magical helper. This helper is really smart! When you ask, "**Where is my teddy bear?**", it quickly looks through the toy box, finds the teddy bear, and gives it to you right away.
+
+In the same way, when you ask a computer a question, RAG helps it find the right information from a big book before giving you an answer. So instead of just guessing, it finds the best answer from the book and tells you! 😊
+
+{% katex %}
+ RAG = RetrievalBasedSystem + GenerativeModels
+{% endkatex %}
+
+### Flowchart
+
+![RAG](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/utwcpxp91pbp1ogtan8z.png)
+<figcaption> RAG OverSimplified </figcaption>
+
+---
+
+### How RAG Frameworks Work ⚒️
+* **Retrieve** → Search for relevant documents using a vector database.
+- **Augment** → Feed those documents into the LLM as extra context.
+- **Generate** → The LLM generates an informed response using both retrieved data and its own training knowledge.
+
+#### Example
+🔹 <u>Step 1</u>: User Question
+Example: "Who discovered gravity?"
+
+🔹 <u>Step 2</u>: Retrieve Relevant Information
+Searches a knowledge base (e.g., Wikipedia, company documents)
+Finds: "Isaac Newton formulated the law of gravity in 1687."
+
+🔹 <u>Step 3</u>: Augment & Generate Answer
+The LLM takes the retrieved information + its own knowledge
+Generates a complete, well-structured response
+
+🔹 <u>Step 4</u>: Final Answer
+Example: "Gravity was discovered by Isaac Newton in 1687."
+
+---
+
+I hope now you're somewhat clear with the Rag concept. Now, in this blog, we will be discussing the top 10 Open-Source RAG frameworks that will help you boost your project or enterprise.
+
+&nbsp;
+
+## Top 10 Open-Source RAG Frameworks you need!! 📃
+Here's a curated list of some famous and widely used RAG frameworks, you might not want to miss:
+
+### 1️⃣ [LLMWare.ai](https://github.com/llmware-ai/llmware)
+_11K Github Stars, 1.8K Forks_
+
+
+![llmware](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/z4vulsrnemm0xvm039ze.png)
+<figcaption> LLMWare.ai- <a>https://llmware.ai</a> </figcaption>
+
+&nbsp;
+
+LLMWare provides a unified framework for building LLM-based applications (e.g., RAG, Agents), using small, specialized models that can be deployed privately, integrated with enterprise knowledge sources safely and securely, and cost-effectively tuned and adapted for any business process.
+
+#### Core Features
+* **RAG support** for enterprise-level AI apps.
+- **LLM Orchestration** – Connects multiple LLMs (OpenAI, Anthropic, Google, etc.).
+- **Document Processing & Embeddings** – Enables structured AI-driven search.
+- **Vector Database Integration** – Works with Pinecone, ChromaDB, Weaviate, etc.
+- **Custom Fine-Tuning** – Train models on private datasets.
+
+#### 🔹Use Cases
+* Chatbots & virtual assistants
+- AI-driven search and retrieval
+- Summarization & text analysis
+- Enterprise knowledge management
+- Financial Analysis
+
+#### Why LLMWare.ai?
+- Faster AI development with pre-built tools
+- Scalable & flexible for enterprise applications
+- Open-source & extensible
+
+{% github https:/github.com/llmware-ai/llmware %}
+
+|   {% cta https:/github.com/llmware-ai/llmware %} Star LLMWare on GitHub ⭐ {% endcta %}     | {% cta https://discord.gg/bphreFK4NJ %} LLMWare Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 2️⃣ [LlamaIndex (Formerly GPT Index)](https://github.com/run-llama/llama_index)
+_39.8K Github Stars, 5.7K Forks_
+
+![llamaIndex](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/x6idwt7yjxzlfqenu4gz.png)
+<figcaption> LlamaIndex: <a>https://www.llamaindex.ai</a> </figcaption>
+
+&nbsp;
+
+LlamaIndex (GPT Index) is a data framework for your LLM application. Building with LlamaIndex typically involves working with LlamaIndex core and a chosen set of integrations (or plugins).
+
+#### Core Features
+* **Indexing & Retrieval** – Organizes data efficiently for fast lookups.
+- **Modular Pipelines** – Customizable components for RAG workflows.
+- **Multiple Data Sources** – Supports PDFs, SQL, APIs, and more.
+- **Vector Store Integrations** – Works with Pinecone, FAISS, ChromaDB.
+
+#### 🔹Use Cases
+* AI-powered search engines
+- Knowledge retrieval for chatbots
+- Code and document understanding
+
+#### Why LlamaIndex?
+* Easy to integrate with OpenAI, LangChain, etc.
+- Highly flexible & modular for different AI tasks.
+- Supports structured & unstructured data.
+
+{% github https://github.com/run-llama/llama_index %}
+
+|   {% cta https://github.com/run-llama/llama_index %} Star LlamaIndex on GitHub ⭐ {% endcta %}     | {% cta https://discord.com/invite/eN6D2HQ4aX %} LlamaIndex Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 3️⃣ [Haystack (by deepset AI)](https://github.com/deepset-ai/haystack)
+_19.7K Github Stars, 2.1K Forks_
+
+![Haystack](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/ld3rh5gulc2s2kjsj7gl.png)
+<figcaption> Haystack: <a>https://haystack.deepset.ai</a></figcaption>
+
+&nbsp;
+
+Haystack is an end-to-end LLM framework that allows you to build applications powered by LLMs, Transformer models, vector search and more. Whether you want to perform retrieval-augmented generation (RAG), document search, question answering or answer generation, Haystack can orchestrate state-of-the-art embedding models and LLMs into pipelines to build end-to-end NLP applications and solve your use case.
+
+#### Core Features
+* **Retrieval & Augmentation** – Combines document search with LLMs.
+- **Hybrid Search** – Uses BM25, Dense Vectors, and Neural Retrieval.
+- **Pre-built Pipelines** – Modular approach for rapid development.
+- **Integration Support** – Works with Elasticsearch, OpenSearch, FAISS.
+
+#### 🔹Use Cases
+* AI-powered document Q&A
+- Context-aware virtual assistants
+- Scalable enterprise search
+
+#### Why Haystack?
+* Optimized for production RAG applications.
+- Supports various retrievers & LLMs for flexibility.
+- Strong enterprise adoption & community.
+
+{% github https://github.com/run-llama/llama_index %}
+
+|   {% cta https://github.com/deepset-ai/haystack %} Star Haystack on GitHub ⭐ {% endcta %}     | {% cta https://discord.com/invite/xYvH6drSmA %} Haystack Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 4️⃣ [Jina AI](https://github.com/jina-ai)
+_21.4K Github Stars, 2.2K Forks (jina-ai/serve)_
+
+![jinaAi](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g5q8jjn0eesr87os6wlk.png)
+<figcaption> Jina AI: <a>https://jina.ai/</a></figcaption>
+
+&nbsp;
+
+Jina AI is an open-source MLOps and AI framework designed for neural search, generative AI, and multimodal applications. It enables developers to build scalable AI-powered search systems, chatbots, and RAG (Retrieval-Augmented Generation) applications efficiently.
+
+#### Core Features
+* **Neural Search** – Uses deep learning for document retrieval.
+- **Multi-modal Data Support** – Works with text, images, audio.
+- **Vector Database Integration** – Built-in support for Jina Embeddings.
+- **Cloud & On-Premise Support** – Easily deployable on Kubernetes.
+
+#### 🔹Use Cases
+* AI-powered semantic search
+- Multi-modal search applications
+- Video, image, and text retrieval
+
+#### Why Jina AI?
+* Fast & scalable for AI-driven search.
+- Supports multiple LLMs & vector stores.
+- Well-suited for both startups & enterprises.
+
+{% github https://github.com/jina-ai/serve %}
+
+|   {% cta https://github.com/jina-ai %} Star Jina AI on GitHub ⭐ {% endcta %}     | {% cta https://discord.com/invite/AWXCCC6G2P %} Jina AI Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 5️⃣ [Cognita by truefoundry](https://github.com/truefoundry/cognita)
+_3.9K Github Stars, 322 Forks_
+
+![cognita](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g2lharhjmlihtuam9k4c.png)
+<figcaption> Cognita: <a>https://cognita.truefoundry.com</a></figcaption>
+
+&nbsp;
+
+Cognita addresses the challenges of deploying complex AI systems by offering a structured framework that balances customization with user-friendliness. Its modular design ensures that applications can evolve alongside technological advancements, providing long-term value and adaptability.
+
+#### Core Features
+* **Modular Architecture** – Seven customizable components (data loaders, parsers, embedders, rerankers, vector databases, metadata store, query controllers).
+- **Vector Database Support** – Compatible with Qdrant, SingleStore, and other databases.
+- **Customizability** – Easily extend or swap components for different AI applications.
+- **Scalability** – Designed for enterprise use, supporting large datasets and real-time retrieval.
+- **API-Driven** – Seamless integration with existing AI pipelines.
+
+#### 🔹Use Cases
+* AI-powered Customer Support with real-time retrieval.
+- Enterprise Knowledge Management
+- Context-Aware AI Assistants
+
+#### Why Cognita?
+* Open-source with modular design for custom RAG workflows.
+- Works with LangChain, LlamaIndex, and multiple vector stores.
+- Built for scalable and reliable AI solutions.
+
+{% github https://github.com/truefoundry/cognita %}
+
+|   {% cta https://github.com/truefoundry/cognita %} Star Cognita on GitHub ⭐ {% endcta %}     | {% cta https://truefoundry.slack.com/ %} Cognita Slack Community 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 6️⃣ [RAGFlow by infiniflow](https://github.com/infiniflow/ragflow)
+_43.9K Github Stars, 3.9K Forks_
+
+![ragFlow](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/5xdtqcluh4rdnysz3al4.png)
+<figcaption> RAGFlow: <a>https://ragflow.io/</a></figcaption>
+
+&nbsp;
+
+RAGFlow is an open-source Retrieval-Augmented Generation (RAG) engine developed by InfiniFlow, focusing on deep document understanding to enhance AI-driven question-answering systems.
+
+#### Core Features
+* **Deep Document Understanding**: RAGFlow excels in processing complex, unstructured data formats, enabling accurate information extraction and retrieval.
+- **Template-Based Chunking**: It employs intelligent, explainable chunking methods with various templates to optimize data processing.
+- **Integration with Infinity Database**: RAGFlow seamlessly integrates with Infinity, an AI-native database optimized for dense and sparse vector searches, enhancing retrieval performance.
+- **GraphRAG Support**: The engine incorporates GraphRAG, enabling advanced retrieval-augmented generation capabilities.
+- **Scalability**: Designed to handle extensive datasets, RAGFlow is suitable for businesses of all sizes.
+
+#### 🔹Use Cases
+* Enterprise Knowledge Management
+- Legal Document Analysis
+- AI-Powered Customer Support
+- Medical Research
+- Financial Analysis
+
+#### Why RAGFlow?
+* Deep Document Processing – Structures unstructured data for complex analysis.
+- Graph-Enhanced RAG – Uses graph-based retrieval for smarter responses.
+- Hybrid Search – Combines vector and keyword search for accuracy.
+- Enterprise Scalability – Handles large-scale AI search applications.
+
+{% github https://github.com/infiniflow/ragflow %}
+
+|   {% cta https://github.com/infiniflow/ragflow %} Star RAGFlow on GitHub ⭐ {% endcta %}     | {% cta https://discord.com/invite/4XxujFgUN7 %} RAGFlow Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 7️⃣ [txtAI by NeuML](https://github.com/neuml/txtai)
+_10.5K Github Stars, 669 Forks_
+
+![txtai](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/g40mjmnnr9bylrp4uoi5.png)
+<figcaption> txtAI: <a>https://neuml.github.io/txtai/</a></figcaption>
+
+&nbsp;
+
+txtAI is an open-source AI-powered search engine and embeddings database, designed for semantic search, RAG, and document similarity.
+
+#### Core Features
+* **Embeddings Indexing** – Stores and retrieves documents using vector-based search.
+- **RAG Integration** – Enhances LLM responses with retrieval-augmented generation.
+- **Multi-Modal Support** – Works with text, images, and audio embeddings.
+- **Scalable & Lightweight** – Runs on edge devices, local systems, and cloud.
+- **APIs & Pipelines** – Provides an API for text search, similarity, and question answering.
+- **SQLite Backend** – Uses SQLite-based vector storage for fast retrieval.
+
+#### 🔹Use Cases:
+* AI-Powered Semantic Search
+- Chatbot Augmentation
+- Content Recommendation
+- Automated Tagging & Classification 
+
+#### Why txtai?
+* Lightweight & Efficient – Runs on low-resource environments.
+- Versatile & Extendable – Works with any embeddings model.
+- Fast Retrieval – Optimized for local and cloud-scale deployments.
+
+{% github https://github.com/neuml/txtai %}
+
+|   {% cta https://github.com/neuml/txtai %} Star txtAI on GitHub ⭐ {% endcta %}     | {% cta https://txtai.slack.com/join/shared_invite/zt-1cagya4yf-DQeuZbd~aMwH5pckBU4vPg#/shared-invite/email %} txtAI Slack Community 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 8️⃣ [STORM by stanford-oval](https://github.com/stanford-oval/storm)
+_23.2K Github Stars, 2K Forks_
+
+![storm](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tkqw9mzokgu12w61s7of.png)
+<figcaption> STORM: <a>https://github.com/stanford-oval/storm</a></figcaption>
+
+&nbsp;
+
+STORM is an AI-powered knowledge curation system developed by the Stanford Open Virtual Assistant Lab (OVAL). It automates the research process by generating comprehensive, citation-backed reports on various topics.
+
+#### Core Features
+* **Perspective-Guided Question Asking**: STORM enhances the depth and breadth of information by generating questions from multiple perspectives, leading to more comprehensive research outcomes.
+- **Simulated Conversations**: The system simulates dialogues between a Wikipedia writer and a topic expert, grounded in internet sources, to refine its understanding and generate detailed reports.
+- **Multi-Agent Collaboration**: STORM employs a multi-agent system that simulates expert discussions, focusing on structured research and outline creation, and emphasizes proper citation and sourcing.
+
+#### 🔹Use Cases
+* Academic Research: Assists researchers in generating comprehensive literature reviews and summaries on specific topics.
+- Content Creation: Aids writers and journalists in producing well-researched articles with accurate citations.
+- Educational Tools: Serves as a resource for students and educators to quickly gather information on a wide range of subjects.
+
+#### Why Choose STORM?
+* Automated In-Depth Research: STORM streamlines the process of gathering and synthesizing information, saving time and effort.
+- Comprehensive Reports: By considering multiple perspectives and simulating expert conversations, STORM delivers well-rounded and detailed reports.
+- Open-Source Accessibility: Being open-source, STORM allows for customization and integration into various workflows, making it a versatile tool for different users.
+
+{% github https://github.com/stanford-oval/storm %}
+
+|   {% cta https://github.com/stanford-oval/storm %} Star STORM on GitHub ⭐ {% endcta %}     |
+| ------------- |
+
+&nbsp;
+
+### 9️⃣ [LLM-App by pathwaycom](https://github.com/pathwaycom/llm-app)
+_22.5K Github Stars, 379 Forks_
+
+![llmApp](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hgjduxy2btwofyjk9iz1.png)
+<figcaption> LLM-App: <a>https://pathway.com/developers/templates/</a></figcaption>
+
+&nbsp;
+
+LLM-App is an open-source framework developed by Pathway.com, designed to integrate Large Language Models (LLMs) into data processing workflows.
+
+#### Core Features
+* **Seamless LLM Integration**: Allows for the incorporation of LLMs into various applications, enhancing data processing capabilities.
+- **Real-Time Data Processing**: Utilizes Pathway's real-time data processing engine to handle dynamic data streams efficiently.
+- **Extensibility**: Designed to be adaptable, enabling users to customize and extend functionalities based on specific requirements.
+
+#### 🔹Use Cases
+* Data Analysis
+- Natural Language Processing (NLP)
+- Chatbots and Virtual Assistants
+
+#### Why Choose LLM-App?
+- Integration with Pathway's Engine: Combines the power of LLMs with Pathway's robust data processing engine for efficient real-time applications.
+- Open-Source Flexibility: Being open-source, it allows for community contributions and customization to fit diverse use cases.
+- Scalability: Designed to handle large-scale data processing tasks, making it suitable for enterprise applications.
+
+{% github https://github.com/pathwaycom/llm-app %}
+
+|   {% cta https://github.com/pathwaycom/llm-app %} Star LLM-App on GitHub ⭐ {% endcta %}     |{% cta https://discord.com/invite/pathway %} LLM-App Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### 🔟 [Neurite by satellitecomponent](https://github.com/satellitecomponent/Neurite)
+_1.4K Github Stars, 127 Forks_
+
+![neurite](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/9yt4wvofxj42i34cmd4k.png)
+<figcaption> Neurite: <a>https://neurite.network//</a></figcaption>
+
+&nbsp;
+
+Neurite is an open-source project that offers a fractal graph-of-thought system, enabling rhizomatic mind-mapping for AI agents, web links, notes, and code.
+
+#### Core Features
+* **Fractal Graph-of-Thought**: Implements a unique approach to knowledge representation using fractal structures.
+- **Rhizomatic Mind-Mapping**: Facilitates non-linear, interconnected mapping of ideas and information.
+- **Integration Capabilities**: Allows integration with AI agents, enhancing their knowledge management and retrieval processes.
+
+#### 🔹Use Cases
+* Knowledge Management
+- AI Research
+- Educational Tools
+
+#### Why Choose Neurite?
+* Innovative Knowledge Representation: Offers a novel approach to organizing information, beneficial for complex data analysis.
+- Open-Source Accessibility: Allows users to customize and extend functionalities to suit specific needs.
+- Community Engagement: Encourages collaboration and sharing of ideas within the knowledge management community.
+
+{% github https://github.com/satellitecomponent/Neurite %}
+
+|   {% cta https://github.com/satellitecomponent/Neurite %} Star Neurite on GitHub ⭐ {% endcta %}     |{% cta https://discord.com/invite/NymeSwK9TH %} Neurite Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+### Bonus 🙂‍↕️: [R2R by SciPhi-AI](https://github.com/SciPhi-AI/R2R)
+_5.4K Github Stars, 400 Forks_
+
+![R2R](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0edv5r2nflsfebe9cdmd.png)
+<figcaption> R2R: <a>https://r2r-docs.sciphi.ai/introduction</a></figcaption>
+
+R2R is an advanced AI retrieval system that implements agentic Retrieval-Augmented Generation (RAG) with a RESTful API, developed by SciPhi-AI.
+
+#### Core Features
+* **Agentic RAG System**: Combines retrieval systems with generation capabilities to provide comprehensive responses.
+- **RESTful API**: Offers a standardized API for easy integration into various applications.
+- **Advanced Retrieval Mechanisms**: Utilizes sophisticated algorithms to fetch relevant information efficiently.
+
+#### 🔹Use Cases
+* Intelligent Search Engines
+- Content Generation
+- Research Assistance
+
+#### Why Choose R2R?
+* Comprehensive AI Retrieval: Offers advanced retrieval capabilities, making it suitable for complex information retrieval tasks.
+- Easy Integration: The RESTful API design allows for seamless integration into existing systems.
+- Open-Source Community: Being open-source, it benefits from community contributions and continuous improvements.
+
+{% github https://github.com/SciPhi-AI/R2R %}
+
+|   {% cta https://github.com/SciPhi-AI/R2R %} Star R2R on GitHub ⭐ {% endcta %}     |{% cta https://discord.com/invite/p6KqD2kjtB %} R2R Discord Server 💬 {% endcta %}    |
+| ------------- |:-------------:|
+
+&nbsp;
+
+## Here's a Quick Recap (only for you) 🙈
+Below is a table that contains the list of all the RAG Frameworks mentioned in this blog:
+
+
+| Framework  | Key Features | Use Cases | Why Choose It? |
+|------------|-------------|-----------|----------------|
+| [LLMWare](https://github.com/llmware-ai/llmware) | End-to-end RAG pipeline, hybrid search, multi-LLM support | Enterprise search, document Q&A, knowledge retrieval | Highly optimized for unstructured data processing |
+| [LlamaIndex](https://github.com/run-llama/llama_index) | Data connectors, structured retrieval, adaptive chunking | RAG-based chatbots, document search, financial/legal data analysis | Strong ecosystem with integrations and indexing optimizations |
+| [Haystack](https://github.com/deepset-ai/haystack) | Modular RAG, retrievers, rankers, scalable inference | Enterprise AI assistants, Q&A systems, contextual document search | Powerful for production-ready search applications |
+| [Jina AI](https://github.com/jina-ai) | Neural search, multi-modal data, vector indexing | AI-powered semantic search, image/video/text retrieval | Scalable and fast for AI-driven search solutions |
+| [Cognita](https://github.com/truefoundry/cognita) | RAG with knowledge graphs, retrieval re-ranking | AI-driven knowledge graphs, intelligent document search | Advanced retrieval using structured and unstructured data |
+| [RAGFlow](https://github.com/infiniflow/ragflow) | Graph-enhanced retrieval, hybrid search, deep document processing | Legal, finance, research document retrieval | Enterprise-ready, scalable, optimized for structured search |
+| [txtAI](https://github.com/neuml/txtai) | Lightweight RAG, embeddings-based retrieval, easy deployment | Document similarity search, lightweight search engines | Fast and simple RAG for developers needing flexibility |
+| [STORM](https://github.com/stanford-oval/storm) | Multi-hop retrieval, knowledge synthesis, LLM chaining | AI-driven research assistants, contextual understanding | Optimized for complex knowledge retrieval tasks |
+| [LLM-App](https://github.com/pathwaycom/llm-app) | Fast streaming RAG, parallel retrieval, scalable indexing | Live AI chatbots, customer support automation | Efficient RAG with fast response time for high-load applications |
+| [Neurite](https://github.com/satellitecomponent/Neurite) | Multi-agent reasoning, multi-modal retrieval | Research assistance, AI-powered document analysis | Supports multi-modal inputs and collaborative AI reasoning |
+| [R2R](https://github.com/SciPhi-AI/R2R) | Reasoning-based retrieval, automated knowledge extraction | Scientific document processing, in-depth Q&A | Tailored for complex and logical reasoning in RAG |
+
+&nbsp;
+
+## But wait, Why can't we use LangChain over RAG Frameworks??
+While LangChain is a powerful tool for working with LLMs, it is not a dedicated RAG framework. Here’s why a specialized RAG framework might be a better choice:
+- LangChain helps connect LLMs with different tools (vector databases, APIs, memory, etc.), but it does not specialize in optimizing retrieval-augmented generation (RAG).
+- LangChain provides building blocks for RAG but lacks advanced retrieval mechanisms found in dedicated RAG frameworks.
+- LangChain is good for prototypes, but handling large-scale document retrieval or enterprise-level applications often requires an optimized RAG framework.
+
+&nbsp;
+
+## Conclusion: Choosing the right framework 😉
+With a variety of open-source RAG frameworks available—each optimized for different use cases—choosing the right one depends on your specific needs, scalability requirements, and data complexity.
+
+* If you need a lightweight and developer-friendly solution, frameworks like **txtAI** or **LLM-App** are great choices.
+- For enterprise-scale, structured retrieval, **LLMWare**, **RAGFlow**, **LlamaIndex**, and **Haystack** offer robust performance.
+- **Jina AI** and **Neurite** are well-suited for the task if you focus on multi-modal data processing.
+- For reasoning-based or knowledge graph-powered retrieval, **Cognita**, **R2R**, and **STORM** stand out.
+
+Finally, we are at the end of the blog. I hope you found it insightful. Please save it for the future. Who knows, when you need it!
+
+Follow me on Github
+{% embed https://github.com/RS-labhub %}
+
+Thank you so much for reading! You're the most beautiful person I ever met. I have a lot of trust in you. Keep believing in yourself, and one day you will become motivation for others. 💖
+
+---
+
+# My 2024 Unwrap (of course, it's not a must-read)
+
+I never thought, after reading the title, you'd jump into this blog. Thanks for coming. I try my best not to bore you.
+
+I have only one request: **Please don't judge me**, and **please don't think I'm praising myself**. I'll tell you what I've done and gone through.
+
+`Wait... Loading... Thinking... Loading... Setting up Env... All Checks Passed... Final Loading... Clear 🟢`
+
+&nbsp;
+
+## A boring paragraph below. 🙂
+Maybe this paragraph should be boring for you. But tbh, I'm not writing this blog for you. I'm writing it for myself mostly. Sorry for being clear.
+
+The year 2024 was a gust of wind for me. I don't remember when it started and when it ending/ended. There are a lot of good things happened this year, and I'm really grateful for those moments. But all I can remember are the bad ones only. The moments where I collapsed, the moment I cried silently, the moment I lost everything in a single second, and the moment where I lost my senses.
+
+I was depressed soon after the year started. So many things were happening all at once. From losing a friendship with one of my closest people, to keep understanding myself that "<u>I'm Rs and I can't fall behind</u>". I know expectation hurts, but I expect, I expect cause I believe in hope. I hope cause I've faith. Faith in everything I have, doesn't matter living or non-living.
+
+I lost Dhaniya. My first phone. My brother gave me that on 25th Nov 2019. Yes, I was attached to her. Dhaniya kept so many secrets of me. And I tell her everything (I have one diary app installed in her. And I write there. My Diary name was Emily, and then I changed her to Annabelle. Personal Reasons Ahead)
+
+I lost Chii, my bird. I found her in my college on 28th Nov 2023. But I was not able to hold her responsibility. I'm not a responsible person. My parents have taken care of her. The time she needed me the most, I was sleeping carelessly. She died in my dad's hand. I was so shaken that I wasn't able to see her. I saw her dying. She was in pain. I was the reason.
+
+![my-chii](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/06r5l76riglqmxsmdfxs.gif)
+
+After that, I started to ignore people. I started to ignore everything that could affect me mentally.
+
+But yeah, I have a pen-friend. She fights with me in every talk, blocks me for no reason, scolds me, and makes me apologize to her even if it's her mistake. And still, she's my inspiration. She's a hard-working girl pursuing MBBS. And she is carrying me forward from the first meet. We don't talk much, but whenever we talk, I feel motivated. She's one of the reasons for my motivation. Thanks, HG.
+
+And if I'm talking about her, then how can I forget about my college friend SK. He's stupid, brainless, and brain-dead. He must praise me for my friendship 😂 but rather than that he throws beautiful cursed words on me. When I go to college, we remain together until I take my bus. He's a friendly leech with no parasitism.
+
+I have no social life now. It was there at the beginning of the year. Not much a little. But I don't have it now. At this moment in life, I hate being social in person. Virtually, I'm okay and enjoying well there. I have some great connections.
+
+"**The time you need more time, you get less, and time flows faster than usual.** -**RS**".
+This is a bitter truth. So, it's better to go on and focus on what is coming. Sometimes, when I work, I forget my name. Haha, who cares about depression? I guess that's just a suppression of unsaid words. Don't endure yourself. If you want to talk, I'm there. And we will cry together. 😂
+
+Now, you must be thinking I'm a sad person, an extremely sad person. But this is not true. The opposite is true. Nothing lasts long for me. I keep on moving. If something troubles me, I work too much and lost there. I love peace and calmness.
+
+&nbsp;
+
+## What I achieved in 2024 🦥
+- Won Social Winter of Code, Arcjet Challenge, and Devfest AI.
+- Started writing blogs. Still not monetized but looking for sponsors. All my blogs are featured. (thanks AB for motivating me)
+- 81 meaningful PRs merged this year. (I know it's less, but I didn't work properly the whole year)
+- Sponsored by LLMWare.ai. (one-time sponsorship) 
+- Signed a contract with Quira and monetized myself.
+- Signed a one-time contract with Arcjet. (paid and completed)
+- Signed a contract with LLMWare.ai. (paid and ongoing)
+- Earned around $2500 in the last three months (earned 70% of it in Oct and Nov)
+- October was again a good month of open-source for me. Contributed to Arcjet, Mattermost, Daytona, Kitops, ChartDB, etc,.
+- Earned Github bounties. (all on Daytona)
+- Speaker at some virtual events and talked about open-source.
+- Met awesome people and made connections with some founders and CEOs.
+- Passed semester exams without failing. (Biggest win 😂)
+- Became a good designer and enhanced my coding skills.
+- I got so much recognition and swags for my work.
+- Became fearless in public speaking and interviews.
+- First time moved out of my home w/o my parents.
+- Being an old school and not genZ but still understand them.
+
+&nbsp;
+
+## What I didn't achieve in 2024 😅
+- Didn't study much. I need more hours for my personal study.
+- Being healthy.
+- 0 internships, and didn't apply in any.
+- Unable to monetize my blog writing. (though I think I'll be able to do it soon. I know my writing style)
+- Failed to get into a relationship. (I forget about it every time)
+- I didn't spend time with myself. (I talk to myself, but this year, I didn't get much time)
+- Let my social life die.
+- Screen time is still 12-15 hours around. Failed to minimize it.
+- Unable to work on my self project.
+- I failed to speak less. I speak too much. More than too much!
+
+I guess that's it. I'm unable to recall anything. Will add it later, if I get any.
+
+&nbsp;
+
+## What I learned 🐦‍🔥
+This year was in fast-forward mode. And taught me some great lessons.
+
+- Move with the pace. Don't fall behind. If you fall behind, forget that part and focus on what's coming next. Don't waste your time on regret.
+- Be happy with what you have. Get motivation with others, rather than being jealous.
+- Try to enjoy every moment. Even when you're finding bugs in your code.
+- Don't expect anything. Just keep doing your work.
+- Be synchronistic but don't forget your traditions.
+- Sometimes it is better to be a dumbo.
+- Don't say the truth. It now comes under bad habit.
+- Be independent.
+- Be neutral (don't get too much excited for a win, and too demotivated for a loss)
+- Never give your time to someone who doesn't even respect you. Help him/her if they need it and that's it. 
+
+&nbsp;
+
+## Let's end this blog. 😑
+Wait, **are you also looking for my New Year's Resolution?**?? 
+
+Sadly, I don't have any. I try to keep my mouth closed and work even more. That's it.
+
+Every year is different and unique. I don't say, the year 2024 is bad for me. Just bad times. One day, it will also gone. 
+
+I hope the new year brings a lot of prosperity in your lives and you become MINGLE, if you're SINGLE. My best wishes to you. (wish me for the same)
+
+That's all for the last day of the year. Thank you everyone for being there with me. **Happy New Year all**! Stay happy and stay blessed!
+
+---
+
+# How did a dumbo become an Open-Source contributor 🪔
+
+*This is a submission for the [2024 Hacktoberfest Writing challenge](https://dev.to/challenges/hacktoberfest): Contributor Experience*
+
+The title seems interesting, isn't it? But in actuality, it's not.
+
+Well said, "<u>Only the wearer knows where the shoe pinches</u>".
+
+In this blog, I'll be sharing my Hacktoberfest experience. A very unforgettable experience. Take some popcorn and enjoy!! I hope in the end, you'll get some positive messages for yourself.
+
+&nbsp;
+
+## Let's begin the story... 🟢
+It all started last year i.e. year 2023, Hacktoberfest. Still a nightmare for me. I was in 1st year (suffering from a late session due to the Covid outbreak). Everything was going well, and then(horrifying music 🎶), the month of October arrived 🎃. I saw people start to rush into some place. The place was nothing but just a website. A website that stood out of billions of them. It was **[Hacktoberfest](https://hacktoberfest.com/)** Season, the season of open-source.
+
+As a child and noob, I too committed to that program. Before that, I never committed to anyone or anything. It was a whole new feeling. A feeling of goodness, a feeling of confusion, a feeling of peace, and some butterflies. But you know, "<u>Wise men say, only fools rush in</u>" and I was that fool. I didn't know anything about my lover. My lover was composed of Git, Github, technical knowledge, and many different things.
+
+I was so illiterate. And that illiteracy made me make mistakes. The mistakes that fill me with pain, so unimaginable. I never wanted to do it, but "<u>the devil made me do it</u>". I had no options left. Those dirty YouTube videos also motivated me to do those things. It was whole like a murder of open-source. The Halloween spirits and the greediness to get my lover possessed me. And, I started to do `typos` and `adding random files to a random repo` and spammed the first 20 days of October.
+
+But what happened after those 20 days? I'm going to reveal this secret to you today. I was **disqualified** from the Hacktoberfest. 🙂
+
+![2023](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/01qwre5yfsts4ev1xv1x.png)
+
+"<u>If you do wrong, you have to pay for that in this life itself</u>". And I paid. The fun fact was I didn't even in the state to understand what led me to disqualification. And then, I sent an email to the Hacktoberfest support team, and below is their response:
+
+![response](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/qlyvgdovcuycf6231ytn.png)
+
+This disqualification broke me badly. It took days to recover. But after some time I realized my mistake. I realized that whatever happened to me was my fault only. And then, this **disqualification turned out a boon** for me. Yes, you heard it right!
+
+&nbsp;
+
+### Disqualification: A boon? 🧐
+After those wetty pillow nights, I somehow managed to handle that trauma. And slowly, I started to realize what I had done. I started from the beginning and tried to solve every question that I left behind. After some months, I joined a community called **[Quira](https://quira.sh/?utm_source=rohan)** and my life changed. I was not like before. I went to some great depression, as the Quira community had some great ppl. They are so intelligent, and their works are so mind-blowing. And I felt myself lost there. 
+
+One day, I shared the Quira Community, where I came from. Instead of making fun of me. They helped me. Good people do exist. I learned a lot from that community, and after spending less than a month there, I started to build my own projects. The feeling of doing something of your own for the first time is so great!
+
+This is the reason why you should see my first blog about Quira itself:
+{% embed https://dev.to/rohan_sharma/quira-monetise-your-open-source-work-10e3 %}
+
+{% cta https://discord.gg/quira %} Join Quira Discord Community 💘 {% endcta %}
+
+&nbsp;
+
+### How [Quira](https://quira.sh/?utm_source=rohan) changed my life? 🍻
+If you read my Quira blog, the link I shared above. You'll get to know that Quira conducts quests one after another. The prize money is way too much!
+
+The quests are based on a specific open-source tool/framework/product that we have to use in order to make valid contributions. The open-source orgs that collaborate with Quira are way too good and have high future scopes. Some of them are listed in the table:
+
+| <mark>OS Product</mark>        | <mark>Blog Link</mark>                        |
+|----------------|----------------------------------|
+| **[Taipy](https://github.com/Avaiga/taipy)**      | [🚀 21 Tools to take your dev skills to the moon 🌝](https://dev.to/taipy/21-tools-to-take-your-dev-skills-to-the-moon-53mf) |
+| **[Shepherd.js](https://github.com/shipshapecode/shepherd)**      | [Shepherd: Guide your users with a new JavaScript library](https://dev.to/rohan_sharma/devs-shepherding-with-shepherd-1jl2) |
+| **[LLMWare](https://github.com/llmware-ai/llmware)**      | [LLMware.ai 🤖: An Ultimate Python Toolkit for Building LLM Apps](https://dev.to/rohan_sharma/llmwareai-a-revolutionary-python-platform-that-will-accelerate-your-enterprise-3d84) |
+| **[Copilokit](https://github.com/CopilotKit/CopilotKit)**      | [Fly with AI Copilots using CopilotKit 🪁](https://dev.to/rohan_sharma/fly-with-ai-copilots-using-copilotkit-1d57) |
+| **[Permit.io](https://github.com/permitio)**      | [Add an authorization layer to your app with Permit.io🔏 in a few minutes ⏱️](https://dev.to/rohan_sharma/add-an-authorization-layer-to-your-app-with-permitio-in-a-few-minutes-32d6) |
+| **[Minds DB](https://github.com/mindsdb/mindsdb)**      | [MINDS DB: Integrate AI/ML models into your applications](https://dev.to/niharikaa/mindsdb-integrate-aiml-models-into-your-applications-4oc7) |
+
+&nbsp;
+
+> Interestingly, <mark>**Quira** is one of the sponsors of this year's Hacktoberfest!</mark> 🎉
+
+&nbsp;
+
+### Would I'll be able to make into Hacktoberfest 2024? 🤨
+Let me tell you something if you're not aware of this. **Disqualification from Hacktoberfest is permanent**. So, all over? Naah...
+
+I mailed the support team of Hacktoberfest in the hope of a chance. A single chance to prove that I'm not the same previous year's guy. I sent them mail on 2nd Oct and on 3rd Oct, I got the reply. The reply was... Check it out yourself!
+
+![2024](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3xbjqj8gw934c6exzki8.png)
+
+<mark>yes, they give me a chance</mark>! And I'm very thankful to them 🥹
+
+&nbsp;
+
+### Did I repeat the same things again?? 🤨
+BIG NOOOOOOOOOOOOOO!
+
+This is my Hackotberfest 2024 recap:
+![recap](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/e3vwvns3vl695atwnhac.png)
+
+Too many PRs. You must be thinking I spammed again! But nothing like that ✨
+
+![stats](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/hevnit90vlmqkrmwdtl0.png)
+<figcaption> October Contributions List </figcaption>
+
+&nbsp;
+
+This year, I didn't get a disqualification but got some appreciation from the maintainers. Here, you can find them:
+
+![mattermost](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/kap5ynqr5nz82u9526ex.png)
+<figcaption> One of a campaign of Mattermost during October wherein I contributed to 6 issues alone </figcaption>
+
+![Kitops](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/vabsv0rz7jlmyn0siqh6.png)
+<figcaption> Kitops Hacktoberfest Contribution (@rrs00179 is me) </figcaption>
+
+![configu](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/84lwkq6fu8eru9jz4dku.png)
+<figcaption> Configu Hacktoberfest Contribution </figcaption>
+
+&nbsp;
+
+Apart from these, I also **earned 200 USD** from my contribution. (that's a secret 😉)
+
+&nbsp;
+
+## What did I learn 🧑‍💻
+- Put your steps away if you know nothing.
+- Never play the victim card. You always know who are you from inside.
+- Learn the basics of Git and GitHub, if you want to land in open source. (it's a delusion that you need to learn things at the advanced level)
+- Follow good YouTubers/content creators. Frauds are everywhere!
+- Don't get influenced by any one comes to you. They might be wrong, whether intentionally or non-intentionally.
+- Learn from your mistakes.
+- Be a part of good communities like **[Quira](https://quira.sh/?utm_source=rohan)**, or other.
+- Focus on quality moreover quantity.
+- Don't run away from hard work.
+- Never judge yourself.
+- Refrain from the thoughts of "what people will say?".
+- Don't hesitate to ask for help.
+- Always be open with your thoughts.
+- Good things take time, so no need to rush in. Unless it's your love and you want them badly. [still, use your brain first 😉]
+- Believe yourself.
+
+&nbsp;
+
+## It's conclusion time!! ⏰
+I was hesitating a lot to write this blog. But, why hide? My GitHub speaks everything. I know I made a mistake and so I paid for that. I'm a prisoned person who has served his sentence.
+
+I don't know how you treat me. As a good person or a bad soul. The thing that matters the most to me is "How do I treat myself with your reactions?"
+
+This is the little story of dumbo. Though, I'm still a dumbo. 😂🤣
+
+If you want to **follow me**, here's my GitHub profile:
+{% embed https://github.com/RS-labhub %}
+
+If I can do it, then you also. Have some faith mate, everything will be okay one day. Just keep doing your work! 💝
+
+---
+
+# Top open-source repos/projects to contribute (Hacktoberfest Edition 🎃)
+
+And we all know **[Hacktoberfest](https://hacktoberfest.com/)** has already started. You might be looking for some repos/projects to contribute. Finding correct repos are very hard. And it becomes more harder if you're a `repo-specific` person!
+
+By the way, there's not only hacktoberfest but we have other programs too! A curated list of all the top 10 open-source programs is listed in my blog, you can read it here:
+{% embed https://dev.to/rohan_sharma/10-upcoming-open-source-events-you-can-not-miss-1a7b %}
+
+In this blog, I'll be talking about some top repos to contribute. Some of them may even award you with swags. But remember, SWAG MUST NOT BE THE REASON FOR YOU TO CONTRIBUTE IN THE FIRST PLACE. Please, do not spam for the sake of swags. 
+
+So, 3️⃣... 2️⃣... 1️⃣... Let's goooooooo! 🟢
+
+&nbsp;
+
+## 1️⃣ [Quira Hacktoberfest](https://quira.sh/quests/creator/submissions?questId=22) with [MindsDB](https://github.com/mindsdb/mindsdb) 🐻‍❄️
+
+![quest](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/z82udngqcte6p63a602k.png)
+
+In case, if you don't know about **Quira**, then read this **[BLOG](https://dev.to/rohan_sharma/quira-monetise-your-open-source-work-10e3)**, and register now!!
+
+**[MindsDB](https://github.com/mindsdb/mindsdb)** is an open-source platform that helps developers build custom AI solutions with their data. Since its inception, MindsDB has actively supported Hacktoberfest and the open-source community. 
+
+This October, MindsDB is introducing a special challenge that rewards both new and existing contributors with official MindsDB swag, and a prize draw of 3 Razor Blade 16 gaming laptops + some other roles! 💚
+
+
+![quest](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/it7li169vkgg2qripf1v.png)
+
+![prizes](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/0j5rl3kp5mrg4neg16ur.png)
+
+You can contribute to the following issues:
+- Improve knowledge base integrations
+- Improve integrations
+- Build an SDK (Golang, js, ruby, rust, C#, java, Cli)
+- Fix bugs
+- Perform testing 
+
+If you want to know more, read the **[DETAILS HERE](https://quira.sh/quests/creator/details?questId=22)**.
+
+Plus, participating in this quest will make you also eligible for the **[Minds DB Hacktoberfest](https://mindsdb.com/hacktoberfest)**.
+
+**Github issues**: https://github.com/mindsdb/mindsdb/issues
+
+**Tech Stack**: `python` (mainly). For SDKs, you can prefer `Golang`, `js`, `ruby`, `rust`, `C#`, `java`, `Cli`.
+
+---
+
+## 2️⃣ [Mattermost](https://github.com/mattermost/mattermost) 🐦‍⬛
+**[Mattermost](https://github.com/mattermost/mattermost)** is an open-source platform for secure collaboration across the entire software development lifecycle. This repo is the primary source for core development on the Mattermost platform; it's written in Go and React and runs as a single Linux binary with MySQL or PostgreSQL. A new compiled version is released under an MIT license every month on the 16th.
+
+**Github issues**: https://github.com/mattermost/mattermost/issues (they add a bunch of issues for all difficulty levels. That's the most interesting thing about this repo.)
+
+**Tech Stack**: `TypeScript`, `Golang`
+
+Mattermost is also celebrating the 11th iteration of the Hacktoberfest. Check out his blog post to get your 1st mattermost holopin badge: **[Mattermost Hacktoberfest 2024](https://mattermost.com/hacktoberfest/)**.
+
+---
+
+## 3️⃣ [Kong](https://github.com/Kong/kong) 🦍
+**[Kong](https://github.com/Kong/kong)** or **[Kong API Gateway](https://github.com/Kong/kong)** is a cloud-native, platform-agnostic, scalable API Gateway distinguished for its high performance and extensibility via plugins. It also provides advanced AI capabilities with multi-LLM support.
+
+By providing functionality for proxying, routing, load balancing, health checking, authentication (and more), Kong serves as the central layer for orchestrating microservices or conventional API traffic with ease.
+
+Kong runs natively on Kubernetes thanks to its official Kubernetes Ingress Controller.
+
+**Tech Stack**: `Lua`, `Perl`, `Raku`, `Starlark`, `Shell`, `Python`
+
+**Github issues**: https://github.com/Kong/kong/issues
+
+---
+
+## 4️⃣ [Taipy](https://github.com/avaiga/taipy) 🪡
+**[Taipy](https://github.com/avaiga/taipy)** is designed for data scientists and machine learning engineers to build data & AI web applications.  
+
+⭐️ Enables building production-ready web applications.
+⭐️ No need to learn new languages. Only Python is needed.
+⭐️ Concentrate on Data and AI algorithms without development and deployment complexities.
+
+**Github issues**: https://github.com/Avaiga/taipy/issues
+
+**Tech Stack**: `python`, `typscript`
+
+![taipy](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/van8rajklta8wznmrz0j.png)
+
+![rewards](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/u8clo7z5s56y0p2uhdis.png)
+
+Here's **[HACKTOBERFEST 2024 with TAIPY](https://assorted-son-815.notion.site/HacktoberFest-2024-with-Taipy-2a5032a3f01642709e88ffaa5d0d169e)** with all the details you want to know.
+
+---
+
+## 5️⃣ [AppWrite](https://github.com/appwrite/appwrite) ✒️
+**[AppWrite](https://github.com/appwrite/appwrite)** is an end-to-end backend server for Web, Mobile, Native, or Backend apps packaged as a set of Docker microservices. Appwrite abstracts the complexity and repetitiveness required to build a modern backend API from scratch and allows you to build secure apps faster.
+
+Using Appwrite, you can easily integrate your app with user authentication and multiple sign-in methods, a database for storing and querying users and team data, storage and file management, image manipulation, Cloud Functions, and more services.
+
+Github issues: https://github.com/appwrite/appwrite/issues
+
+Tech Stack: `TypeScript`, `php`
+
+AppWrite conducting its own **[AppWrite Hacktoberfest 2024 hackathon_](https://hacktoberfest.appwrite.io/)** with some great rewards!
+
+![rewards](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/mm4owedkwpzp4fndtus1.png)
+
+---
+
+## List of Other Cool Projects 🌠✨
+Let me create a table to make it easier for you. 🌱
+
+
+| Project                   | Tech Stack                     | Link                     | Rewards                     |
+|--------------------------|------------------------------|------------------------------------------------------------|------------------------------------------------------------|
+| **[Auth0 by Okta](https://authtoberfest.io/#g-430503226)**                  | many    | [Featured projects](https://authtoberfest.io/#g-430503226) | Limited edition T-shirt |
+| **[Ballerina](https://ballerina.io/hacktoberfest/)**               | `Java`, `TypeScript`, `PowerSheel`                    | [Ballerina Github issues](https://github.com/orgs/ballerina-platform/projects/376/views/1) | Swag from [Ballerina Swag store](https://store.covver.io/wso2/collections/ballerina-swag-store) |
+| **[Kubernetes](https://github.com/kubernetes/kubernetes)**                | `Go`, `Shell`                   | [K8 Github issues](https://github.com/kubernetes/kubernetes/issues) | - |
+| **[Cloudinary](https://cloudinary.com/blog/hacktoberfest-open-source-celebration-cloudinary)**               | many            | [Official SDKs](https://cloudinary.com/blog/hacktoberfest-open-source-celebration-cloudinary#official_sdks) and [Community SDKs](https://cloudinary.com/blog/hacktoberfest-open-source-celebration-cloudinary#community_sdks) | T-shirt, Stickers, Cloudinary unicorn |
+| **[Composio](https://github.com/ComposioHQ/composio)**               | `Python`, `JavaScript`, `TypeScript`            | [Composio Github issues](https://github.com/ComposioHQ/composio)| Stickers, T-shirt| 
+| **[Copilokit](https://github.com/CopilotKit/CopilotKit)**               | `TypeScript`, `React`            | [Copilokit Github issues](https://github.com/CopilotKit/CopilotKit/issues)| Copilokit Swag | 
+| **[DocsGPT](https://github.com/arc53/DocsGPT)**               | `Python`, `TypeScript`            | [DocsGPT Github issues](https://github.com/arc53/DocsGPT/issues)| Stickers, T-shirt | 
+| **[Hiero](https://hiero.org/hacktoberfest/)**               | many           | [Hiero Github issues](https://github.com/hashgraph/)| T-shirt | 
+| **[Tolgee](https://github.com/tolgee/tolgee-platform/blob/main/Hacktobefest2024.md)**               | `Kotlin`, `TypeScript`           | [Tolgee Github issues](https://github.com/tolgee/tolgee-platform/issues)| Stickers, Socks, T-shirts | 
+| **[HyperSwitch](https://github.com/juspay/hyperswitch)**               | `Rust`, `JavaScript`           | [HyperSwitch Github issues](https://github.com/juspay/hyperswitch/issues)| Stickers, T-shirt, and/or hoodie | 
+| **[Configu](https://github.com/configu/configu)**               | `Rust`, `JavaScript`           | [Configu Github issues](https://github.com/configu/configu/issues)| T-shirt and/or Beer Glass | 
+| **[LLMWare](https://github.com/llmware-ai/llmware)**               | `Python`           | [LLMWare Github issues](https://github.com/llmware-ai/llmware/issues)| - | 
+| **[Crawlee for Python](https://github.com/apify/crawlee-python)**               | `Python`, `JavaScript`          | [Crawlee Github issues](https://github.com/apify/crawlee-python/issues)| Sticker Sheet and Hoodie | 
+| **[Postiz](https://github.com/gitroomhq/postiz-app)**               | `TypeScript`          | [Postiz Github issues](https://github.com/gitroomhq/postiz-app/issues)| T-shirt | 
+| **[LangFuse](https://github.com/langfuse/langfuse)**               | `TypeScript`          | [LangFuse Github issues](https://github.com/langfuse/langfuse/issues)|  Stickers and T-shirt | 
+| **[Multiwoven](https://github.com/Multiwoven/multiwoven)**               | `Ruby`, `TypeScript`          | [Multiwoven Github issues](https://github.com/Multiwoven/multiwoven/issues)|  Merch and certificate of contribution | 
+| **[Instill AI](https://www.instill.tech/blog/hacktoberfest-2024-opening)**               | `Go`, `TypeScript`          | [Instill AI Github issues](https://github.com/orgs/instill-ai/projects/14/views/1)|  Instill AI swag | 
+
+&nbsp;
+
+## Moving to the end... 🥹
+Tell me your excitement level in the comment section 👇
+
+The only Prerequisite is you must know "**how to make open-source contributions?**". Otherwise, you won't be able to do anything. Go through this wonderful blog written by @fernandezbaptiste titled "**[Contribute to Open Source in the next 10 min - Step by Step [Beginner Edition]](https://dev.to/quira/contribute-to-open-source-in-the-next-10-min-step-by-step-beginner-edition-4aia)** 🦾".
+
+If you're a visual learner then go with the below video that will tell you the basics of open-source contributions. This video is made by me and I tried to explain in as short as I could!
+
+{% embed https://www.youtube.com/playlist?list=PLIwYXxWdFuacOpR9hxLDX19TH6XHFcbp7 %}
+
+⚠️ Final note: 
+> Please, try not to exploit the open source with bad codes or meaningless codes./.
+
+I hope you like this blog. This blog took some more time than usual. Thanks for reading 💖
+
+Happy_Contributions
+
+----
+
+# Top 5 open-source MLOps tool to boost your production ✨
+
+> Someone: How's everything going in your production?
+> Engineers: 🙂
+
+Let's start this blog with basics as some of you don't know what MLOps is, right?
+
+**MLOps, or Machine Learning Operations**, is a set of practices that streamline the process of developing, deploying, and maintaining machine learning (ML) models.
+
+In short, <mark>MLOps is an extension of DevOps</mark>.
+
+In this blog, I'll be covering the top 5 MLOps tools that will definitely be open-source and help you to do on top of some other products!
+
+So, let's start. 3... 2... 1... 🟢
+
+&nbsp;
+
+## 1️⃣ [KitOps](https://kitops.ml/) 🦁
+**[KitOps](https://kitops.ml/)** is an innovative open-source project designed to enhance collaboration among data scientists, application developers, and SREs working on integrating or managing self-hosted AI/ML models.
+
+![landing page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/l5zgs4u6or0jxs73on96.png)
+
+{% cta https://github.com/jozu-ai/kitops %} Star KitOps on Github ⭐ {% endcta %}
+
+&nbsp;
+
+### But, Why Kitops⁉️
+There is no standard and versioned packaging system for AI/ML projects.
+
+To solve this, Kitops is built. The goal of KitOps is to be a library of versioned packages for your AI project, stored in an enterprise registry you already use.
+
+#### 🪖 Here's why Kit's ModelKits are the better solution:
+- Combine models, datasets, code, and all the context teams need to integrate, test, or deploy:
+ - Training code
+ - Model code
+ - Serialized model
+ - Training, validation, and other datasets
+ - Metadata
+- Let teams reuse their existing container registries by packaging everything as an OCI-compliant artifact.
+- Support unpacking only a piece of the model package to your local machine (saving time and space).
+- Remove tampering risks by using an immutable package.
+- Reduce risks by including the provenance of the model and datasets.
+
+Use `kit pack` to package up your Jupyter notebook, serialized model, and datasets (based on a [Kitfile](https://kitops.ml/docs/kitfile/kf-overview.html)).
+
+Then `kit push` it to any OCI-compliant registry, even a private one.
+
+Most people won't need everything, so just `kit unpack` from the remote registry to get just the model, only the datasets, or just the notebook. Or, if you need everything then a `kit pull` will grab everything.
+
+&nbsp;
+
+### What's Inside KitOps?
+🎁 **ModelKit**
+At the heart of KitOps is the ModelKit, an OCI-compliant packaging format that enables the seamless sharing of all necessary artifacts involved in the AI/ML model lifecycle.
+
+📄 **Kitfile**
+Complementing the ModelKit is the Kitfile, a YAML-based configuration file that simplifies the sharing of model, dataset, and code configurations.
+
+🖥️ **Kit CLI**
+Bringing everything together is the Kit Command Line Interface (CLI). The Kit CLI is a powerful tool that enables users to create, manage, run, and deploy ModelKits using Kitfiles.
+
+&nbsp;
+
+| <mark> Some Useful Links </mark> |                                    |
+|-----------------------|------------------------------------|
+| **Topic**                 | **Link**                               |
+| Getting started with KitOps 📗      | https://kitops.ml/docs/get-started.html |
+| How to make your own Kitfile 👷‍♂️           | https://kitops.ml/docs/next-steps.html |
+| How KitOps Is Used 🛠️            | https://kitops.ml/docs/use-cases.html |
+| How KitOps is Different 🙈       | https://kitops.ml/docs/versus.html |
+| KitOps Modelkit                | https://kitops.ml/docs/modelkit/intro.html |
+| KitOps Kitfile                | https://kitops.ml/docs/kitfile/kf-overview.html |
+| KitOps CI references                | https://kitops.ml/docs/cli/cli-reference.html |
+
+&nbsp;
+
+Don't forget to join **KitOps Official Discord Channel**: https://discord.gg/EtmEN5gyV9
+
+{% cta https://github.com/jozu-ai/kitops %} Star KitOps on Github ⭐ {% endcta %}
+
+---
+
+## 2️⃣ [Kubeflow](https://www.kubeflow.org/) 🌊
+**[Kubeflow](https://www.kubeflow.org/)** is an open-source platform for machine learning and MLOps on Kubernetes introduced by Google. The different stages in a typical machine learning lifecycle are represented with different software components in Kubeflow, including model development, model training, model serving, and automated machine learning.
+
+![landing page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/tm3ivoc7x3ucq6c0njt7.png)
+
+{% cta https://github.com/kubeflow/ %} Star Kubeflow on Github ⭐ {% endcta %}
+
+&nbsp;
+
+- Kubeflow is compatible with cloud services (AWS, GCP, Azure) and self-hosted services.
+- It allows machine learning engineers to integrate all kinds of AI frameworks for training, finetuning, scheduling, and deploying the models.
+- It provides a centralized dashboard for monitoring and managing the pipelines, editing the code using Jupyter Notebook, experiment tracking, model registry, and artifact storage. 
+
+&nbsp;
+
+| <mark> Some Useful Links </mark> |                                    |
+|-----------------------|------------------------------------|
+| **Topic**                 | **Link**                               |
+| Introduction to KubeFlow 📗      | https://www.kubeflow.org/docs/started/introduction/ |
+| kubeFlow Architecture 👷‍♂️           | https://www.kubeflow.org/docs/started/architecture/ |
+| Installing KubeFlow 🛠️            | https://www.kubeflow.org/docs/started/installing-kubeflow/ |
+| KubeFlow Concepts 🙈       | https://www.kubeflow.org/docs/concepts/ |
+| KubeFlow Components                | https://www.kubeflow.org/docs/components/ |
+| KubeFlow External Add-ons                | https://www.kubeflow.org/docs/components/ |
+
+{% cta https://github.com/kubeflow/ %} Star Kubeflow on Github ⭐ {% endcta %}
+
+---
+
+## 3️⃣ [MLflow](https://mlflow.org/) 🐊
+**[MLflow](https://mlflow.org/)** is an open-source platform, purpose-built to assist machine learning practitioners and teams in handling the complexities of the machine learning process. MLflow focuses on the full lifecycle for machine learning projects, ensuring that each phase is manageable, traceable, and reproducible.
+
+It is generally used for experiment tracking and logging. However, with time, it has become an end-to-end MLOps tool for all kinds of machine learning models, including LLMs (Large Language Models).
+
+You can manage the entire machine learning ecosystem using CLI, Python, R, Java, and REST API.
+
+![landing page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/gxyws64zs8gxf53vm8dc.png)
+
+{% cta https://github.com/mlflow/mlflow %} Star MLflow on Github ⭐ {% endcta %}
+
+&nbsp;
+
+### The MLFlow has 6 core components:
+
+- **Tracking**: version and store parameters, code, metrics, and output files. It also comes with interactive metric and parametric visualizations. 
+- **Projects**: packaging data science source code for reusability and reproducibility.
+- **Models**: store machine learning models and metadata in a standard format that can be used later by the downstream tools. It also provides model serving and deployment options. 
+- **Model Registry**: a centralized model store for managing the life cycle of MLflow Models. It provides versioning, model lineage, model aliasing, model tagging, and annotations.
+- **Recipes (Pipelines)**: machine learning pipelines that let you quickly train high-quality models and deploy them to production.
+- **LLMs**: provide support for LLMs evaluation, prompt engineering, tracking, and deployment. 
+
+&nbsp;
+
+| <mark> Some Useful Links </mark> |                                    |
+|-----------------------|------------------------------------|
+| **Topic**                 | **Link**                               |
+| MLflow Overview 📗      | https://mlflow.org/docs/latest/index.html |
+| Getting Started with MLflow 👷‍♂️           | https://mlflow.org/docs/latest/tracking.html |
+| MLflow Tracing 🛠️            | https://mlflow.org/docs/latest/llms/tracing/index.html |
+| MLflow Models 🙈       | https://mlflow.org/docs/latest/models.html |
+| MLflow tracking                | https://mlflow.org/docs/latest/tracking.html |
+| MLflow Model Registry                | https://mlflow.org/docs/latest/models.html |
+| MLflow Recipies                | https://mlflow.org/docs/latest/recipes.html |
+| MLflow Projects                | https://mlflow.org/docs/latest/recipes.html |
+
+{% cta https://github.com/mlflow/mlflow %} Star MLflow on Github ⭐ {% endcta %}
+
+---
+
+## 4️⃣ [MetaFlow](https://metaflow.org/) 🐍
+**[MetaFlow](https://metaflow.org/)** is a human-friendly Python library that makes it straightforward to develop, deploy, and operate various kinds of data-intensive applications, in particular those involving data science, ML, and AI. Metaflow was originally developed at Netflix to boost the productivity of data scientists who work on a wide variety of projects, from classical statistics to state-of-the-art deep learning. 
+
+![landing page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/n72a25n48616hswkouzh.png)
+
+{% cta https://github.com/Netflix/metaflow %} Star MetaFlow on Github ⭐ {% endcta %}
+
+&nbsp;
+
+Metaflow was initially developed at Netflix to increase the productivity of data scientists. It has now been made open source, so everyone can benefit from it. 
+
+It provides a unified API for data management, versioning, orchestration, mode training and deployment, and computing. It is compatible with major Cloud providers and machine learning frameworks.
+
+![working](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/1jf631nz9nfezckrehty.png)
+
+&nbsp;
+
+| <mark> Some Useful Links </mark> |                                    |
+|-----------------------|------------------------------------|
+| **Topic**                 | **Link**                               |
+| MetaFlow Python Docs 📗      | https://docs.metaflow.org/ |
+| MetaFlow R Docs 👷‍♂️           | https://docs.metaflow.org/v/r |
+| MetaFlow Admin Docs 🛠️            | https://docs.outerbounds.com/engineering/welcome/ |
+
+{% cta https://github.com/Netflix/metaflow %} Star MetaFlow on Github ⭐ {% endcta %}
+
+---
+
+## 5️⃣ [MLRun](https://www.mlrun.org/) 🦏
+[MLRun](https://www.mlrun.org/) is an open-source AI orchestration framework for managing ML and generative AI applications across their lifecycle. It automates data preparation, model tuning, customization, validation and optimization of ML models, LLMs, and live AI applications over elastic resources. MLRun enables the rapid deployment of scalable real-time serving and application pipelines while providing built-in observability and flexible deployment options, supporting multi-cloud, hybrid, and on-prem environments.
+
+![landing page](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/waw6clnvj7zeyrzt4nt6.png)
+
+{% cta https://github.com/mlrun/mlrun %} Star MLRun on Github ⭐ {% endcta %}
+
+&nbsp;
+
+### 🔖 Core Components:
+- **Project Management**: a centralized hub that manages various project assets such as data, functions, jobs, workflows, secrets, and more.
+- **Data and Artifacts**: connect various data sources, manage metadata, catalog, and version the artifacts.
+- **Feature Store**: store, prepare, catalog, and serve model features for training and deployment.
+- **Batch Runs and Workflows**: runs one or more functions and collects, tracks, and compares all their results and artifacts.
+- **Real-Time Serving Pipeline**: fast deployment of scalable data and machine learning pipelines.
+- **Real-time monitoring**: monitors data, models, resources, and production components.
+
+&nbsp;
+
+| <mark> Some Useful Links </mark> |                                    |
+|-----------------------|------------------------------------|
+| **Topic**                 | **Link**                               |
+| MLRun Architecture 📗      | https://docs.mlrun.org/en/stable/architecture.html |
+| MLRun Tutorials and Examples 👷‍♂️           | https://docs.mlrun.org/en/stable/tutorials/index.html |
+| MLRun Installation and Setup Guide 🛠️            | https://docs.mlrun.org/en/stable/install.html |
+| MLRun GenAI Development Workflow             | https://docs.mlrun.org/en/stable/genai/genai-flow.html |
+| MLRun MLOps Development Workflow             | https://docs.mlrun.org/en/stable/mlops-dev-flow.html |
+
+{% cta https://github.com/mlrun/mlrun %} Star MLRun on Github ⭐ {% endcta %}
+
+---
+
+## Moving to the end... 🥹
+
+Each project carries some similarities and some differences. And every product is different, and thus the need.
+
+If you're an open-source enthusiast and have an interest or knowledge in MLOps/DevOps, you can contribute to these Awesome Repos.
+
+And as I say always, thanks for reading till here/~
+
+You're awesome! Have a good day... 💖
+
+![gif](https://dev-to-uploads.s3.amazonaws.com/uploads/articles/6f040o1i6ju7a6tooyrk.gif)
+
+---

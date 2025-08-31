@@ -14,7 +14,7 @@ Added a comprehensive AI image generation feature to the RSS Markdown Converter 
   - Supports sizes from 512x512 up to 1024x1024
 
 - **OpenAI DALL-E (Premium)**
-  - DALL-E 3 (best quality) and DALL-E 2 (faster)
+  - DALL-E 3 (best quality)
   - High resolution images up to 1792x1024
   - Requires OpenAI API key
   - Credit usage tracking

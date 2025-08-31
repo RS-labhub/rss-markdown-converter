@@ -119,8 +119,8 @@ export function AIToolsSection({
     const loadPersonas = async () => {
       const { getAllPersonaData } = await import("@/lib/persona-training")
       const personas = getAllPersonaData()
-      // Filter out bap and simon from custom personas list
-      const customPersonas = personas.filter((p) => p.name !== "bap" && p.name !== "simon").map((p) => p.name)
+      // Filter out bap, simon, and rohan sharma from custom personas list
+      const customPersonas = personas.filter((p) => p.name !== "bap" && p.name !== "simon" && p.name !== "rohan-sharma").map((p) => p.name)
       setTrainedPersonas(customPersonas)
     }
     loadPersonas()
@@ -176,7 +176,7 @@ export function AIToolsSection({
 
   // Check if current postType is a trained persona (including bap/simon)
   const isTrainedPersona = (type: string) => {
-    return type === "bap" || type === "simon" || trainedPersonas.includes(type)
+    return type === "bap" || type === "simon" || type === "rohan-sharma" || trainedPersonas.includes(type)
   }
 
   return (
@@ -314,6 +314,12 @@ export function AIToolsSection({
                       <div className="flex items-center gap-2">
                         <Brain className="w-4 h-4" />
                         Simon Style
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="rohan-sharma">
+                      <div className="flex items-center gap-2">
+                        <Brain className="w-4 h-4" />
+                        Rohan Sharma Style
                       </div>
                     </SelectItem>
 

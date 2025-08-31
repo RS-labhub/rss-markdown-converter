@@ -82,16 +82,19 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
     description: "Free AI-powered image generation, no API key required",
     models: [
       { id: "turbo", label: "Turbo (Fast Generation)" },
-      { id: "default", label: "Default Quality" },
+      { id: "sdxl", label: "Higher Quality (SDXL, Slower)" },
     ],
     defaultModel: "turbo",
     sizes: [
       { id: "square_small", label: "Square (512x512)", width: 512, height: 512 },
       { id: "square_medium", label: "Square (768x768)", width: 768, height: 768 },
       { id: "square_large", label: "Square (1024x1024)", width: 1024, height: 1024 },
+      { id: "best_square", label: "Best Square (1536x1536)", width: 1536, height: 1536 },
       { id: "portrait", label: "Portrait (512x768)", width: 512, height: 768 },
       { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "landscape_wide", label: "Wide (1024x576)", width: 1024, height: 576 },
+      { id: "hd_landscape", label: "HD Landscape (1536x864)", width: 1536, height: 864 },
+      { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
     ],
   },
   openai: {
@@ -99,10 +102,9 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
     name: "OpenAI DALL-E",
     requiresKey: true,
     icon: <ImageIcon className="w-4 h-4" />,
-    description: "Premium image generation with DALL-E 3 and DALL-E 2",
+    description: "Premium image generation with DALL-E 3",
     models: [
       { id: "dall-e-3", label: "DALL-E 3 (Best Quality)" },
-      { id: "dall-e-2", label: "DALL-E 2 (Faster)" },
     ],
     defaultModel: "dall-e-3",
     sizes: [
@@ -110,6 +112,8 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
       { id: "square_large", label: "Square HD (1024x1024)", width: 1024, height: 1024 },
       { id: "portrait", label: "Portrait (1024x1792)", width: 1024, height: 1792 },
       { id: "landscape", label: "Landscape (1792x1024)", width: 1792, height: 1024 },
+      { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
+      { id: "highest_resolution", label: "Highest Resolution (1792x1024)", width: 1792, height: 1024 },
     ],
   },
   huggingface: {
@@ -130,6 +134,9 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
       { id: "portrait", label: "Portrait (512x768)", width: 512, height: 768 },
       { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "hd_square", label: "HD Square (1024x1024)", width: 1024, height: 1024 },
+      { id: "best_square", label: "Best Square (1536x1536)", width: 1536, height: 1536 },
+      { id: "hd_landscape", label: "HD Landscape (1536x864)", width: 1536, height: 864 },
+      { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
     ],
   },
 }
@@ -631,7 +638,7 @@ export function ImageGenerationDialog({
             requiresKey: true,
             keyPlaceholder: "sk-...",
             keyValidation: (key: string) => key.startsWith("sk-") && key.length > 20,
-            defaultModels: ["dall-e-3", "dall-e-2"],
+            defaultModels: ["dall-e-3"],
             supportsCustomModels: false,
           },
           {

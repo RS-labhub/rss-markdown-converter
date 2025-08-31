@@ -98,6 +98,14 @@ export function PersonaTrainingDialog({
           isBuiltIn: true,
           contentType: "mixed",
         },
+        {
+          name: "rohan-sharma",
+          rawContent: "Built-in Rohan Sharma persona",
+          instructions: getBuiltInPersonaInstructions("rohan-sharma"),
+          createdAt: new Date().toISOString(),
+          isBuiltIn: true,
+          contentType: "mixed",
+        },
       ]
 
       setExistingPersonas([...builtInPersonas, ...personas])
@@ -109,7 +117,7 @@ export function PersonaTrainingDialog({
   const loadPersonaData = (name: string) => {
     try {
       // Check if it's a built-in persona
-      if (name === "bap" || name === "simon") {
+      if (name === "bap" || name === "simon" || name === "rohan-sharma") {
         setPersonaName(name)
         setTrainingContent("") // Built-in personas don't have editable training content
         setInstructions(getBuiltInPersonaInstructions(name) || "")

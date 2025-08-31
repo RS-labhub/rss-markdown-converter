@@ -18,16 +18,19 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
     requiresKey: false,
     models: [
       { id: "turbo", label: "Turbo (Fast Generation)" },
-      { id: "default", label: "Default Quality" },
+      { id: "sdxl", label: "Higher Quality (SDXL, Slower)" },
     ],
     defaultModel: "turbo",
     sizes: [
       { id: "square_small", label: "Square (512x512)", width: 512, height: 512 },
       { id: "square_medium", label: "Square (768x768)", width: 768, height: 768 },
       { id: "square_large", label: "Square (1024x1024)", width: 1024, height: 1024 },
+      { id: "best_square", label: "Best Square (1536x1536)", width: 1536, height: 1536 },
       { id: "portrait", label: "Portrait (512x768)", width: 512, height: 768 },
       { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "landscape_wide", label: "Wide (1024x576)", width: 1024, height: 576 },
+      { id: "hd_landscape", label: "HD Landscape (1536x864)", width: 1536, height: 864 },
+      { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
     ],
   },
   huggingface: {
@@ -46,6 +49,8 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
       { id: "portrait", label: "Portrait (512x768)", width: 512, height: 768 },
       { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "hd_square", label: "HD Square (1024x1024)", width: 1024, height: 1024 },
+      { id: "best_square", label: "Best Square (1536x1536)", width: 1536, height: 1536 },
+      { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
     ],
   },
   openai: {
@@ -54,7 +59,6 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
     requiresKey: true,
     models: [
       { id: "dall-e-3", label: "DALL-E 3" },
-      { id: "dall-e-2", label: "DALL-E 2" },
     ],
     defaultModel: "dall-e-3",
     sizes: [
@@ -62,6 +66,7 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
       { id: "square_large", label: "Square HD (1024x1024)", width: 1024, height: 1024 },
       { id: "portrait", label: "Portrait (1024x1792)", width: 1024, height: 1792 },
       { id: "landscape", label: "Landscape (1792x1024)", width: 1792, height: 1024 },
+      { id: "highest_resolution", label: "Highest Resolution (1792x1024)", width: 1792, height: 1024 },
     ],
   },
 }
@@ -73,73 +78,84 @@ async function generateFreeImage(
   width: number,
   height: number
 ): Promise<{ imageUrl: string; credits: number; model: string }> {
+  // Normalize model (default to turbo if not provided)
+  const chosenModel = model || "turbo";
+
   // Try multiple free services in order
   const services = [
     {
       name: "Pollinations AI",
       generateUrl: () => {
-        const encodedPrompt = encodeURIComponent(prompt)
-        // Use seed for consistency
-        const seed = Math.floor(Math.random() * 1000000)
-        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`
-      }
+        const encodedPrompt = encodeURIComponent(prompt);
+        const seed = Math.floor(Math.random() * 1000000);
+
+        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${chosenModel}`;
+      },
+      isDirect: true,
     },
     {
       name: "Lexica Art",
       generateUrl: () => {
-        // Lexica provides search-based image generation
-        const encodedPrompt = encodeURIComponent(prompt)
-        return `https://lexica.art/api/v1/search?q=${encodedPrompt}`
+        const encodedPrompt = encodeURIComponent(prompt);
+        return `https://lexica.art/api/v1/search?q=${encodedPrompt}`;
       },
-      isSearch: true
-    }
-  ]
+      isSearch: true,
+    },
+  ];
 
   for (const service of services) {
     try {
-      console.log(`Trying ${service.name}...`)
-      
-      if (service.isSearch) {
-        // Handle search-based services
-        const response = await fetch(service.generateUrl())
-        if (response.ok) {
-          const data = await response.json()
-          if (data.images && data.images.length > 0) {
-            // Return the first image URL
-            return {
-              imageUrl: data.images[0].src || data.images[0].url,
-              credits: 0,
-              model: service.name,
-            }
-          }
+      console.log(`Trying ${service.name} with model: ${chosenModel}...`);
+
+      // Handle Pollinations (turbo, flux, etc.)
+      if (service.isDirect) {
+        const url = service.generateUrl();
+        const response = await fetch(url, { method: "HEAD" }); // check if alive
+        if (!response.ok) {
+          console.error(`${service.name} error: ${response.status} ${response.statusText}`);
+          continue;
         }
-      } else {
-        // Direct image generation
-        const imageUrl = service.generateUrl()
-        
-        // For Pollinations, we can return the URL directly as it generates on-demand
         return {
-          imageUrl: imageUrl,
+          imageUrl: url,
           credits: 0,
-          model: service.name,
+          model: chosenModel, // could be turbo, sdxl or flux
+        };
+      }
+
+      // Handle Lexica (search-based, fallback only)
+      if (service.isSearch) {
+        const response = await fetch(service.generateUrl());
+        if (!response.ok) {
+          console.error(`${service.name} error: ${response.status} ${response.statusText}`);
+          continue;
+        }
+        const data = await response.json();
+        if (data.images && data.images.length > 0) {
+          return {
+            imageUrl: data.images[0].src || data.images[0].url,
+            credits: 0,
+            model: service.name,
+          };
         }
       }
     } catch (error) {
-      console.error(`${service.name} failed:`, error)
-      continue
+      console.error(`${service.name} failed:`, error);
+      continue;
     }
   }
 
-  // If all services fail, generate a placeholder
-  console.log("All services failed, generating placeholder...")
-  const placeholderText = prompt.slice(0, 50).replace(/[^a-zA-Z0-9\s]/g, '')
-  const placeholderUrl = `https://via.placeholder.com/${width}x${height}/3b82f6/ffffff?text=${encodeURIComponent(placeholderText)}`
-  
+  // If all services fail, fallback placeholder
+  console.warn("All services failed, generating placeholder...");
+  const placeholderText = prompt.slice(0, 50).replace(/[^a-zA-Z0-9\s]/g, "");
+  const placeholderUrl = `https://via.placeholder.com/${width}x${height}/3b82f6/ffffff?text=${encodeURIComponent(
+    placeholderText
+  )}`;
+
   return {
     imageUrl: placeholderUrl,
     credits: 0,
     model: "Placeholder (Services Unavailable)",
-  }
+  };
 }
 
 // Generate image using Hugging Face API

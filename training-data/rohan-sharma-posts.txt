@@ -1,0 +1,352 @@
+𝗘𝘅𝗰𝗹𝘂𝘀𝗶𝘃𝗲 𝗖𝘆𝗯𝗲𝗿𝘀𝗲𝗰𝘂𝗿𝗶𝘁𝘆 𝗪𝗲𝗯𝗶𝗻𝗮𝗿 𝗔𝗹𝗲𝗿𝘁! 
+
+Join us for a game-changing session on securing connected devices with industry leaders from Infineon Technologies and Thistle Technologies!
+
+📅 August 14, 2025
+🕗 8:30 PM - 9:30 PM IST
+🎯 Focus: Practical embedded security implementation
+
+𝗪𝗵𝗮𝘁 𝗺𝗮𝗸𝗲𝘀 𝘁𝗵𝗶𝘀 𝘄𝗲𝗯𝗶𝗻𝗮𝗿 𝗱𝗶𝗳𝗳𝗲𝗿𝗲𝗻𝘁?
+• No death by PowerPoint - real, interactive engineering discussions
+• Practical insights for CRA compliance
+• Hands-on approach to boot protection & OTA firmware updates
+• Direct access to industry experts
+
+𝗙𝗲𝗮𝘁𝘂𝗿𝗲𝗱 𝗦𝗽𝗲𝗮𝗸𝗲𝗿𝘀:
+→ Raúl Vergara (Thistle Technologies)
+→ Josh Marquardt (Infineon Technologies)
+→ Julie Huang (Infineon Technologies)
+→ Elliott Lee-Hearn (ipXchange)
+
+𝗞𝗲𝘆 𝗧𝗼𝗽𝗶𝗰𝘀:
+• PSOC™ 6 Family security features
+• OPTIGA™ Trust M implementation
+• Edge device security best practices
+• Real-world cybersecurity challenges & solutions
+
+Perfect for engineers, security professionals, and tech leaders looking to strengthen their IoT security infrastructure.
+
+𝗟𝗶𝗺𝗶𝘁𝗲𝗱 𝘀𝗽𝗼𝘁𝘀 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲! Register now:
+https://tr.ee/thistle-rs
+
+---
+
+𝗕𝗶𝗴 𝗺𝗶𝗹𝗲𝘀𝘁𝗼𝗻𝗲 𝗳𝗼𝗿 𝗟𝗟𝗠𝗪𝗮𝗿𝗲.
+
+We’ve 𝗰𝗿𝗼𝘀𝘀𝗲𝗱 𝟯𝟬𝟬+ 𝗳𝗼𝗹𝗹𝗼𝘄𝗲𝗿𝘀 𝗼𝗻 𝗚𝗶𝘁𝗛𝘂𝗯, with 𝟭𝟰𝗞+ 𝘀𝘁𝗮𝗿𝘀 𝗮𝗻𝗱 𝟮.𝟱𝗞+ 𝗳𝗼𝗿𝗸𝘀 and our Discord community has grown to 𝗼𝘃𝗲𝗿 𝟱,𝟬𝟬𝟬+ 𝗱𝗲𝘃𝗲𝗹𝗼𝗽𝗲𝗿𝘀.
+
+LLMWare (by Ai Bloks) is built for developers who want fast, production-ready LLM apps without the heavy lifting. From lightweight model hosting to enterprise-ready integrations, we’re making it easier to go from idea to deployment in record time.
+
+If you’re building with LLMs and want to stay ahead of the curve:
+
+✦ 𝗘𝘅𝗽𝗹𝗼𝗿𝗲 𝘁𝗵𝗲 𝗚𝗶𝘁𝗵𝘂𝗯 𝗥𝗲𝗽𝗼𝘀𝗶𝘁𝗼𝗿𝘆: https://lnkd.in/duQudB-D
+
+✦ 𝗝𝗼𝗶𝗻 𝘁𝗵𝗲 𝗟𝗟𝗠𝗪𝗮𝗿𝗲 𝗖𝗼𝗺𝗺𝘂𝗻𝗶𝘁𝘆: https://lnkd.in/gY-_Cy8i
+
+Let’s build the future of LLM applications together.
+
+---
+
+Wait… is this even real?!
+
+ Did we just discover a real-life superhero for developers?
+
+Meet Robert Wolff, the dev world’s unsung legend. :p
+
+But seriously… what superpowers do you think he has?
+✦ Lightning-fast debugging?
+✦ Instant context switching?
+✦ Code that’s bug-proof?
+
+Drop your wildest guesses below ⬇️
+
+Let’s build his dev-hero origin story together!
+
+And don't forget to continue the craziness on X: https://lnkd.in/gXjhajkP
+
+---
+
+Nothing, just a person chilling in the devEco discord server. Isn't it great?
+
+That moment captured everything devEco stands for: openness, authenticity, and human-first tech.
+
+If you’re curious what it feels like to be part of a community that values people over platforms, watch this.
+
+It’s not a sales pitch. It’s an invitation.
+
+Fill out this mini form to be a part devEco Community: https://lnkd.in/gcE5pmvP
+
+---
+
+𝗖𝗹𝗼𝘂𝗱 𝗟𝗟𝗠𝘀 𝗮𝗿𝗲 𝗯𝗿𝗲𝗮𝗸𝗶𝗻𝗴 𝗲𝗻𝘁𝗲𝗿𝗽𝗿𝗶𝘀𝗲 𝗔𝗜 𝘄𝗼𝗿𝗸𝗳𝗹𝗼𝘄𝘀
+
+Security risks, unpredictable token costs, and latency make it hard for developers to build truly reliable AI systems. That’s why we created Model HQ to bring AI directly to your device.
+
+Model HQ by LLMWare (by Ai Bloks) lets you run 𝟭𝟬𝟬+ 𝗺𝗼𝗱𝗲𝗹𝘀 (up to 32B parameters) locally with full acceleration on Intel Corporation and Qualcomm PCs. 𝗡𝗼 𝗶𝗻𝘁𝗲𝗿𝗻𝗲𝘁 𝗻𝗲𝗲𝗱𝗲𝗱 after setup. No data ever leaves your system.
+
+Enterprise teams are now deploying 𝗥𝗔𝗚 𝗰𝗵𝗮𝘁𝗯𝗼𝘁𝘀 𝗮𝗻𝗱 𝗰𝘂𝘀𝘁𝗼𝗺 𝗔𝗜 𝘄𝗼𝗿𝗸𝗳𝗹𝗼𝘄𝘀 𝗳𝗮𝘀𝘁𝗲𝗿, safer, and more cost-effectively than ever before.
+
+We’re offering a 𝟵𝟬-𝗱𝗮𝘆 𝗳𝗿𝗲𝗲 𝘁𝗿𝗶𝗮𝗹 𝗼𝗳 𝘁𝗵𝗲 𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗲𝗿 𝗩𝗲𝗿𝘀𝗶𝗼𝗻 so you can build, test, and deploy right from your machine.
+
+Try it today: https://lnkd.in/gEEUYzZX
+
+Any doubts or queries? Please reach out to us at 𝙨𝙪𝙥𝙥𝙤𝙧𝙩@𝙖𝙞𝙗𝙡𝙤𝙠𝙨.𝙘𝙤𝙢
+
+---
+
+𝗡𝗼 𝗮𝗱𝘀. 𝗡𝗼 𝗽𝗶𝘁𝗰𝗵𝗲𝘀. 𝗝𝘂𝘀𝘁 𝗿𝗲𝗮𝗹 𝘁𝗮𝗹𝗸 𝗮𝗻𝗱 𝗿𝗲𝗮𝗹 𝗱𝗲𝘃𝘀.
+
+Yesterday’s 𝗗𝗲𝘃𝗲𝗹𝗼𝗽𝗲𝗿𝘀 𝗔𝗻𝗼𝗻𝘆𝗺𝗼𝘂𝘀 was one of those “you had to be there” moments.
+
+We had lightning demos from open-source tinkerers, honest convos about burnout, and a late-night voice channel that somehow turned into a debugging support group. This is what it looks like when community actually means something.
+
+At devEco, we host these casual monthly meetups so devs can share what they’re building, ask for help, or just hang out with folks who get it. No pressure. No ego. Just curiosity, camaraderie, and code.
+
+If that sounds like your kind of space, come say hey on Discord.
+
+We’re building this collective with each other, not for an audience.
+
+👉 https://discord.gg/deveco
+
+ 🫱 Follow us here on LinkedIn to catch the next #devAnon
+
+Built by developers. For developers. Always.
+
+A big thanks to Robert Wolff | Dr. Sanjeev Sarpal | Rohan S. | Michael Welling | Jon Durrant | Marcin Juszkiewicz | Bill Huey | Sergio R. Caprile | Steven Driver and others for making it awesome!!!!
+
+#DevelopersAnonymous #devEco #DevCommunity #OpenSource
+
+---
+
+𝗖𝗢𝗔 𝗗𝗮𝘁𝗮 𝗧𝗿𝗮𝗻𝘀𝗳𝗲𝗿 𝗠𝗲𝘁𝗵𝗼𝗱𝘀:
+1. Programmed I/O – CPU is busy
+2. Interrupt-Driven I/O – CPU gets pinged
+3. DMA (Direct Memory Access) – Fast and efficient
+4. Indian Auntie Transfer Protocol (IATP) –
+ 🚀 𝘕𝘰 𝘣𝘶𝘴 𝘳𝘦𝘲𝘶𝘪𝘳𝘦𝘥.
+ ⚡ 𝘕𝘰 𝘭𝘢𝘵𝘦𝘯𝘤𝘺.
+ 💬 𝘠𝘰𝘶𝘳 𝘮𝘢𝘳𝘬𝘴, 𝘧𝘶𝘵𝘶𝘳𝘦 𝘱𝘭𝘢𝘯𝘴 & 𝘺𝘰𝘶𝘳 𝘤𝘳𝘶𝘴𝘩’𝘴 𝘯𝘢𝘮𝘦? 𝘛𝘳𝘢𝘯𝘴𝘧𝘦𝘳𝘳𝘦𝘥 𝘢𝘤𝘳𝘰𝘴𝘴 𝘵𝘩𝘦 𝘤𝘰𝘭𝘰𝘯𝘺(𝘴𝘰𝘮𝘦𝘵𝘪𝘮𝘦𝘴 𝘦𝘷𝘦𝘯 𝘶𝘯𝘪𝘷𝘦𝘳𝘴𝘦) 𝘪𝘯 just 2 𝘴𝘦𝘤𝘰𝘯𝘥𝘴.
+
+(tried to make out a meme. But unknowingly, I wrote down the truth. Agree?)
+
+---
+
+𝗟𝗟𝗠𝗪𝗮𝗿𝗲 𝗶𝘀 𝗻𝗼𝘄 𝘁𝗿𝗲𝗻𝗱𝗶𝗻𝗴 𝗼𝗻 𝗚𝗶𝘁𝗛𝘂𝗯! 🚀
+
+We’re incredibly proud to see the open-source community embracing LLMWare (by Ai Bloks): a unified framework for building enterprise RAG pipelines with small, specialized models.
+
+Whether you're running on consumer GPUs, building RAG pipelines, or embedding enterprise docs with full control, LLMWare is built for developers who want flexibility and performance.
+
+Thanks to everyone who has starred, forked, contributed, and believed in the mission.
+
+Let’s keep pushing the boundaries of open source AI together.
+👉 https://lnkd.in/duQudB-D
+
+Check it out here: https://lnkd.in/gH4b_a7p
+
+---
+
+𝗪𝗮𝗻𝘁 𝘁𝗼 𝗰𝗿𝗲𝗮𝘁𝗲 𝗮 𝗽𝗿𝗶𝘃𝗮𝘁𝗲 𝗰𝗵𝗮𝘁𝗯𝗼𝘁 𝘁𝗵𝗮𝘁 𝗿𝘂𝗻𝘀 𝗹𝗼𝗰𝗮𝗹𝗹𝘆 𝘄𝗶𝘁𝗵𝗼𝘂𝘁 𝗶𝗻𝘁𝗲𝗿𝗻𝗲𝘁?
+
+Here's the solution:
+https://lnkd.in/giQ9Pt7u
+
+Model HQ by LLMWare (by Ai Bloks) is an innovative application that allows you to create and run a chatbot locally on your PC or laptop without an internet connection. Best of all, this can be done with NO CODE in less than 10 minutes, even on older laptops up to 5 years old, provided they have 16GB or more of RAM.
+
+𝗧𝗿𝘆 𝗼𝘂𝘁 𝘁𝗵𝗲 𝟵𝟬-𝗗𝗮𝘆 𝗙𝗿𝗲𝗲 𝗧𝗿𝗶𝗮𝗹 𝗧𝗼𝗱𝗮𝘆: https://lnkd.in/gEEUYzZX
+
+Any doubts? Ask me in the comment section!
+
+---
+
+Hey all, 𝘄𝗮𝗻𝘁 𝘁𝗼 𝘀𝗵𝗼𝘄 𝘆𝗼𝘂𝗿 𝗿𝗲𝗮𝗹-𝘁𝗶𝗺𝗲 𝗗𝗶𝘀𝗰𝗼𝗿𝗱 𝗖𝗼𝗺𝗺𝘂𝗻𝗶𝘁𝘆 𝗠𝗲𝗺𝗯𝗲𝗿𝘀 𝗖𝗼𝘂𝗻𝘁 𝘁𝗼 𝘆𝗼𝘂𝗿 𝗚𝗶𝘁𝗛𝘂𝗯 𝗥𝗲𝗮𝗱𝗺𝗲 𝗼𝗿 𝗪𝗲𝗯𝘀𝗶𝘁𝗲?
+
+𝗧𝗿𝘆 𝘁𝗵𝗶𝘀: https://lnkd.in/gsbmwY6M
+
+Please follow the documentation. 𝗜𝘁 𝘄𝗶𝗹𝗹 𝘁𝗮𝗸𝗲 𝗹𝗲𝘀𝘀 𝘁𝗵𝗮𝗻 𝟱 𝗺𝗶𝗻𝘂𝘁𝗲𝘀.
+
+𝗢𝘁𝗵𝗲𝗿 𝘂𝘀𝗲𝗳𝘂𝗹 𝗹𝗶𝗻𝗸𝘀:
+- 𝘿𝙤𝙘𝙪𝙢𝙚𝙣𝙩𝙖𝙩𝙞𝙤𝙣: https://lnkd.in/gHigC7Fj
+- 𝙂𝙞𝙩𝙃𝙪𝙗 𝙍𝙚𝙥𝙤𝙨𝙞𝙩𝙤𝙧𝙮: https://lnkd.in/g5jSmKbg (star it 🌠)
+- 𝙑𝙞𝙙𝙚𝙤 𝙀𝙭𝙥𝙡𝙖𝙣𝙖𝙩𝙞𝙤𝙣: https://lnkd.in/gHAD2ZbK (ike and subscribe)
+- 𝘽𝙡𝙤𝙜: https://lnkd.in/gH6VyMQP
+
+Any questions, ask in the comment section.
+
+---
+
+🚀 Freshly Launched
+
+𝗥𝗔𝗗𝗛𝗜𝗞𝗔 – Adaptive Reasoning & Intelligence Assistant and your BFF 💫
+
+Meet 𝗥𝗔𝗗𝗛𝗜𝗞𝗔, your AI-powered BFF built with Next.js and powered by Groq, Gemini, OpenAI, and Claude. Whether you're working, learning, vibing, or relaxing, RADHIKA adapts with 6 smart assistant modes — including a productivity pro, wellness buddy, and your GenZ bestie. 💬✨
+
+💡 𝗞𝗲𝘆 𝗛𝗶𝗴𝗵𝗹𝗶𝗴𝗵𝘁𝘀:
+🤖 Multi-Modal AI - Six specialized assistant personalities in one app 
+⚡ Multi-Provider Support - Groq, Gemini, OpenAI, and Claude integration 
+🎤 Advanced Voice - Speech-to-text input and text-to-speech output 
+🎨 Dynamic 3D Visuals - Interactive particle system with mode-based colors 
+💾 Smart Persistence - Automatic chat history saving per mode 
+🚀 Quick Actions - One-click access to common tasks per mode 
+📊 Real-time Analytics - Live usage statistics and AI activity monitoring 
+🌙 Beautiful UI - Responsive design with dark/light themes 
+
+𝗟𝗶𝘃𝗲 𝗟𝗶𝗻𝗸: https://lnkd.in/gTKW_4gJ
+
+𝗚𝗶𝘁𝗵𝘂𝗯 𝗥𝗲𝗽𝗼: https://lnkd.in/gQajc9pR (star the repo 🌠) 
+
+𝗖𝗵𝗲𝗰𝗸 𝗼𝘂𝘁 𝘁𝗵𝗲 𝗯𝗹𝗼𝗴: https://lnkd.in/gX68zV-K
+
+𝗪𝗮𝘁𝗰𝗵 𝘁𝗵𝗲 𝗩𝗶𝗱𝗲𝗼 𝗱𝗲𝗺𝗼: https://lnkd.in/gQgRENBv
+
+---
+
+𝗗𝗲𝘃𝗔𝗻𝗼𝗻 𝗥𝗲𝗰𝗮𝗽
+
+Yesterday’s session brought crispy talks, good vibes, and some playful roasting. I couldn’t stay for the whole thing (work called), but the part I caught? Totally worth it.
+
+Hearing from folks with serious industry experience and just being able to talk like humans reminds me why devEco feels different.
+
+𝗪𝗮𝗻𝘁 𝗶𝗻?
+Join the Developer Ecosystem (devEco).
+Discord: https://discord.gg/deveco
+
+It’s more than a community; it’s a place where developers grow, share, and support each other.
+
+CC: Robert Wolff thanks for putting me in there.
+
+#devAnon #devEco #DeveloperCommunity
+
+---
+
+Hey all,
+
+Recently, I removed all the unknown connections from my LinkedIn account. But even before I didn't have 500+ connections, it was only 156, and now it's only 133.
+
+I never wanted a big LinkedIn family with 99% unknown faces. Those are not connections, but just numbers.
+
+The unknown connections I removed were:
+- the people I never met/talk/know
+- my classmates (personal reasons.)
+
+What's your thought on this?
+
+---
+
+Hey there,
+
+It's been a long time since I participated in a hackathon (almost after 2 yrs) or created a project.
+
+Let's ship some stuff!!!
+
+Created 𝐑𝐚𝐝𝐡𝐢𝐤𝐚'𝐬 𝐀𝐈 𝐃𝐨𝐜𝐌𝐚𝐧𝐠𝐞𝐫: 𝑨 𝒔𝒖𝒑𝒆𝒓 𝒑𝒐𝒘𝒆𝒓𝒇𝒖𝒍 𝑫𝒐𝒄𝒖𝒎𝒆𝒏𝒕 𝑴𝒂𝒏𝒂𝒈𝒆𝒎𝒆𝒏𝒕 𝑺𝒚𝒔𝒕𝒆𝒎.
+
+This project demonstrates how to implement fine-grained authorization for both users and AI agents in a Next.js application using Permit.io. It's a document management system where users can create, view, edit, and delete documents based on their roles and document ownership, and AI agents can assist with document management based on their assigned permissions.
+
+
+- 𝐆𝐢𝐭𝐡𝐮𝐛 𝐑𝐞𝐩𝐨: https://lnkd.in/gfqWmBKA
+- 𝐃𝐨𝐜𝐬: https://lnkd.in/gchUbKQD
+- 𝐘𝐨𝐮𝐓𝐮𝐛𝐞 𝐃𝐞𝐦𝐨: https://lnkd.in/gxDF6TbT
+- 𝐁𝐥𝐨𝐠: https://lnkd.in/gXBx8Xax
+
+Thanks to Permit.io for saving a lot of code time and making access control easier.
+
+---
+
+Hey all!
+
+We ( Social(Formerly Script Foundation) ) are looking for outreach interns for our upcoming hackathon, "𝐇𝐚𝐜𝐤 𝐓𝐡𝐞 𝐅𝐥𝐚𝐠". 
+
+𝐖𝐡𝐚𝐭 𝐰𝐞 𝐚𝐫𝐞 𝐥𝐨𝐨𝐤𝐢𝐧𝐠 𝐟𝐨𝐫:
+1. Part of a Big community.
+2. Able to bring fellow devs for the hackathon
+
+𝐏𝐞𝐫𝐤𝐬:
+1. Offer letter
+2. Internship Certificate
+3. Swags by Social Winter of Code (SWOC)
+
+If you're interested, please fill out this google form: https://lnkd.in/gMumN7Hx and be a part of a wonderful community.
+
+Deadline: 10th of Feb, 2025 at 11:59pm
+
+𝘐𝘧 𝘺𝘰𝘶 𝘵𝘩𝘪𝘯𝘬 𝘴𝘰𝘮𝘦𝘰𝘯𝘦 𝘮𝘪𝘨𝘩𝘵 𝘣𝘦 𝘢 𝘨𝘰𝘰𝘥 𝘧𝘪𝘵, 𝘱𝘭𝘦𝘢𝘴𝘦 𝘳𝘦𝘤𝘰𝘮𝘮𝘦𝘯𝘥 us (𝘵𝘢𝘨 𝘵𝘩𝘦𝘮 𝘪𝘯 𝘵𝘩𝘦 𝘤𝘰𝘮𝘮𝘦𝘯𝘵 𝘴𝘦𝘤𝘵𝘪𝘰𝘯 𝘰𝘳 𝘤𝘰𝘮𝘮𝘦𝘯𝘵 𝘤𝘧𝘣𝘳).
+
+---
+
+Hey all!!
+
+Presenting to you "𝐇𝐚𝐜𝐤 𝐭𝐡𝐞 𝐅𝐥𝐚𝐠". A hackathon you all are waiting for! This hackathon is sponsored by Flagsmith and brought to you by Social(Formerly Script Foundation).
+This is going to be a 𝐭𝐰𝐨-𝐰𝐞𝐞𝐤-𝐥𝐨𝐧𝐠 𝐨𝐧𝐥𝐢𝐧𝐞 𝐡𝐚𝐜𝐤𝐚𝐭𝐡𝐨𝐧, starting from 10th March, with a 𝐩𝐫𝐢𝐳𝐞 𝐩𝐨𝐨𝐥 𝐨𝐟 $1000. Submissions in this hackathon will be valid as long as the submitted project 𝐮𝐬𝐞𝐬 𝐅𝐥𝐚𝐠𝐬𝐦𝐢𝐭𝐡.
+
+𝐇𝐚𝐜𝐤𝐚𝐭𝐡𝐨𝐧 𝐝𝐞𝐭𝐚𝐢𝐥𝐬:
+Registration: Jan 20,2025 09:00 - Mar 5,2025 12:00
+Mode: Online
+Duration: 2 weeks
+Start date: 10th March
+Members: 1-4
+
+𝐀𝐩𝐩𝐥𝐲 𝐧𝐨𝐰: https://lnkd.in/gum5_Ak4
+
+Don't miss out on this opportunity! Call your army and conquer it! Please repost this, if you think your circle needs to know about this!
+
+𝘐𝘧 𝘺𝘰𝘶 𝘩𝘢𝘷𝘦 𝘢𝘯𝘺 𝘥𝘰𝘶𝘣𝘵𝘴 𝘰𝘳 𝘲𝘶𝘦𝘳𝘪𝘦𝘴, 𝘺𝘰𝘶 𝘤𝘢𝘯 𝘤𝘰𝘮𝘮𝘦𝘯𝘵 𝘰𝘯 𝘵𝘩𝘪𝘴 𝘱𝘰𝘴𝘵 𝘰𝘳 𝘥𝘮 𝘮𝘦!
+
+---
+
+Hey Folks, 
+Have some time?? Maybe around half an hour. 
+That's all you need to get yourself rewarded with 50 𝐔𝐒𝐃. Yeah, you heard it right! 
+
+You're welcome to the Quira 𝐐𝐮𝐞𝐬𝐭 023: 𝐓𝐚𝐤𝐞 𝐃𝐚𝐲𝐭𝐨𝐧𝐚 𝐟𝐨𝐫 𝐚 𝐬𝐩𝐢𝐧
+
+Daytona is an open-source Development Environment Manager (DEM) licensed under the Apache License 2.0. Daytona allows you to manage and deploy Workspaces — reproducible development environments based on standard OCI containers, with built-in support for the Dev Container standard. 
+
+Your mission, if you choose to accept it, is to 𝐜𝐫𝐞𝐚𝐭𝐞 𝐚 𝐬𝐚𝐦𝐩𝐥𝐞 𝐩𝐫𝐨𝐣𝐞𝐜𝐭 𝐟𝐨𝐫 𝐃𝐚𝐲𝐭𝐨𝐧𝐚 𝐮𝐬𝐢𝐧𝐠 𝐲𝐨𝐮𝐫 𝐩𝐫𝐞𝐟𝐞𝐫𝐫𝐞𝐝 𝐭𝐞𝐜𝐡-𝐬𝐭𝐚𝐜𝐤. 
+
+You can read more at : https://quira.sh/ or in Quira's Discord Server! https://discord.gg/quira 
+
+There are 100 𝐩𝐫𝐢𝐳𝐞𝐬 𝐨𝐟 $50 𝐰𝐡𝐢𝐜𝐡 𝐰𝐢𝐥𝐥 𝐛𝐞 𝐚𝐰𝐚𝐫𝐝𝐞𝐝 𝐭𝐨 𝐭𝐡𝐞 𝐟𝐢𝐫𝐬𝐭 100 𝐯𝐚𝐥𝐢𝐝 𝐬𝐮𝐛𝐦𝐢𝐬𝐬𝐢𝐨𝐧𝐬! And 𝐚𝐧 𝐞𝐱𝐭𝐫𝐚 $1,000 𝐩𝐫𝐢𝐳𝐞 𝐩𝐨𝐨𝐥 to reward exceptional samples! 
+
+𝐃𝐨𝐧'𝐭 𝐤𝐧𝐨𝐰 𝐚𝐛𝐨𝐮𝐭 𝐐𝐮𝐢𝐫𝐚?? Read my blog where I explain it, it's pretty cool: https://lnkd.in/gT57YdsJ
+
+---
+
+Configu Hacktoberfest ✅
+
+This year, I didn't contribute to many organizations during Hacktoberfest. I contributed mostly to Mattermost, Configu, and KitOps.
+
+This is a recap of the Configu Hacktoberfest Journey.
+
+Configu is an open-source, end-to-end ConfigOps infrastructure that empowers engineering teams to seamlessly manage and collaborate on software configuration data—such as environment variables, secrets, and feature flags—across any system or environment.
+
+I contributed mostly to the documentation part, and here are my PRs links:
+1. https://lnkd.in/ggP2jhBM
+2. https://lnkd.in/g8nbV_T2
+3. https://lnkd.in/ggM7mJce
+
+Star Configu on GitHub: https://lnkd.in/ggKNVbhd ⭐
+
+Do you want swags too? But Hackotberfest is over... No worries, you don't have to wait for next year.
+
+Contribute to Configu: https://lnkd.in/gjPnifHV and get swag credits for their official swag store! 🎉
+
+(In love with the Drinking Glass and I just realized it's Bella + Canvas tee. 🐦‍🔥)
+
+---
+
+Hey all!
+
+Read my new blog "𝐓𝐨𝐩 5 𝐨𝐩𝐞𝐧-𝐬𝐨𝐮𝐫𝐜𝐞 𝐌𝐋𝐎𝐩𝐬 𝐭𝐨𝐨𝐥 𝐭𝐨 𝐛𝐨𝐨𝐬𝐭 𝐲𝐨𝐮𝐫 𝐩𝐫𝐨𝐝𝐮𝐜𝐭𝐢𝐨𝐧 ✨"
+
+What is MLOps?
+MLOps, or Machine Learning Operations, is a set of practices that streamline the process of developing, deploying, and maintaining machine learning (ML) models.
+In short, MLOps is an extension of DevOps.
+
+Reading Link: https://lnkd.in/ghyyrWcn
+
+Special mention: Jesse Williams / KitOps, Kubeflow, MLflow, Metaflow, and MLRun
+
+Thanks for reading. Don't forget to share your thoughts in the comment section! 😉
+
+---

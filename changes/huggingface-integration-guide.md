@@ -1,7 +1,7 @@
 # Hugging Face Image Generation Integration Guide
 
 ## Overview
-Your RSS Markdown Converter now supports Hugging Face models for AI image generation, alongside the existing Pollinations (free) and OpenAI DALL-E providers.
+RSS Markdown Converter now supports Hugging Face models for AI image generation, alongside the existing Pollinations (free), OpenAI DALL-E providers, and HuggingFace free models.
 
 ## Available Providers
 

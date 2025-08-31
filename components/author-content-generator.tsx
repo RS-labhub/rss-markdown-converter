@@ -126,15 +126,17 @@ export function AuthorContentGenerator({
     const loadPersonas = async () => {
       const { getAllPersonaData, getBuiltInPersonaInstructions } = await import("@/lib/persona-training")
       const personas = getAllPersonaData()
-      const customPersonas = personas.filter((p) => p.name !== "bap" && p.name !== "simon").map((p) => p.name)
+      const customPersonas = personas.filter((p) => p.name !== "bap" && p.name !== "simon"  && p.name !== "rohan-sharma").map((p) => p.name)
       setTrainedPersonas(customPersonas)
 
       // Load built-in persona instructions
       const bapInstructions = getBuiltInPersonaInstructions("bap")
       const simonInstructions = getBuiltInPersonaInstructions("simon")
+      const rohanSharmaInstructions = getBuiltInPersonaInstructions("rohan-sharma")
       setBuiltInInstructions({
         bap: bapInstructions || "",
         simon: simonInstructions || "",
+        "rohan-sharma": rohanSharmaInstructions || "",
       })
     }
     loadPersonas()
@@ -301,6 +303,11 @@ export function AuthorContentGenerator({
         {
           name: "simon-instructions",
           instructions: builtInInstructions.simon,
+          isBuiltIn: true,
+        },
+        {
+          name: "rohan-sharma-instructions",
+          instructions: builtInInstructions["rohan-sharma"],
           isBuiltIn: true,
         },
       ].filter((p) => p.instructions) // Only include if instructions exist
@@ -674,7 +681,7 @@ export function AuthorContentGenerator({
                     <div className="space-y-3">
                       <Label className="text-sm font-medium text-muted-foreground">Built-in Personas</Label>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {["bap", "simon"].map((persona) => {
+                        {["bap", "simon", "rohan-sharma"].map((persona) => {
                           const hasInstructions = builtInInstructions[persona]
                           return (
                             <Card
