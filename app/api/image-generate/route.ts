@@ -358,33 +358,57 @@ async function blobToBase64(blob: Blob): Promise<string> {
 function generatePromptFromContent(
   content: string,
   title: string,
-  customContext?: string
+  customPrompt?: string,
+  style?: string,
+  customStyle?: string
 ): string {
-  if (customContext) {
-    return customContext
-  }
+  let basePrompt = ""
+  
+  if (customPrompt) {
+    basePrompt = customPrompt
+  } else {
+    // Extract key themes from content
+    const words = content.toLowerCase().split(/\s+/)
+    const techKeywords = [
+      "ai", "machine learning", "blockchain", "cloud", "devops", 
+      "programming", "software", "database", "api", "framework",
+      "javascript", "python", "react", "node", "docker"
+    ]
+    
+    const foundKeywords = techKeywords.filter(keyword => 
+      words.some(word => word.includes(keyword))
+    )
 
-  // Extract key themes from content
-  const words = content.toLowerCase().split(/\s+/)
-  const techKeywords = [
-    "ai", "machine learning", "blockchain", "cloud", "devops", 
-    "programming", "software", "database", "api", "framework",
-    "javascript", "python", "react", "node", "docker"
-  ]
-  
-  const foundKeywords = techKeywords.filter(keyword => 
-    words.some(word => word.includes(keyword))
-  )
-
-  let prompt = `Create a professional blog cover image for an article titled "${title}".`
-  
-  if (foundKeywords.length > 0) {
-    prompt += ` The article focuses on ${foundKeywords.slice(0, 3).join(", ")}.`
+    basePrompt = `Create a professional blog cover image for an article titled "${title}".`
+    
+    if (foundKeywords.length > 0) {
+      basePrompt += ` The article focuses on ${foundKeywords.slice(0, 3).join(", ")}.`
+    }
+    
+    basePrompt += " Modern, clean design with abstract tech elements. Professional color scheme."
   }
   
-  prompt += " Modern, clean design with abstract tech elements. Professional color scheme."
+  // Add style if specified
+  if (style && style !== "none") {
+    const stylePrompts: Record<string, string> = {
+      ghibli: "in Studio Ghibli style, anime aesthetic, soft colors, dreamy atmosphere, hand-drawn animation style",
+      amigurumi: "in amigurumi style, cute crochet doll aesthetic, soft yarn texture, adorable kawaii design",
+      cartoon: "in cartoon style, vibrant colors, bold outlines, animated illustration style",
+      realistic: "photorealistic, high detail, professional photography style, realistic lighting",
+      minimalist: "minimalist style, clean design, simple composition, flat design aesthetic",
+      cyberpunk: "cyberpunk style, neon colors, futuristic aesthetic, dark atmosphere with bright accents",
+      watercolor: "watercolor painting style, soft brushstrokes, flowing colors, artistic aesthetic",
+      pixel_art: "pixel art style, 8-bit aesthetic, retro game graphics, blocky pixels",
+      custom: customStyle || ""
+    }
+    
+    const stylePrompt = stylePrompts[style] || ""
+    if (stylePrompt) {
+      basePrompt += `, ${stylePrompt}`
+    }
+  }
   
-  return prompt
+  return basePrompt
 }
 
 export async function POST(req: NextRequest) {
@@ -398,6 +422,8 @@ export async function POST(req: NextRequest) {
       model,
       keyId,
       apiKey: providedApiKey,
+      style,
+      customStyle,
     } = await req.json()
 
     const selectedProvider = IMAGE_PROVIDERS[provider]
@@ -416,8 +442,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Generate prompt
-    const prompt = generatePromptFromContent(content || "", title || "", customPrompt)
+    // Generate prompt with style
+    const prompt = generatePromptFromContent(
+      content || "", 
+      title || "", 
+      customPrompt,
+      style,
+      customStyle
+    )
 
     let result: { imageUrl: string; credits: number; model: string }
 

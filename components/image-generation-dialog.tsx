@@ -141,6 +141,70 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
   },
 }
 
+// Image style presets
+const IMAGE_STYLES = {
+  none: {
+    id: "none",
+    name: "Default",
+    description: "No specific style applied",
+    prompt: "",
+  },
+  ghibli: {
+    id: "ghibli",
+    name: "Studio Ghibli",
+    description: "Anime-inspired, soft colors, dreamy atmosphere",
+    prompt: "in Studio Ghibli style, anime aesthetic, soft colors, dreamy atmosphere, hand-drawn animation style",
+  },
+  amigurumi: {
+    id: "amigurumi",
+    name: "Amigurumi",
+    description: "Cute crochet doll style, soft and adorable",
+    prompt: "in amigurumi style, cute crochet doll aesthetic, soft yarn texture, adorable kawaii design",
+  },
+  cartoon: {
+    id: "cartoon",
+    name: "Cartoon",
+    description: "Vibrant cartoon style with bold colors",
+    prompt: "in cartoon style, vibrant colors, bold outlines, animated illustration style",
+  },
+  realistic: {
+    id: "realistic",
+    name: "Realistic",
+    description: "Photorealistic with high detail",
+    prompt: "photorealistic, high detail, professional photography style, realistic lighting",
+  },
+  minimalist: {
+    id: "minimalist",
+    name: "Minimalist",
+    description: "Clean, simple design with minimal elements",
+    prompt: "minimalist style, clean design, simple composition, flat design aesthetic",
+  },
+  cyberpunk: {
+    id: "cyberpunk",
+    name: "Cyberpunk",
+    description: "Futuristic neon aesthetic",
+    prompt: "cyberpunk style, neon colors, futuristic aesthetic, dark atmosphere with bright accents",
+  },
+  watercolor: {
+    id: "watercolor",
+    name: "Watercolor",
+    description: "Soft watercolor painting style",
+    prompt: "watercolor painting style, soft brushstrokes, flowing colors, artistic aesthetic",
+  },
+  pixel_art: {
+    id: "pixel_art",
+    name: "Pixel Art",
+    description: "Retro 8-bit game style",
+    prompt: "pixel art style, 8-bit aesthetic, retro game graphics, blocky pixels",
+  },
+  custom: {
+    id: "custom",
+    name: "Custom Style",
+    description: "Enter your own style description",
+    prompt: "",
+  },
+}
+
 export function ImageGenerationDialog({
   open,
   onClose,
@@ -153,6 +217,8 @@ export function ImageGenerationDialog({
   const [size, setSize] = useState("")
   const [prompt, setPrompt] = useState("")
   const [useCustomPrompt, setUseCustomPrompt] = useState(false)
+  const [style, setStyle] = useState("none")
+  const [customStyle, setCustomStyle] = useState("")
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [generatedImage, setGeneratedImage] = useState<{
@@ -180,17 +246,33 @@ export function ImageGenerationDialog({
       setSelectedApiKeyId("")
     }
     // Set default values
-    const currentProvider = IMAGE_PROVIDERS[provider]
-    if (currentProvider) {
-      setModel(currentProvider.defaultModel)
-      setSize(currentProvider.sizes[0].id)
+    const providerConfig = IMAGE_PROVIDERS[provider]
+    if (providerConfig) {
+      setModel(providerConfig.defaultModel)
+      setSize(providerConfig.sizes[0].id)
     }
-    // Auto-generate prompt from selected item
+  }, [provider])
+
+  // Separate useEffect for prompt generation that includes style
+  useEffect(() => {
     if (selectedItem && !useCustomPrompt) {
-      const autoPrompt = `Professional blog cover image for \"${selectedItem.title}\". Modern tech design, clean aesthetics.`
+      let autoPrompt = `Professional blog cover image for "${selectedItem.title}". Modern tech design, clean aesthetics.`
+      
+      // Add style to auto-generated prompt for preview
+      if (style && style !== "none") {
+        const selectedStyle = IMAGE_STYLES[style as keyof typeof IMAGE_STYLES]
+        if (selectedStyle) {
+          if (style === "custom" && customStyle) {
+            autoPrompt += `, ${customStyle}`
+          } else if (selectedStyle.prompt) {
+            autoPrompt += `, ${selectedStyle.prompt}`
+          }
+        }
+      }
+      
       setPrompt(autoPrompt)
     }
-  }, [provider, selectedItem, useCustomPrompt])
+  }, [selectedItem, useCustomPrompt, style, customStyle])
 
   const handleProviderChange = (newProvider: string) => {
     setProvider(newProvider)
@@ -236,6 +318,8 @@ export function ImageGenerationDialog({
           model,
           keyId: selectedApiKeyId || undefined,
           apiKey: apiKey || undefined,
+          style: style,
+          customStyle: style === "custom" ? customStyle : undefined,
         }),
       })
 
@@ -338,7 +422,7 @@ export function ImageGenerationDialog({
     setShowAPIKeyDialog(false)
   }
 
-  const currentProvider = IMAGE_PROVIDERS[provider]
+  const providerConfig = IMAGE_PROVIDERS[provider]
 
   return (
     <>
@@ -408,7 +492,7 @@ export function ImageGenerationDialog({
               </Card>
 
               {/* API Key Selection for OpenAI */}
-              {currentProvider?.requiresKey && (
+              {providerConfig?.requiresKey && (
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">API Key</CardTitle>
@@ -431,7 +515,7 @@ export function ImageGenerationDialog({
                       <Alert>
                         <AlertCircle className="h-4 w-4" />
                         <AlertDescription>
-                          No API key found. Add one to use {currentProvider.name}.
+                          No API key found. Add one to use {providerConfig.name}.
                         </AlertDescription>
                       </Alert>
                     )}
@@ -461,7 +545,7 @@ export function ImageGenerationDialog({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {currentProvider?.models.map((m) => (
+                        {providerConfig?.models.map((m) => (
                           <SelectItem key={m.id} value={m.id}>
                             {m.label}
                           </SelectItem>
@@ -477,7 +561,7 @@ export function ImageGenerationDialog({
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {currentProvider?.sizes.map((s) => (
+                        {providerConfig?.sizes.map((s) => (
                           <SelectItem key={s.id} value={s.id}>
                             {s.label}
                           </SelectItem>
@@ -485,6 +569,61 @@ export function ImageGenerationDialog({
                       </SelectContent>
                     </Select>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Style Selection */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Art Style</CardTitle>
+                  <CardDescription className="text-xs">
+                    Choose a visual style for your image
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <Label className="text-sm">Style Preset</Label>
+                    <Select value={style} onValueChange={setStyle}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select a style">
+                          {style && IMAGE_STYLES[style as keyof typeof IMAGE_STYLES]?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(IMAGE_STYLES).map(([key, styleOption]) => (
+                          <SelectItem key={key} value={key}>
+                            <div className="flex flex-col">
+                              <span>{styleOption.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {styleOption.description}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {style === "custom" && (
+                    <div>
+                      <Label className="text-sm">Custom Style Description</Label>
+                      <Input
+                        placeholder="e.g., oil painting, vintage poster, abstract art..."
+                        value={customStyle}
+                        onChange={(e) => setCustomStyle(e.target.value)}
+                        className="mt-1"
+                      />
+                    </div>
+                  )}
+
+                  {style !== "none" && style !== "custom" && (
+                    <Alert>
+                      <Info className="h-4 w-4" />
+                      <AlertDescription className="text-xs">
+                        Style: {IMAGE_STYLES[style as keyof typeof IMAGE_STYLES]?.description}
+                      </AlertDescription>
+                    </Alert>
+                  )}
                 </CardContent>
               </Card>
 
@@ -527,7 +666,7 @@ export function ImageGenerationDialog({
 
               <Button
                 onClick={handleGenerate}
-                disabled={loading || (currentProvider?.requiresKey && !selectedApiKeyId)}
+                disabled={loading || (providerConfig?.requiresKey && !selectedApiKeyId)}
                 className="w-full"
               >
                 {loading ? (
