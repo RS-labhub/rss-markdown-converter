@@ -1,5 +1,22 @@
 "use client"
 
+interface WritingPatterns {
+  tone: string[]          // e.g., ["professional", "casual", "enthusiastic"]
+  structure: string[]     // e.g., ["bullet points", "numbered lists", "paragraphs"]
+  vocabulary: string[]    // characteristic words/phrases
+  sentenceLength: "short" | "medium" | "long" | "mixed"
+  engagement: string[]    // e.g., ["questions", "call-to-action", "personal anecdotes"]
+}
+
+interface PersonaAnalytics {
+  wordCount: number
+  avgPostLength: number
+  commonTopics: string[]
+  keyPhrases: string[]
+  writingComplexity: "simple" | "moderate" | "complex"
+  lastAnalyzed: string
+}
+
 interface PersonaData {
   name: string
   rawContent: string
@@ -7,9 +24,538 @@ interface PersonaData {
   createdAt: string
   isBuiltIn?: boolean
   contentType?: "posts" | "blogs" | "mixed"
+  // New enhanced fields
+  description?: string
+  author?: string
+  domain?: string[]       // areas of expertise
+  writingPatterns?: WritingPatterns
+  analytics?: PersonaAnalytics
+  tags?: string[]
+  version?: string
+  lastUpdated?: string
 }
 
 const STORAGE_KEY = "rss-platform-persona-training"
+
+// Enhanced persona analysis functions
+export function analyzePersonaContent(content: string): PersonaAnalytics {
+  const words = content.split(/\s+/).filter(word => word.length > 0)
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0)
+  
+  // Extract common topics and phrases
+  const commonWords = extractCommonWords(content)
+  const keyPhrases = extractKeyPhrases(content)
+  
+  // Calculate complexity
+  const avgWordsPerSentence = words.length / sentences.length
+  let complexity: "simple" | "moderate" | "complex" = "simple"
+  if (avgWordsPerSentence > 20) complexity = "complex"
+  else if (avgWordsPerSentence > 12) complexity = "moderate"
+  
+  return {
+    wordCount: words.length,
+    avgPostLength: words.length / Math.max(paragraphs.length, 1),
+    commonTopics: extractTopics(content),
+    keyPhrases,
+    writingComplexity: complexity,
+    lastAnalyzed: new Date().toISOString()
+  }
+}
+
+export function extractWritingPatterns(content: string): WritingPatterns {
+  const tone = analyzeTone(content)
+  const structure = analyzeStructure(content)
+  const vocabulary = extractVocabulary(content)
+  const sentenceLength = analyzeSentenceLength(content)
+  const engagement = analyzeEngagement(content)
+  
+  return {
+    tone,
+    structure,
+    vocabulary,
+    sentenceLength,
+    engagement
+  }
+}
+
+function extractCommonWords(content: string): string[] {
+  const words = content.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 3)
+  
+  const wordCount = new Map<string, number>()
+  words.forEach(word => {
+    wordCount.set(word, (wordCount.get(word) || 0) + 1)
+  })
+  
+  return Array.from(wordCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(entry => entry[0])
+}
+
+function extractKeyPhrases(content: string): string[] {
+  // Simple bigram and trigram extraction
+  const words = content.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 2)
+  
+  const phrases: string[] = []
+  
+  // Extract 2-word phrases
+  for (let i = 0; i < words.length - 1; i++) {
+    const phrase = `${words[i]} ${words[i + 1]}`
+    if (!phrases.includes(phrase)) {
+      phrases.push(phrase)
+    }
+  }
+  
+  // Extract 3-word phrases
+  for (let i = 0; i < words.length - 2; i++) {
+    const phrase = `${words[i]} ${words[i + 1]} ${words[i + 2]}`
+    if (!phrases.includes(phrase)) {
+      phrases.push(phrase)
+    }
+  }
+  
+  return phrases.slice(0, 15)
+}
+
+function extractTopics(content: string): string[] {
+  const topicKeywords = {
+    "technology": ["ai", "artificial intelligence", "machine learning", "software", "development", "coding", "programming", "tech", "digital", "automation"],
+    "business": ["business", "startup", "entrepreneur", "marketing", "sales", "revenue", "growth", "strategy", "leadership"],
+    "cybersecurity": ["security", "cybersecurity", "encryption", "vulnerability", "threat", "protection", "attack", "defense"],
+    "devops": ["devops", "deployment", "docker", "kubernetes", "ci/cd", "infrastructure", "cloud", "aws", "azure"],
+    "web development": ["web", "frontend", "backend", "javascript", "react", "node", "html", "css", "api", "framework"],
+    "data science": ["data", "analytics", "science", "analysis", "visualization", "statistics", "insights", "model"]
+  }
+  
+  const contentLower = content.toLowerCase()
+  const detectedTopics: string[] = []
+  
+  for (const [topic, keywords] of Object.entries(topicKeywords)) {
+    const matches = keywords.filter(keyword => contentLower.includes(keyword))
+    if (matches.length >= 2) {
+      detectedTopics.push(topic)
+    }
+  }
+  
+  return detectedTopics
+}
+
+function analyzeTone(content: string): string[] {
+  const tones = []
+  const contentLower = content.toLowerCase()
+  
+  // Professional indicators
+  if (/\b(professional|enterprise|industry|standards|best practices|methodology)\b/.test(contentLower)) {
+    tones.push("professional")
+  }
+  
+  // Casual indicators
+  if (/\b(hey|folks|guys|awesome|cool|amazing)\b/.test(contentLower)) {
+    tones.push("casual")
+  }
+  
+  // Enthusiastic indicators
+  if (/\b(exciting|thrilled|fantastic|incredible|game-changing|revolutionary)\b/.test(contentLower) || /!{2,}/.test(content)) {
+    tones.push("enthusiastic")
+  }
+  
+  // Technical indicators
+  if (/\b(implementation|configuration|architecture|framework|algorithm|optimization)\b/.test(contentLower)) {
+    tones.push("technical")
+  }
+  
+  // Educational indicators
+  if (/\b(learn|tutorial|guide|step|example|explanation|understand)\b/.test(contentLower)) {
+    tones.push("educational")
+  }
+  
+  return tones.length > 0 ? tones : ["neutral"]
+}
+
+function analyzeStructure(content: string): string[] {
+  const structures = []
+  
+  if (/^[•\-\*]\s/m.test(content)) {
+    structures.push("bullet points")
+  }
+  
+  if (/^\d+\.\s/m.test(content)) {
+    structures.push("numbered lists")
+  }
+  
+  if (/#{1,6}\s/.test(content)) {
+    structures.push("headings")
+  }
+  
+  const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0)
+  if (paragraphs.length > 2) {
+    structures.push("paragraphs")
+  }
+  
+  if (/```|`[^`]+`/.test(content)) {
+    structures.push("code blocks")
+  }
+  
+  return structures.length > 0 ? structures : ["plain text"]
+}
+
+function extractVocabulary(content: string): string[] {
+  const vocabulary = []
+  const contentLower = content.toLowerCase()
+  
+  // Technical vocabulary
+  if (/\b(api|sdk|framework|library|database|server|client|protocol)\b/.test(contentLower)) {
+    vocabulary.push("technical jargon")
+  }
+  
+  // Business vocabulary
+  if (/\b(roi|kpi|metrics|optimization|efficiency|scalability|growth)\b/.test(contentLower)) {
+    vocabulary.push("business terms")
+  }
+  
+  // Casual vocabulary
+  if (/\b(totally|basically|pretty much|kind of|sort of)\b/.test(contentLower)) {
+    vocabulary.push("casual language")
+  }
+  
+  // Academic vocabulary
+  if (/\b(methodology|analysis|research|study|investigation|hypothesis)\b/.test(contentLower)) {
+    vocabulary.push("academic language")
+  }
+  
+  return vocabulary
+}
+
+function analyzeSentenceLength(content: string): "short" | "medium" | "long" | "mixed" {
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const lengths = sentences.map(s => s.split(/\s+/).length)
+  const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length
+  
+  if (avgLength < 10) return "short"
+  if (avgLength > 20) return "long"
+  
+  // Check for variation
+  const variance = lengths.reduce((acc, len) => acc + Math.pow(len - avgLength, 2), 0) / lengths.length
+  return variance > 50 ? "mixed" : "medium"
+}
+
+function analyzeEngagement(content: string): string[] {
+  const engagement = []
+  
+  if (/\?/.test(content)) {
+    engagement.push("questions")
+  }
+  
+  if (/\b(check out|visit|try|download|subscribe|follow|share)\b/i.test(content)) {
+    engagement.push("call-to-action")
+  }
+  
+  if (/\b(I|my|me|personally|in my experience)\b/i.test(content)) {
+    engagement.push("personal anecdotes")
+  }
+  
+  if (/@\w+|#\w+/.test(content)) {
+    engagement.push("social mentions")
+  }
+  
+  if (/\b(you|your|we|us|let's)\b/i.test(content)) {
+    engagement.push("direct address")
+  }
+  
+  return engagement
+}
+
+// Get detailed insights about a persona
+export function getPersonaInsights(name: string): {
+  persona: PersonaData | null
+  insights: {
+    strengths: string[]
+    suggestions: string[]
+    styleCharacteristics: string[]
+    contentQuality: "excellent" | "good" | "fair" | "needs-improvement"
+  }
+} | null {
+  const persona = getPersonaTrainingData(name)
+  if (!persona) return null
+  
+  const insights = {
+    strengths: [] as string[],
+    suggestions: [] as string[],
+    styleCharacteristics: [] as string[],
+    contentQuality: "fair" as "excellent" | "good" | "fair" | "needs-improvement"
+  }
+  
+  if (persona.analytics) {
+    const { wordCount, avgPostLength, commonTopics, writingComplexity } = persona.analytics
+    
+    // Analyze content quality
+    if (wordCount > 2000 && commonTopics.length > 3) {
+      insights.contentQuality = "excellent"
+    } else if (wordCount > 1000 && commonTopics.length > 2) {
+      insights.contentQuality = "good"
+    } else if (wordCount < 500) {
+      insights.contentQuality = "needs-improvement"
+    }
+    
+    // Add strengths
+    if (avgPostLength > 100) {
+      insights.strengths.push("Detailed content with good depth")
+    }
+    if (commonTopics.length > 2) {
+      insights.strengths.push("Covers diverse topics")
+    }
+    if (writingComplexity === "moderate") {
+      insights.strengths.push("Well-balanced writing complexity")
+    }
+    
+    // Add suggestions
+    if (wordCount < 1000) {
+      insights.suggestions.push("Add more training content for better accuracy")
+    }
+    if (commonTopics.length < 2) {
+      insights.suggestions.push("Include content from more topic areas")
+    }
+    if (writingComplexity === "simple") {
+      insights.suggestions.push("Consider adding more varied sentence structures")
+    }
+  }
+  
+  if (persona.writingPatterns) {
+    const { tone, structure, engagement } = persona.writingPatterns
+    
+    // Style characteristics
+    if (tone.includes("professional")) {
+      insights.styleCharacteristics.push("Professional and business-oriented")
+    }
+    if (tone.includes("technical")) {
+      insights.styleCharacteristics.push("Technical and detail-focused")
+    }
+    if (structure.includes("bullet points")) {
+      insights.styleCharacteristics.push("Uses structured formatting")
+    }
+    if (engagement.includes("questions")) {
+      insights.styleCharacteristics.push("Engages readers with questions")
+    }
+    if (engagement.includes("personal anecdotes")) {
+      insights.styleCharacteristics.push("Shares personal experiences")
+    }
+  }
+  
+  return { persona, insights }
+}
+
+// Compare two personas
+export function comparePersonas(name1: string, name2: string): {
+  similarities: string[]
+  differences: string[]
+  recommendations: string[]
+} | null {
+  const persona1 = getPersonaTrainingData(name1)
+  const persona2 = getPersonaTrainingData(name2)
+  
+  if (!persona1 || !persona2) return null
+  
+  const similarities: string[] = []
+  const differences: string[] = []
+  const recommendations: string[] = []
+  
+  // Compare analytics
+  if (persona1.analytics && persona2.analytics) {
+    if (persona1.analytics.writingComplexity === persona2.analytics.writingComplexity) {
+      similarities.push(`Both have ${persona1.analytics.writingComplexity} writing complexity`)
+    } else {
+      differences.push(`${name1}: ${persona1.analytics.writingComplexity} vs ${name2}: ${persona2.analytics.writingComplexity} complexity`)
+    }
+    
+    const commonTopics = persona1.analytics.commonTopics.filter(topic => 
+      persona2.analytics!.commonTopics.includes(topic)
+    )
+    if (commonTopics.length > 0) {
+      similarities.push(`Shared topics: ${commonTopics.join(", ")}`)
+    }
+  }
+  
+  // Compare writing patterns
+  if (persona1.writingPatterns && persona2.writingPatterns) {
+    const commonTones = persona1.writingPatterns.tone.filter(tone => 
+      persona2.writingPatterns!.tone.includes(tone)
+    )
+    if (commonTones.length > 0) {
+      similarities.push(`Similar tones: ${commonTones.join(", ")}`)
+    }
+    
+    if (persona1.writingPatterns.sentenceLength === persona2.writingPatterns.sentenceLength) {
+      similarities.push(`Both prefer ${persona1.writingPatterns.sentenceLength} sentences`)
+    } else {
+      differences.push(`${name1}: ${persona1.writingPatterns.sentenceLength} sentences vs ${name2}: ${persona2.writingPatterns.sentenceLength} sentences`)
+    }
+  }
+  
+  // Generate recommendations
+  if (similarities.length > 2) {
+    recommendations.push("These personas are quite similar - consider merging or specializing them")
+  }
+  if (differences.length > similarities.length) {
+    recommendations.push("These personas have distinct styles - good for targeting different audiences")
+  }
+  
+  return { similarities, differences, recommendations }
+}
+
+// Test persona effectiveness
+export async function testPersonaEffectiveness(
+  personaName: string,
+  generatedContent: string,
+  testPrompt?: string
+): Promise<any> {
+  const persona = getPersonaTrainingData(personaName)
+  if (!persona) {
+    throw new Error("Persona not found")
+  }
+
+  try {
+    const response = await fetch("/api/persona-test", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        personaName,
+        originalContent: persona.rawContent,
+        generatedContent,
+        testPrompt,
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error("Failed to test persona effectiveness")
+    }
+
+    return await response.json()
+  } catch (error) {
+    console.error("Error testing persona effectiveness:", error)
+    throw error
+  }
+}
+
+// Generate test content for persona validation
+export function generateTestScenarios(persona: any): Array<{
+  scenario: string
+  expectedCharacteristics: string[]
+  testPrompt: string
+}> {
+  const scenarios = []
+
+  // Basic tone test
+  scenarios.push({
+    scenario: "Basic Tone Matching",
+    expectedCharacteristics: persona.writingPatterns?.tone || ["consistent tone"],
+    testPrompt: "Generate content about a new technology announcement and ensure the tone matches the persona's typical writing style."
+  })
+
+  // Structure test
+  scenarios.push({
+    scenario: "Content Structure",
+    expectedCharacteristics: persona.writingPatterns?.structure || ["clear structure"],
+    testPrompt: "Create a post about a complex topic and use the same structural elements the persona typically employs."
+  })
+
+  // Domain expertise test
+  if (persona.domain && persona.domain.length > 0) {
+    scenarios.push({
+      scenario: "Domain Expertise",
+      expectedCharacteristics: persona.domain,
+      testPrompt: `Write about a topic in ${persona.domain[0]} demonstrating the same level of expertise and insight as the persona.`
+    })
+  }
+
+  // Engagement style test
+  if (persona.writingPatterns?.engagement) {
+    scenarios.push({
+      scenario: "Engagement Style",
+      expectedCharacteristics: persona.writingPatterns.engagement,
+      testPrompt: "Create content that engages the audience using the same patterns and techniques as the persona."
+    })
+  }
+
+  return scenarios
+}
+
+// Batch test persona with multiple scenarios
+export async function batchTestPersona(personaName: string): Promise<{
+  overallScore: number
+  tests: Array<{
+    scenario: string
+    score: number
+    analysis: any
+  }>
+  recommendations: string[]
+}> {
+  const persona = getPersonaTrainingData(personaName)
+  if (!persona) {
+    throw new Error("Persona not found")
+  }
+
+  const scenarios = generateTestScenarios(persona)
+  const results = []
+  let totalScore = 0
+
+  for (const scenario of scenarios) {
+    try {
+      // For this example, we'll use a sample generated content
+      // In a real implementation, you'd generate content for each scenario
+      const sampleContent = `This is a sample generated content for testing the ${scenario.scenario} scenario with persona ${personaName}.`
+      
+      const testResult = await testPersonaEffectiveness(personaName, sampleContent, scenario.testPrompt)
+      
+      results.push({
+        scenario: scenario.scenario,
+        score: testResult.analysis?.overallScore || 0,
+        analysis: testResult.analysis
+      })
+      
+      totalScore += testResult.analysis?.overallScore || 0
+    } catch (error) {
+      console.error(`Error testing scenario ${scenario.scenario}:`, error)
+      results.push({
+        scenario: scenario.scenario,
+        score: 0,
+        analysis: { error: "Test failed" }
+      })
+    }
+  }
+
+  const overallScore = results.length > 0 ? totalScore / results.length : 0
+
+  // Generate recommendations based on test results
+  const recommendations = []
+  const lowScoreTests = results.filter(r => r.score < 70)
+  
+  if (lowScoreTests.length > 0) {
+    recommendations.push("Consider adding more diverse training examples to improve consistency")
+  }
+  
+  if (results.some(r => r.analysis?.improvements?.length > 0)) {
+    recommendations.push("Review specific improvement suggestions from individual test analyses")
+  }
+  
+  if (overallScore < 80) {
+    recommendations.push("Add more training content to better capture the persona's style")
+  }
+
+  return {
+    overallScore,
+    tests: results,
+    recommendations
+  }
+}
 
 // Function to load built-in persona data from text files
 export async function loadBuiltInPersonaData(name: string): Promise<string | null> {
@@ -70,11 +616,20 @@ export function savePersonaTrainingDataWithType(
   rawContent: string,
   contentType: "posts" | "blogs" | "mixed" = "mixed",
   instructions?: string,
+  description?: string,
+  author?: string,
+  domain?: string[],
+  tags?: string[],
 ): void {
   if (typeof window === "undefined") return
 
   try {
     const existingData = getStoredPersonaData()
+    
+    // Analyze the content automatically
+    const analytics = analyzePersonaContent(rawContent)
+    const writingPatterns = extractWritingPatterns(rawContent)
+    
     const newPersona: PersonaData = {
       name: name.toLowerCase(),
       rawContent,
@@ -82,6 +637,14 @@ export function savePersonaTrainingDataWithType(
       createdAt: new Date().toISOString(),
       isBuiltIn: false,
       contentType,
+      description: description?.trim() || undefined,
+      author: author?.trim() || undefined,
+      domain: domain || [],
+      writingPatterns,
+      analytics,
+      tags: tags || [],
+      version: "2.0",
+      lastUpdated: new Date().toISOString(),
     }
 
     // Remove existing persona with same name (regardless of content type)

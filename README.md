@@ -25,7 +25,7 @@ A powerful web application that transforms RSS feeds into clean markdown content
 - **Real-time filtering** - Instant results as you type
 
 ### AI-Powered Content Generation
-- **Multiple AI providers** - Choose between Groq (Llama 3.1 70B) and Gemini (2.0 Flash)
+- **Multiple AI providers** - Choose between Groq (Llama 3.1 70B) and Gemini (2.0 Flash) or use the paid models (OpenAI and Anthropic) by provided your api key/. The API KEY will be stored in your browser and will be removed when you clear the browser cache or remove manually.
 - **Platform-specific optimization** - Tailored content for each social media and blogging platform
 - **Custom post types** - DevRel, technical, tutorial, opinion, news, and custom styles
 - **Keyword integration** - Natural keyword inclusion in generated content
@@ -35,6 +35,7 @@ A powerful web application that transforms RSS feeds into clean markdown content
 #### Content Tools
 - **Summary generation** - Concise article summaries
 - **Workflow diagrams** - Mermaid diagram generation from content
+- **Image Generation** - Generate image using free models (pollination AI), paid models (DALL-E by OpenAI), or open-source models from huggingFace by providing your HF token.
 
 #### Social Media Platforms
 - **LinkedIn** - Professional posts with engagement hooks
@@ -76,6 +77,8 @@ A powerful web application that transforms RSS feeds into clean markdown content
 - **AI SDK** - Unified AI provider interface
 - **Groq API** - Ultra-fast inference with Llama models
 - **Google Gemini** - Advanced reasoning capabilities
+- **OpenAI**
+- **Anthropic**
 
 ### Storage
 - **LocalStorage** - Client-side feed history persistence

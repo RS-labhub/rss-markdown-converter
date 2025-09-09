@@ -14,16 +14,24 @@ const geminiClient = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
 
-// Load training data from text files
-async function loadPersonaTrainingData(personaName: string, contentType?: "posts" | "blogs"): Promise<string | null> {
+// Load persona training data with analysis
+async function loadPersonaTrainingDataWithAnalysis(personaName: string, contentType?: "posts" | "blogs"): Promise<{
+  content: string | null
+  analysis?: {
+    writingPatterns?: any
+    analytics?: any
+    description?: string
+    domain?: string[]
+    instructions?: string
+  }
+}> {
   try {
     const fs = await import("fs").catch(() => null)
     const path = await import("path").catch(() => null)
 
     if (fs && path) {
-      // Determine which file to load based on content type and platform
-      let fileName = `${personaName}-posts.txt` // default
-
+      // Load training content
+      let fileName = `${personaName}-posts.txt`
       if (contentType === "blogs") {
         fileName = `${personaName}-blogs.txt`
       } else if (contentType === "posts") {
@@ -31,22 +39,82 @@ async function loadPersonaTrainingData(personaName: string, contentType?: "posts
       }
 
       const filePath = path.join(process.cwd(), "training-data", fileName)
+      let content: string | null = null
+      
       if (fs.existsSync(filePath)) {
-        return fs.readFileSync(filePath, "utf-8")
-      }
-
-      // Fallback to posts if blogs don't exist
-      if (contentType === "blogs") {
+        content = fs.readFileSync(filePath, "utf-8")
+      } else if (contentType === "blogs") {
+        // Fallback to posts
         const fallbackPath = path.join(process.cwd(), "training-data", `${personaName}-posts.txt`)
         if (fs.existsSync(fallbackPath)) {
-          return fs.readFileSync(fallbackPath, "utf-8")
+          content = fs.readFileSync(fallbackPath, "utf-8")
         }
       }
+
+      // For built-in personas, provide enhanced analysis
+      let analysis = {}
+      if (personaName === "bap") {
+        analysis = {
+          description: "AI-native development thought leader and devRel Engineer at Tessl (AI-native is a part of Tessl)",
+          domain: ["ai-development", "mcp", "developer-tools", "ai-infrastructure"],
+          writingPatterns: {
+            tone: ["professional", "technical", "insightful"],
+            structure: ["bullet points", "structured analysis", "practical examples"],
+            vocabulary: ["technical precision", "developer-focused"],
+            engagement: ["questions", "community discussion", "practical insights"]
+          },
+          analytics: {
+            commonTopics: ["ai-development", "mcp", "agent-orchestration", "developer-experience"],
+            writingComplexity: "moderate",
+            keyPhrases: ["AI-native development", "Model Context Protocol", "agent workflows", "developer experience"]
+          }
+        }
+      } else if (personaName === "simon") {
+        analysis = {
+          description: "AI Native Dev podcast host, developer community builder, and head of devRel at Tessl (AI Native is a part of Tessl)",
+          domain: ["ai-development", "developer-communities", "ai-tools", "developer-experience"],
+          writingPatterns: {
+            tone: ["conversational", "thoughtful", "community-focused", "technical"],
+            structure: ["narrative flow", "personal insights", "community examples", "story-telling"],
+            vocabulary: ["accessible technical language", "community-focused"],
+            engagement: ["personal anecdotes", "community questions", "shared experiences"]
+          },
+          analytics: {
+            commonTopics: ["ai-tooling", "developer-communities", "ai-adoption", "development-practices"],
+            writingComplexity: "moderate",
+            keyPhrases: ["AI Native Dev", "developer community", "AI adoption", "development practices"]
+          }
+        }
+      } else if (personaName === "rohan-sharma") {
+        analysis = {
+          description: "LLMWare devRel and open-source AI infrastructure advocate",
+          domain: ["llm-infrastructure", "open-source", "ai-tools", "developer-communities"],
+          writingPatterns: {
+            tone: ["enthusiastic", "technical", "community-focused"],
+            structure: [ "bullet points", "call-to-action"],
+            vocabulary: ["community engagement"],
+            engagement: ["community building", "product announcements", "direct address"]
+          },
+          analytics: {
+            commonTopics: ["llmware", "open-source", "ai-infrastructure", "developer-communities"],
+            writingComplexity: "moderate",
+            keyPhrases: ["LLMWare", "open-source", "developer community", "AI infrastructure"]
+          }
+        }
+      }
+
+      return { content, analysis }
     }
   } catch (error) {
-    console.error(`Error loading ${personaName} training data:`, error)
+    console.error(`Error loading ${personaName} training data with analysis:`, error)
   }
-  return null
+  return { content: null }
+}
+
+// Load training data from text files
+async function loadPersonaTrainingData(personaName: string, contentType?: "posts" | "blogs"): Promise<string | null> {
+  const result = await loadPersonaTrainingDataWithAnalysis(personaName, contentType)
+  return result.content
 }
 
 // Post type style definitions (for non-persona styles)
@@ -362,20 +430,50 @@ const generateStyledPlatformPrompt = async (
 
   if (isPersona) {
     let trainingData = clientPersonaTrainingData
+    let personaAnalysis: any = null
+    
     if (!trainingData) {
-      trainingData = await loadPersonaTrainingData(postType, contentType)
+      const result = await loadPersonaTrainingDataWithAnalysis(postType, contentType)
+      trainingData = result.content
+      personaAnalysis = result.analysis
     }
 
     if (trainingData) {
       const keywordText = keywords ? `Include these keywords naturally: ${keywords}.` : ""
       const contentTypeText = contentType === "blogs" ? "blog-style" : "social media post-style"
 
-      return `You are an expert content creator. Study the ${contentTypeText} writing examples below and learn the author's unique voice, tone, style, and language patterns. Then create a ${platformGuidelines.format} in that exact same style.
+      // Build enhanced persona context
+      let personaContext = ""
+      if (personaAnalysis) {
+        const { description, domain, writingPatterns, analytics } = personaAnalysis
+        
+        personaContext = `
+PERSONA PROFILE:
+${description ? `- Role: ${description}` : ""}
+${domain ? `- Expertise: ${domain.join(", ")}` : ""}
 
+WRITING STYLE ANALYSIS:
+${writingPatterns?.tone ? `- Tone: ${writingPatterns.tone.join(", ")}` : ""}
+${writingPatterns?.structure ? `- Structure: ${writingPatterns.structure.join(", ")}` : ""}
+${writingPatterns?.vocabulary ? `- Vocabulary: ${writingPatterns.vocabulary.join(", ")}` : ""}
+${writingPatterns?.engagement ? `- Engagement: ${writingPatterns.engagement.join(", ")}` : ""}
+
+CONTENT FOCUS AREAS:
+${analytics?.commonTopics ? `- Topics: ${analytics.commonTopics.join(", ")}` : ""}
+${analytics?.keyPhrases ? `- Key Phrases: ${analytics.keyPhrases.join(", ")}` : ""}
+${analytics?.writingComplexity ? `- Complexity: ${analytics.writingComplexity}` : ""}
+`
+      }
+
+      return `You are an expert content creator specializing in persona-based writing. Study the ${contentTypeText} writing examples below and learn the author's unique voice, tone, style, and language patterns. Use the persona analysis to understand the deeper characteristics of their writing style.
+
+${personaContext}
 
 STRICT CONTENT RULES:
 - DO NOT use any emojis anywhere in the content
 - Focus on professional, clean text formatting
+- Match the persona's natural tone and vocabulary patterns
+- Use the same structural elements they prefer (bullet points, formatting, etc.)
 - Only include links when they are specifically asked in the custom instructions
 - Never output links as a standalone line or as a list. Only mention a link inside a paragraph if the sentence is specifically discussing that link or resource.
 
@@ -385,8 +483,14 @@ ${trainingData}
 PLATFORM REQUIREMENTS for ${platformGuidelines.format}:
 ${platformGuidelines.guidelines.map((guide) => `- ${guide}`).join("\n")}
 
+PERSONA WRITING INSTRUCTIONS:
+- Mirror the tone patterns identified in the analysis (${personaAnalysis?.writingPatterns?.tone?.join(", ") || "maintain consistent tone"})
+- Use the preferred structural elements (${personaAnalysis?.writingPatterns?.structure?.join(", ") || "clear structure"})
+- Incorporate vocabulary style that matches the persona (${personaAnalysis?.writingPatterns?.vocabulary?.join(", ") || "appropriate vocabulary"})
+- Apply engagement patterns naturally (${personaAnalysis?.writingPatterns?.engagement?.join(", ") || "engage readers appropriately"})
+
 TASK:
-Create a ${platformGuidelines.format} about the article below, written in the exact same ${contentTypeText} style as the examples above. ${keywordText} ${linksInstruction} ${sourceInstruction}
+Create a ${platformGuidelines.format} about the article below, written in the exact same ${contentTypeText} style as the examples above. The content should feel like it was written by the same person who created the training examples. ${keywordText} ${linksInstruction} ${sourceInstruction}
 
 Article: "${title}"
 Content: ${content}
@@ -398,7 +502,7 @@ ${
     : "Include links as plain URLs without markdown formatting"
 }
 
-Write as if you are the same person who wrote the examples above, adapting your natural ${contentTypeText} writing style to fit the ${platform} platform requirements.`
+Write as if you are the same person who wrote the examples above, incorporating their natural ${contentTypeText} writing style, personality, and approach to discussing topics within their expertise areas.`
     }
   }
 

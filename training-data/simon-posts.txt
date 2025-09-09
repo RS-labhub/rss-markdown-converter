@@ -1,3 +1,50 @@
+Deterministic tools are great for “run X.” Custom slash commands shine when you need judgment—pattern analysis, architectural tradeoffs, creative refactors.
+
+I just read a sharp piece by Paul Duvall on making Claude Code customizations portable. Here are the takeaways I found most useful:
+
+What stood out
+• Treat slash commands like code: package them, version them, and make installs repeatable across machines and repos.
+
+• Put intent in CLAUDE.md so context travels with the commands.
+
+• Use hooks + subagents to enforce checks every timel; don’t rely on memory.
+
+• Reserve custom commands for judgment calls where AI adds value (/xdebug, /xarchitecture), not just deterministic steps.
+
+Insightful piece! You can read the full article here: https://ainativedev.io/news/customizing-claude-code-what-i-learned-from-losing-everything
+
+
+---
+
+In my conversation with various executives, you can feel pressure to “do something AI”. But from speaking to foks in the space, the wins come from system-level changes, not tool shopping. 
+
+I recently sat down with Justin Reock (DX), and we discussed:
+• Evidence over hype: Early data shows modest, real gains (e.g., documentation quality up with partial adoption) and large outliers when AI is applied deliberately.
+
+• Impact where it matters: Property-focused code review, documentation generation, and requirement-challenging in early planning compress idea-to-code while reducing rework.
+
+
+• Operationalise measurement: Launch short surveys with >90% participation, correlate to delivery metrics, and make each metric “owned” by someone who would be blocked without it—otherwise dashboards decay and Goodhart’s Law kicks in.
+
+Bottom line: treat AI as a way to remove bottlenecks; measure the outcome in quality and maintainability first. Episode link in comments
+
+---
+
+Rapid “vibe coding” is great for exploration, terrible for memory. Kiro flips the loop: write the spec, then have the agent implement and evolve against it.
+What stood out in my chat with Nikhil Swaminathan and Richard Threlkeld in the episode:
+
+• Make intent durable. Capture decisions, constraints, and terminology in a versioned spec so onboarding is faster and refactors stay aligned.
+
+• Behavior-centric testing. Generate tests that assert declared properties (e.g., read-after-write under concurrency), not just happy paths.
+
+• Spec-code sync. Proposed diffs are justified by the spec; reviewers see which behaviors a change satisfies or impacts.
+
+• CI leverage. Gate merges on property tests and spec coverage; accumulate reusable spec components (error policies, API patterns, cross-cutting invariants).
+
+Full conversation—link in the comments.
+
+---
+
 I recently sat down with Anton Arhipov from JetBrains to talk about IntelliJ IDEA's shift toward becoming an AI-powered IDE. 
 
 He walked me through some of the intelligent plugins, like context-aware code suggestions and machine learning–driven refactoring, that are fundamentally improving code accuracy and accelerating development cycles. 
@@ -48,9 +95,202 @@ First episode of the new year just landed on the AI Native Dev! I really enjoyed
 • Prompts are disposable, specs aren't, but we can use LLMs to help us get better specs
 • Invoke a thought process and throw away the answer - At Tessl, Macey uses the say() mechanism to prime an LLM before asking requests that require a response.
 
-This session was hugely practical and valuable to anyone who could benefit from structuring better prompts.
+---
 
-#NativeAIDev #LLMPrompts #AIEngineering #PromptEngineering #MaceyBaker #Tessl
+The conversation about AI replacing developers always gets me thinking about the future of our industry. But here's what I'm really excited about: AI is making developers more creative, not less relevant.
+
+When you remove the mundane tasks - boilerplate code, repetitive debugging, basic documentation - you free up mental space for the interesting problems. The problems that require human judgment, creativity, and understanding of user needs.
+
+I've been tracking how my own workflow has changed over the past year:
+• Less time writing CRUD operations, more time designing system architecture
+• Less time debugging syntax errors, more time optimizing user experience  
+• Less time on documentation, more time on strategic technical decisions
+
+The role is evolving, but it's evolving toward the parts that make software development intellectually rewarding.
+
+---
+
+Had a fascinating discussion with Sarah Chen from Anthropic about the challenges of building reliable AI systems at scale. One point that really stuck with me:
+
+"The hardest part isn't making AI work once - it's making it work consistently across thousands of different contexts and edge cases."
+
+This resonates deeply with my experience hosting the AI Native Dev podcast. Every guest talks about the gap between demo and production. The technology is incredible, but production-ready AI requires the same engineering discipline as any other complex system.
+
+Some patterns I'm seeing from teams that scale AI successfully:
+• Comprehensive testing frameworks that account for model variability
+• Robust monitoring and alerting systems
+• Gradual rollout strategies with clear rollback procedures
+• Strong governance around model updates and prompt changes
+
+The excitement is justified, but so is the caution.
+
+---
+
+Community question that came up in our Discord: "How do you evaluate whether an AI tool is worth adopting for your team?"
+
+Here's my framework:
+
+1. Problem-Solution Fit: Does this solve a real pain point, or is it just cool technology?
+
+2. Integration Cost: How much effort to integrate with existing workflows vs. the value delivered?
+
+3. Risk Assessment: What happens if it breaks or gives incorrect results?
+
+4. Team Readiness: Does your team have the skills to implement and maintain this effectively?
+
+5. ROI Timeline: When will you see meaningful returns, and are they sustainable?
+
+The best AI adoption decisions I've seen start with clear problems, not cool capabilities.
+
+---
+
+Just wrapped recording an episode with David Singleton from Stripe about how payment infrastructure is evolving with AI. One insight that surprised me:
+
+AI isn't just changing how we build software - it's changing how software systems need to be designed.
+
+Traditional systems optimize for predictability and determinism. AI-native systems need to handle uncertainty and adapt to changing patterns.
+
+This has implications for:
+• Error handling and recovery strategies
+• Monitoring and observability approaches  
+• Testing methodologies
+• Performance optimization techniques
+
+We're not just adding AI features to existing systems. We're rethinking system design from the ground up.
+
+---
+
+The most underrated aspect of AI-native development? Human-AI collaboration patterns.
+
+It's not about humans vs. AI or humans replaced by AI. It's about finding the optimal collaboration model where each party contributes their strengths.
+
+Patterns I'm seeing emerge:
+• AI handles the heavy lifting, humans provide direction and judgment
+• Humans design the architecture, AI implements the details
+• AI generates options, humans make the final decisions
+• Humans validate and refine AI outputs
+
+The teams that figure out these collaboration patterns first will have a massive advantage.
+
+---
+
+Controversial take: Most "AI-powered" products are just traditional software with LLM features bolted on.
+
+True AI-native products are designed from the ground up around AI capabilities. They wouldn't be possible without AI, and they get better as the underlying models improve.
+
+Examples of truly AI-native products:
+• Perplexity's research assistant that combines search with reasoning
+• GitHub Copilot's context-aware code generation
+• Cursor's AI-first development environment
+
+The difference? These products have AI deeply integrated into their core value proposition, not just as a feature add-on.
+
+We're still early in the AI-native product category. The most interesting products are yet to be built.
+
+---
+
+Been thinking about the parallels between the current AI wave and the early days of cloud computing.
+
+Similar adoption patterns:
+• Initial skepticism from enterprises about reliability and control
+• Gradual migration starting with non-critical workloads  
+• Eventual realization that the new model is fundamentally better
+• Emergence of new architectures that weren't possible before
+
+Different this time:
+• Much faster adoption cycle
+• More direct impact on end-user experience
+• Greater potential for competitive differentiation
+
+If cloud was about moving infrastructure, AI is about moving intelligence. The implications are even more profound.
+
+---
+
+Quick reflection on hosting AI Native Dev for the past year:
+
+What surprised me most? The consistency of challenges across different companies and use cases. Whether it's a startup building their first AI feature or an enterprise implementing AI at scale, the fundamental challenges are remarkably similar:
+
+• Reliable evaluation and testing
+• Managing model updates and versioning
+• Balancing cost with performance
+• Building user trust in AI-generated outputs
+• Integrating AI into existing engineering workflows
+
+This suggests we need better standardized approaches and tooling. The problems are well-understood; the solutions are still evolving.
+
+---
+
+AI development is teaching us the importance of graceful degradation in ways I never expected.
+
+When your core functionality depends on external models that can:
+• Change behavior with updates
+• Have variable latency
+• Occasionally return unexpected results
+• Experience temporary outages
+
+You need robust fallback strategies and user experience patterns that handle uncertainty gracefully.
+
+This is pushing teams to think more systematically about:
+• Progressive enhancement in AI features
+• Clear communication when AI isn't available
+• Seamless handoffs between AI and traditional functionality
+• User education about AI capabilities and limitations
+
+Building reliable products on top of inherently uncertain technology is a new design challenge.
+
+---
+
+The state of AI tooling in 2025: We're moving from "AI as a feature" to "AI as infrastructure."
+
+Early tools focused on exposing AI capabilities directly to users. Current tools are integrating AI deeper into development workflows, making it less visible but more valuable.
+
+Examples:
+• IDEs with context-aware suggestions that feel like magic
+• Testing frameworks that automatically generate edge cases
+• Monitoring tools that predict issues before they occur
+• Documentation that updates itself based on code changes
+
+The best AI tools are becoming invisible - they enhance existing workflows rather than replacing them.
+
+---
+
+One pattern I'm noticing across successful AI implementations: the importance of human-in-the-loop design.
+
+It's not about replacing human judgment, but augmenting it at the right moments:
+• AI suggests, humans decide
+• AI drafts, humans refine  
+• AI analyzes, humans interpret
+• AI automates, humans oversee
+
+The key is finding the right balance for each use case. Too much automation and you lose control. Too little and you miss the efficiency gains.
+
+This balance point is different for every team and every application.
+
+---
+
+The biggest shift in software development practices due to AI? We're spending more time on prompt engineering than debugging.
+
+Traditional debugging: Find the bug, fix the code, test the solution.
+
+AI debugging: Analyze unexpected behavior, refine the prompt, test across multiple scenarios, validate consistency.
+
+It's a fundamentally different skill set that requires:
+• Understanding model behavior and limitations
+• Systematic experimentation approaches
+• Clear evaluation criteria for "good enough" outputs
+• Version control for prompts and examples
+
+We need new training programs and best practices for this emerging discipline.
+
+---
+
+Final thought for the year: AI-native development isn't just about using AI tools. It's about developing AI intuition.
+
+Knowing when to trust AI outputs, when to double-check them, and when to ignore them entirely. Understanding the patterns in AI behavior and learning to work with them rather than against them.
+
+This intuition comes from experience - building enough AI-powered features to understand where the technology excels and where it struggles.
+
+The developers who develop this intuition fastest will have a significant advantage in the coming years.
 
 ---
 
@@ -58,9 +298,7 @@ A few days ago, an LLM deleted Jason M. Lemkin's production database.
 
 Why did this happen, and what should we do about it? 
 
-Jason chronicles his experience vibe-coding his way to a (working?) web app using Replit's coding agent. 
-
-A few days ago, it deleted his production database. 
+Jason chronicles his experience vibe-coding his way to a (working?) web app using Replit's coding agent. A few days ago, it deleted his production database. 
 
 The issue, of course, isn't the engineers working on Replit. They are a brilliant group and they built a pretty great product.
 
@@ -81,5 +319,3 @@ This is why we build Atlas by Ariga. Originally, to prevent developers from shoo
 We literally have a policy called "Prevent destructive changes". 
 
 The next phase for LLMs isn't larger context windows or cheaper inference - it's back to the fundamentals that make software usable: determinism and safety.
-
----

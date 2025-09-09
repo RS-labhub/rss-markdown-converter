@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Brain,
   Upload,
@@ -25,6 +26,13 @@ import {
   BookOpen,
   AlertCircle,
   Lightbulb,
+  BarChart3,
+  Eye,
+  TrendingUp,
+  Users,
+  Tag,
+  Target,
+  Zap,
 } from "lucide-react"
 import {
   savePersonaTrainingDataWithType,
@@ -36,6 +44,10 @@ import {
   saveBuiltInPersonaInstructions,
   getBuiltInPersonaInstructions,
   removeBuiltInPersonaInstructions,
+  getPersonaInsights,
+  comparePersonas,
+  analyzePersonaContent,
+  extractWritingPatterns,
 } from "@/lib/persona-training"
 import { useToast } from "@/hooks/use-toast"
 
@@ -56,11 +68,18 @@ export function PersonaTrainingDialog({
   const [contentType, setContentType] = useState<"posts" | "blogs" | "mixed">("mixed")
   const [trainingContent, setTrainingContent] = useState("")
   const [instructions, setInstructions] = useState("")
+  const [description, setDescription] = useState("")
+  const [author, setAuthor] = useState("")
+  const [domain, setDomain] = useState<string[]>([])
+  const [tags, setTags] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [existingPersonas, setExistingPersonas] = useState<any[]>([])
   const [selectedPersona, setSelectedPersona] = useState<string>("")
-  const [mode, setMode] = useState<"create" | "edit" | "view">("create")
+  const [mode, setMode] = useState<"create" | "edit" | "view" | "analyze">("create")
   const [isBuiltInInstructionsMode, setIsBuiltInInstructionsMode] = useState(false)
+  const [currentAnalysis, setCurrentAnalysis] = useState<any>(null)
+  const [activeTab, setActiveTab] = useState<"form" | "insights" | "compare">("form")
+  const [comparePersona, setComparePersona] = useState<string>("")
 
   const { toast } = useToast()
 
@@ -122,6 +141,10 @@ export function PersonaTrainingDialog({
         setTrainingContent("") // Built-in personas don't have editable training content
         setInstructions(getBuiltInPersonaInstructions(name) || "")
         setContentType("mixed")
+        setDescription("")
+        setAuthor("")
+        setDomain([])
+        setTags([])
         setIsBuiltInInstructionsMode(true)
       } else {
         const persona = getPersonaTrainingDataWithType(name)
@@ -130,7 +153,17 @@ export function PersonaTrainingDialog({
           setTrainingContent(persona.rawContent)
           setInstructions(persona.instructions || "")
           setContentType(persona.contentType || "mixed")
+          setDescription(persona.description || "")
+          setAuthor(persona.author || "")
+          setDomain(persona.domain || [])
+          setTags(persona.tags || [])
           setIsBuiltInInstructionsMode(false)
+          
+          // Load analysis if available
+          if (trainingContent) {
+            const insights = getPersonaInsights(name)
+            setCurrentAnalysis(insights)
+          }
         }
       }
     } catch (error) {
@@ -173,17 +206,21 @@ export function PersonaTrainingDialog({
           description: `Custom instructions for ${personaName} have been saved.`,
         })
       } else {
-        // Save custom persona
+        // Save custom persona with enhanced data
         savePersonaTrainingDataWithType(
           personaName.trim().toLowerCase(),
           trainingContent.trim(),
           contentType,
           instructions.trim() || undefined,
+          description.trim() || undefined,
+          author.trim() || undefined,
+          domain.length > 0 ? domain : undefined,
+          tags.length > 0 ? tags : undefined,
         )
 
         toast({
           title: "Persona Saved",
-          description: `${personaName} persona has been saved successfully.`,
+          description: `${personaName} persona has been saved with analysis completed.`,
         })
       }
 
@@ -192,12 +229,7 @@ export function PersonaTrainingDialog({
       }
 
       // Reset form
-      setPersonaName("")
-      setTrainingContent("")
-      setInstructions("")
-      setContentType("mixed")
-      setMode("create")
-      setIsBuiltInInstructionsMode(false)
+      resetForm()
       loadExistingPersonas()
     } catch (error) {
       toast({
@@ -278,10 +310,53 @@ export function PersonaTrainingDialog({
     setPersonaName("")
     setTrainingContent("")
     setInstructions("")
+    setDescription("")
+    setAuthor("")
+    setDomain([])
+    setTags([])
     setContentType("mixed")
     setSelectedPersona("")
     setMode("create")
     setIsBuiltInInstructionsMode(false)
+    setCurrentAnalysis(null)
+    setActiveTab("form")
+    setComparePersona("")
+  }
+
+  const handleAnalyze = () => {
+    if (selectedPersona) {
+      const insights = getPersonaInsights(selectedPersona)
+      setCurrentAnalysis(insights)
+      setActiveTab("insights")
+    }
+  }
+
+  const handleCompare = () => {
+    if (selectedPersona && comparePersona) {
+      const comparison = comparePersonas(selectedPersona, comparePersona)
+      setCurrentAnalysis(comparison)
+      setActiveTab("compare")
+    }
+  }
+
+  const addDomainTag = (newDomain: string) => {
+    if (newDomain.trim() && !domain.includes(newDomain.trim())) {
+      setDomain([...domain, newDomain.trim()])
+    }
+  }
+
+  const removeDomainTag = (domainToRemove: string) => {
+    setDomain(domain.filter(d => d !== domainToRemove))
+  }
+
+  const addTag = (newTag: string) => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()])
+    }
+  }
+
+  const removeTag = (tagToRemove: string) => {
+    setTags(tags.filter(t => t !== tagToRemove))
   }
 
   return (

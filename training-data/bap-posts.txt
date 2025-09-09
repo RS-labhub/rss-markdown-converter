@@ -51,6 +51,216 @@ You can find the full news piece, and helpful nuggets on: ainativedev.co/up9
 
 ---
 
+The Model Context Protocol is reshaping how we think about agent orchestration.
+
+Instead of rigid pipelines, we're moving toward flexible context sharing between specialized agents. Each agent maintains its domain expertise while contributing to a larger collaborative intelligence.
+
+This reminds me of the early days of microservices - the promise of composable, scalable systems. But unlike microservices, MCP enables semantic interoperability. Agents don't just exchange data; they share understanding.
+
+The implications for development teams are profound:
+• Reduced integration overhead between AI tools
+• More granular control over agent capabilities  
+• Better debugging and observability across agent interactions
+
+What patterns are you seeing emerge in your agent workflows?
+
+---
+
+Behind every successful AI implementation, there's usually a developer who spent weeks debugging the prompt engineering.
+
+The gap between "AI can do this" and "AI reliably does this in production" remains surprisingly wide. We're still in the era of artisanal prompt crafting.
+
+Some patterns I've noticed in teams scaling AI effectively:
+
+• They version control their prompts like code
+• They instrument everything - token usage, response quality, latency
+• They build robust fallback mechanisms for when models hallucinate
+• They invest heavily in evaluation frameworks
+
+The tooling is getting better, but the fundamentals of software engineering discipline still apply. Maybe more so.
+
+---
+
+Fast follow-up on the MCP discussion: the protocol specification matters less than the ecosystem it enables.
+
+We're seeing specialized connectors emerge for everything from database queries to image generation. The real value isn't in the protocol itself - it's in the composability.
+
+Think about how Docker didn't just standardize containers; it created an ecosystem where complex applications could be assembled from simple, reliable components.
+
+MCP feels similar. We're moving from monolithic AI applications to compositional intelligence architectures.
+
+Early adopters are already seeing benefits:
+• Faster iteration cycles on agent capabilities
+• Better testing and validation of individual components
+• Cleaner separation of concerns between different AI functions
+
+The abstraction layer is finally emerging.
+
+---
+
+The hardest part about building with AI isn't the technology - it's the product decisions.
+
+When Claude can generate a full feature in minutes, the bottleneck shifts to knowing what to build. Product sense becomes the scarce resource.
+
+Teams that excel at AI-native development share a common trait: they're exceptional at rapid experimentation. They can quickly validate whether an AI-generated solution actually solves the user's problem.
+
+This requires new muscles:
+• Faster hypothesis formation and testing
+• Better mechanisms for collecting user feedback
+• More sophisticated A/B testing frameworks
+• Cleaner ways to measure value delivered vs. complexity added
+
+The technical barriers are dropping fast. The product strategy barriers are just getting started.
+
+---
+
+Three-month retrospective on our MCP implementation:
+
+What worked:
+• Context sharing between agents reduced our debugging time by ~40%
+• Modular agent design made it easier to swap out underperforming models
+• Better observability into agent decision-making processes
+
+What didn't:
+• Initial setup complexity was higher than expected
+• Some agents developed subtle dependencies that weren't immediately obvious
+• Performance overhead from context serialization in high-frequency scenarios
+
+Key learning: treat MCP like any other architectural decision. The abstraction has costs and benefits. Measure both.
+
+Would we do it again? Absolutely. But with better upfront planning around agent boundaries and interaction patterns.
+
+---
+
+Developer experience is becoming the primary differentiator in AI tooling.
+
+It's not enough for an AI model to be capable - it needs to integrate seamlessly into existing workflows. The best AI tools feel like natural extensions of how developers already work.
+
+Recent examples that get this right:
+• GitHub Copilot's inline suggestions vs. separate chat interfaces
+• Cursor's contextual code generation vs. generic coding assistants  
+• V0's component-aware generation vs. generic HTML output
+
+The pattern: AI that understands the developer's context and intent, not just their explicit request.
+
+This raises interesting questions about tool design. Should AI be invisible (augmenting existing tools) or explicit (new interfaces optimized for AI interaction)?
+
+My take: both have their place, but invisible integration wins for frequently-used workflows.
+
+---
+
+The conversation around AI replacing developers misses the more interesting shift happening: AI is changing what it means to be a good developer.
+
+Reading code becomes more important than writing it. Understanding system architecture matters more than memorizing syntax. Product intuition becomes as valuable as technical skills.
+
+This isn't unique to software. Every field touched by automation goes through this evolution. The valuable skills shift from execution to judgment.
+
+For developers, this means:
+• Focus on learning patterns, not just languages
+• Invest in understanding user needs and business context
+• Develop taste for good system design and architecture
+• Build strong debugging and reasoning skills
+
+The code will write itself. The thinking won't.
+
+---
+
+Prompt engineering is starting to feel like the CSS of AI development - everyone thinks they can do it until they try to do it well.
+
+The gap between basic prompting and production-ready prompt engineering is enormous. It requires understanding model behaviors, edge cases, and systematic approaches to reliability.
+
+Some hard-learned lessons:
+• Prompts need versioning and testing infrastructure
+• Examples in prompts are worth 10x more than instructions
+• Temperature settings matter more than most people realize
+• Chain-of-thought reasoning helps, but adds latency and cost
+
+We're still in the early stages of understanding best practices. The tooling is improving, but the fundamentals require discipline and systematic thinking.
+
+Treat your prompts like code. Because they are.
+
+---
+
+The most underrated skill in AI development: knowing when not to use AI.
+
+Not every problem needs a large language model. Sometimes a simple heuristic, database query, or traditional algorithm is faster, cheaper, and more reliable.
+
+AI natives understand this intuitively. They reach for AI when it adds genuine value, not because it's the shiny new tool.
+
+This judgment comes from experience - building enough AI applications to understand where the technology excels and where it struggles.
+
+The best AI developers I know spend as much time simplifying problems as they do implementing solutions.
+
+---
+
+Model Context Protocol adoption update: we're seeing interesting patterns emerge in how teams structure their agent ecosystems.
+
+Successful implementations tend to follow a hub-and-spoke model rather than peer-to-peer networks. One central orchestrator manages context flow between specialized agents.
+
+This reduces complexity and makes debugging much more manageable. It also provides a natural place to implement quality controls and monitoring.
+
+The trade-off is potential bottlenecks in the central coordinator, but most teams find this preferable to the complexity of fully distributed agent networks.
+
+Architecture patterns from distributed systems apply surprisingly well to agent coordination.
+
+---
+
+AI-native development is forcing us to rethink our relationship with uncertainty.
+
+Traditional software development aims for predictability. Given the same inputs, the system should produce the same outputs. AI systems are fundamentally probabilistic.
+
+This creates new challenges:
+• How do you test non-deterministic systems?
+• What does "correctness" mean when outputs vary?
+• How do you debug probabilistic failures?
+
+Teams adapting well are borrowing concepts from other domains that deal with uncertainty - statistics, control theory, experimental design.
+
+The mindset shift is significant. We're moving from engineering deterministic systems to managing probabilistic ones.
+
+---
+
+The infrastructure requirements for AI-native applications are becoming clearer:
+
+• Vector databases for semantic search and retrieval
+• Model serving infrastructure that can handle variable load
+• Monitoring and observability tools that understand AI-specific metrics
+• Cost tracking and optimization for token usage
+• A/B testing frameworks that account for model variability
+
+This is creating a new category of developer tools. The companies building this infrastructure will likely be as important as the model providers themselves.
+
+We're still early in this ecosystem development. There's room for significant innovation in tooling and platforms.
+
+---
+
+One year into serious AI-native development, and the biggest surprise has been how much it feels like the early days of mobile development.
+
+Similar patterns: rapid technological change, unclear best practices, lots of experimentation, and a gold rush mentality.
+
+Also similar: the winners will be those who focus on user problems rather than just technical capabilities.
+
+The technology is fascinating, but the product opportunities are what drive adoption. We're moving from "look what AI can do" to "here's how AI solves your problem."
+
+This maturation process typically takes 3-5 years. We're probably halfway through it.
+
+---
+
+Recent developments in agent frameworks have me thinking about the evolution of software architecture patterns.
+
+We went from monoliths to microservices to serverless. Now we're moving toward agent-oriented architectures where intelligent components coordinate to solve complex problems.
+
+The parallels to previous architectural shifts are striking:
+• Similar promises of modularity and composability  
+• Similar challenges around coordination and consistency
+• Similar learning curves for teams adopting the new patterns
+
+The difference: agents can adapt and learn, which adds new dimensions to system behavior.
+
+Early adopters are developing new patterns for agent coordination, monitoring, and governance. These patterns will likely become standard architectural knowledge in the next few years.
+
+---
+
 The AI Native DevCon is on today.
 
 Take home from this virtual free conference: 
