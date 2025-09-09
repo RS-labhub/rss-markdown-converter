@@ -4,6 +4,527 @@ import { createOpenAI } from "@ai-sdk/openai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createAnthropic } from "@ai-sdk/anthropic"
 
+// Server-side persona analysis functions (duplicated from client-side lib)
+function analyzePersonaContentServer(content: string) {
+  const words = content.split(/\s+/).filter(word => word.length > 0)
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0)
+  
+  // Extract common topics and phrases
+  const commonWords = extractCommonWordsServer(content)
+  const keyPhrases = extractKeyPhrasesServer(content)
+  
+  // Calculate complexity
+  const avgWordsPerSentence = words.length / sentences.length
+  let complexity: "simple" | "moderate" | "complex" = "simple"
+  if (avgWordsPerSentence > 20) complexity = "complex"
+  else if (avgWordsPerSentence > 12) complexity = "moderate"
+  
+  // Advanced analytics
+  const semanticClusters = extractSemanticClustersServer(content)
+  const stylisticFingerprint = extractStylisticFingerprintServer(content)
+  const temporalPatterns = extractTemporalPatternsServer(content)
+  
+  return {
+    wordCount: words.length,
+    avgPostLength: words.length / Math.max(paragraphs.length, 1),
+    commonTopics: extractTopicsServer(content),
+    keyPhrases,
+    writingComplexity: complexity,
+    lastAnalyzed: new Date().toISOString(),
+    semanticClusters,
+    stylisticFingerprint,
+    temporalPatterns
+  }
+}
+
+function extractWritingPatternsServer(content: string) {
+  const tone = analyzeToneServer(content)
+  const structure = analyzeStructureServer(content)
+  const vocabulary = extractVocabularyServer(content)
+  const sentenceLength = analyzeSentenceLengthServer(content)
+  const engagement = analyzeEngagementServer(content)
+  const sentiment = analyzeSentimentServer(content)
+  const readability = analyzeReadabilityServer(content)
+  
+  return {
+    tone,
+    structure,
+    vocabulary,
+    sentenceLength,
+    engagement,
+    sentiment,
+    readability
+  }
+}
+
+function analyzeMultiModalPreferencesServer(content: string) {
+  // Analyze image preferences
+  const imageReferences = (content.match(/!\[.*?\]/g) || []).length
+  const totalParagraphs = content.split(/\n\s*\n/).length
+  let imageFrequency: "rare" | "occasional" | "frequent" | "always" = "rare"
+  
+  if (imageReferences / totalParagraphs > 0.5) imageFrequency = "always"
+  else if (imageReferences / totalParagraphs > 0.3) imageFrequency = "frequent"
+  else if (imageReferences / totalParagraphs > 0.1) imageFrequency = "occasional"
+
+  // Analyze formatting preferences
+  const headings = content.match(/^#{1,6}\s/gm) || []
+  const headingStyle: string[] = []
+  
+  if (headings.some(h => /^\d+\./.test(h))) headingStyle.push("numbered")
+  if (headings.some(h => /\?$/.test(h))) headingStyle.push("question-based")
+  if (headings.length > 0) headingStyle.push("descriptive")
+
+  // List preferences
+  const bulletLists = (content.match(/^[•\-\*]\s/gm) || []).length
+  const numberedLists = (content.match(/^\d+\.\s/gm) || []).length
+  let listPreference: "bullets" | "numbers" | "mixed" = "bullets"
+  
+  if (numberedLists > bulletLists * 2) listPreference = "numbers"
+  else if (numberedLists > 0 && bulletLists > 0) listPreference = "mixed"
+
+  // Code block usage
+  const codeBlocks = (content.match(/```/g) || []).length / 2
+  const inlineCode = (content.match(/`[^`]+`/g) || []).length
+  let codeBlockUsage: "frequent" | "occasional" | "rare" = "rare"
+  
+  if (codeBlocks + inlineCode > totalParagraphs * 0.3) codeBlockUsage = "frequent"
+  else if (codeBlocks + inlineCode > 0) codeBlockUsage = "occasional"
+
+  return {
+    imageStyle: {
+      preferredTypes: ["screenshots"],
+      frequency: imageFrequency,
+      placement: imageReferences > 0 ? ["middle"] : [],
+      captionStyle: "technical"
+    },
+    formatting: {
+      headingStyle: headingStyle.length > 0 ? headingStyle : ["descriptive"],
+      listPreference,
+      codeBlockUsage,
+      tableUsage: "occasional" as const,
+      quoteUsage: "rare" as const
+    },
+    mediaPatterns: {
+      videoFrequency: "rare" as const,
+      linkingStyle: "inline" as const,
+      citationPreference: "informal" as const,
+      socialMediaIntegration: false
+    }
+  }
+}
+
+// Helper functions for server-side analysis
+function extractCommonWordsServer(content: string): string[] {
+  const words = content.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 3)
+  
+  const wordCount = new Map<string, number>()
+  words.forEach(word => {
+    wordCount.set(word, (wordCount.get(word) || 0) + 1)
+  })
+  
+  return Array.from(wordCount.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(entry => entry[0])
+}
+
+function extractKeyPhrasesServer(content: string): string[] {
+  const words = content.toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 2)
+  
+  const phrases: string[] = []
+  
+  // Extract 2-word phrases
+  for (let i = 0; i < words.length - 1; i++) {
+    const phrase = `${words[i]} ${words[i + 1]}`
+    if (!phrases.includes(phrase)) {
+      phrases.push(phrase)
+    }
+  }
+  
+  return phrases.slice(0, 15)
+}
+
+function extractTopicsServer(content: string): string[] {
+  const topicKeywords = {
+    "technology": ["ai", "artificial intelligence", "machine learning", "software", "development", "coding", "programming", "tech", "digital", "automation"],
+    "business": ["business", "startup", "entrepreneur", "marketing", "sales", "revenue", "growth", "strategy", "leadership"],
+    "cybersecurity": ["security", "cybersecurity", "encryption", "vulnerability", "threat", "protection", "attack", "defense"],
+    "devops": ["devops", "deployment", "docker", "kubernetes", "ci/cd", "infrastructure", "cloud", "aws", "azure"],
+    "web development": ["web", "frontend", "backend", "javascript", "react", "node", "html", "css", "api", "framework"],
+    "data science": ["data", "analytics", "science", "analysis", "visualization", "statistics", "insights", "model"]
+  }
+  
+  const contentLower = content.toLowerCase()
+  const detectedTopics: string[] = []
+  
+  for (const [topic, keywords] of Object.entries(topicKeywords)) {
+    const matches = keywords.filter(keyword => contentLower.includes(keyword))
+    if (matches.length >= 2) {
+      detectedTopics.push(topic)
+    }
+  }
+  
+  return detectedTopics
+}
+
+function analyzeToneServer(content: string): string[] {
+  const tones = []
+  const contentLower = content.toLowerCase()
+  
+  if (/\b(professional|enterprise|industry|standards|best practices|methodology)\b/.test(contentLower)) {
+    tones.push("professional")
+  }
+  if (/\b(hey|folks|guys|awesome|cool|amazing)\b/.test(contentLower)) {
+    tones.push("casual")
+  }
+  if (/\b(exciting|thrilled|fantastic|incredible|game-changing|revolutionary)\b/.test(contentLower) || /!{2,}/.test(content)) {
+    tones.push("enthusiastic")
+  }
+  if (/\b(implementation|configuration|architecture|framework|algorithm|optimization)\b/.test(contentLower)) {
+    tones.push("technical")
+  }
+  if (/\b(learn|tutorial|guide|step|example|explanation|understand)\b/.test(contentLower)) {
+    tones.push("educational")
+  }
+  
+  return tones.length > 0 ? tones : ["neutral"]
+}
+
+function analyzeStructureServer(content: string): string[] {
+  const structures = []
+  
+  if (/^[•\-\*]\s/m.test(content)) {
+    structures.push("bullet points")
+  }
+  if (/^\d+\.\s/m.test(content)) {
+    structures.push("numbered lists")
+  }
+  if (/#{1,6}\s/.test(content)) {
+    structures.push("headings")
+  }
+  
+  const paragraphs = content.split(/\n\s*\n/).filter(p => p.trim().length > 0)
+  if (paragraphs.length > 2) {
+    structures.push("paragraphs")
+  }
+  if (/```|`[^`]+`/.test(content)) {
+    structures.push("code blocks")
+  }
+  
+  return structures.length > 0 ? structures : ["plain text"]
+}
+
+function extractVocabularyServer(content: string): string[] {
+  const vocabulary = []
+  const contentLower = content.toLowerCase()
+  
+  if (/\b(api|sdk|framework|library|database|server|client|protocol)\b/.test(contentLower)) {
+    vocabulary.push("technical jargon")
+  }
+  if (/\b(roi|kpi|metrics|optimization|efficiency|scalability|growth)\b/.test(contentLower)) {
+    vocabulary.push("business terms")
+  }
+  if (/\b(totally|basically|pretty much|kind of|sort of)\b/.test(contentLower)) {
+    vocabulary.push("casual language")
+  }
+  if (/\b(methodology|analysis|research|study|investigation|hypothesis)\b/.test(contentLower)) {
+    vocabulary.push("academic language")
+  }
+  
+  return vocabulary
+}
+
+function analyzeSentenceLengthServer(content: string): "short" | "medium" | "long" | "mixed" {
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const lengths = sentences.map(s => s.split(/\s+/).length)
+  const avgLength = lengths.reduce((a, b) => a + b, 0) / lengths.length
+  
+  if (avgLength < 10) return "short"
+  if (avgLength > 20) return "long"
+  
+  const variance = lengths.reduce((acc, len) => acc + Math.pow(len - avgLength, 2), 0) / lengths.length
+  return variance > 50 ? "mixed" : "medium"
+}
+
+function analyzeEngagementServer(content: string): string[] {
+  const engagement = []
+  
+  if (/\?/.test(content)) {
+    engagement.push("questions")
+  }
+  if (/\b(check out|visit|try|download|subscribe|follow|share)\b/i.test(content)) {
+    engagement.push("call-to-action")
+  }
+  if (/\b(I|my|me|personally|in my experience)\b/i.test(content)) {
+    engagement.push("personal anecdotes")
+  }
+  if (/@\w+|#\w+/.test(content)) {
+    engagement.push("social mentions")
+  }
+  if (/\b(you|your|we|us|let's)\b/i.test(content)) {
+    engagement.push("direct address")
+  }
+  
+  return engagement
+}
+
+function analyzeSentimentServer(content: string) {
+  const positiveWords = [
+    "amazing", "excellent", "fantastic", "great", "awesome", "wonderful", "brilliant", 
+    "outstanding", "impressive", "incredible", "powerful", "effective", "successful",
+    "exciting", "innovative", "revolutionary", "breakthrough", "opportunity", "progress"
+  ]
+  
+  const negativeWords = [
+    "terrible", "awful", "horrible", "bad", "worst", "disappointing", "frustrating",
+    "difficult", "challenging", "problem", "issue", "concern", "worry", "risk"
+  ]
+  
+  const emotionalIndicators = {
+    optimistic: ["future", "will", "can", "opportunity", "potential", "growth"],
+    analytical: ["analysis", "data", "research", "study", "examine", "investigate"],
+    cautious: ["however", "but", "careful", "consider", "might", "potential risk"]
+  }
+  
+  const words = content.toLowerCase().split(/\s+/)
+  let positiveCount = 0
+  let negativeCount = 0
+  
+  words.forEach(word => {
+    if (positiveWords.some(pw => word.includes(pw))) positiveCount++
+    if (negativeWords.some(nw => word.includes(nw))) negativeCount++
+  })
+  
+  const positivePerc = (positiveCount / words.length) * 100
+  const negativePerc = (negativeCount / words.length) * 100
+  const neutralPerc = 100 - positivePerc - negativePerc
+  
+  let dominant: "positive" | "neutral" | "negative" | "mixed" = "neutral"
+  if (positivePerc > negativePerc && positivePerc > 2) {
+    dominant = "positive"
+  } else if (negativePerc > positivePerc && negativePerc > 2) {
+    dominant = "negative"
+  } else if (Math.abs(positivePerc - negativePerc) < 1 && (positivePerc > 1 || negativePerc > 1)) {
+    dominant = "mixed"
+  }
+  
+  const emotionalRange: string[] = []
+  const contentLower = content.toLowerCase()
+  
+  for (const [emotion, indicators] of Object.entries(emotionalIndicators)) {
+    const matches = indicators.filter(indicator => contentLower.includes(indicator))
+    if (matches.length >= 2) {
+      emotionalRange.push(emotion)
+    }
+  }
+  
+  return {
+    dominant,
+    distribution: {
+      positive: Math.round(positivePerc * 10) / 10,
+      neutral: Math.round(neutralPerc * 10) / 10,
+      negative: Math.round(negativePerc * 10) / 10
+    },
+    emotionalRange: emotionalRange.length > 0 ? emotionalRange : ["neutral"]
+  }
+}
+
+function analyzeReadabilityServer(content: string) {
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const words = content.split(/\s+/).filter(w => w.length > 0)
+  
+  function countSyllables(word: string): number {
+    word = word.toLowerCase()
+    if (word.length <= 3) return 1
+    
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
+    word = word.replace(/^y/, '')
+    
+    const matches = word.match(/[aeiouy]{1,2}/g)
+    return Math.max(1, matches ? matches.length : 1)
+  }
+  
+  const totalSyllables = words.reduce((total, word) => total + countSyllables(word), 0)
+  const avgWordsPerSentence = words.length / Math.max(sentences.length, 1)
+  const avgSyllablesPerWord = totalSyllables / Math.max(words.length, 1)
+  
+  const fleschKincaid = 0.39 * avgWordsPerSentence + 11.8 * avgSyllablesPerWord - 15.59
+  
+  let complexityLevel: "elementary" | "middle" | "high-school" | "college" | "graduate" = "elementary"
+  if (fleschKincaid >= 16) {
+    complexityLevel = "graduate"
+  } else if (fleschKincaid >= 13) {
+    complexityLevel = "college"
+  } else if (fleschKincaid >= 9) {
+    complexityLevel = "high-school"
+  } else if (fleschKincaid >= 6) {
+    complexityLevel = "middle"
+  }
+  
+  return {
+    fleschKincaid: Math.round(fleschKincaid * 10) / 10,
+    averageWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
+    averageSyllablesPerWord: Math.round(avgSyllablesPerWord * 100) / 100,
+    complexityLevel
+  }
+}
+
+function extractSemanticClustersServer(content: string) {
+  const clusters = []
+  const contentLower = content.toLowerCase()
+  
+  const semanticGroups = {
+    "AI/Machine Learning": {
+      keywords: ["ai", "artificial intelligence", "machine learning", "ml", "neural", "algorithm", "model", "training", "inference"],
+      sentiment: "innovative"
+    },
+    "Software Development": {
+      keywords: ["code", "coding", "programming", "development", "software", "api", "framework", "library", "github"],
+      sentiment: "technical"
+    },
+    "Business Strategy": {
+      keywords: ["business", "strategy", "growth", "revenue", "market", "customer", "product", "solution", "value"],
+      sentiment: "professional"
+    }
+  }
+  
+  for (const [topic, group] of Object.entries(semanticGroups)) {
+    const matchedKeywords = group.keywords.filter(keyword => contentLower.includes(keyword))
+    if (matchedKeywords.length >= 2) {
+      const frequency = matchedKeywords.reduce((total, keyword) => {
+        const regex = new RegExp(keyword, 'gi')
+        const matches = content.match(regex)
+        return total + (matches ? matches.length : 0)
+      }, 0)
+      
+      clusters.push({
+        topic,
+        keywords: matchedKeywords,
+        frequency,
+        sentiment: group.sentiment
+      })
+    }
+  }
+  
+  return clusters.sort((a, b) => b.frequency - a.frequency)
+}
+
+function extractStylisticFingerprintServer(content: string) {
+  const punctuationPatterns: string[] = []
+  const emphasisMarkers: string[] = []
+  const transitionWords: string[] = []
+  
+  if ((content.match(/!/g) || []).length > 3) {
+    punctuationPatterns.push("frequent exclamations")
+  }
+  if ((content.match(/\?/g) || []).length > 2) {
+    punctuationPatterns.push("questioning style")
+  }
+  if (content.includes("...")) {
+    punctuationPatterns.push("ellipsis usage")
+  }
+  
+  const upperCaseWords = content.match(/\b[A-Z]{2,}\b/g) || []
+  const capitalizationStyle = upperCaseWords.length > 3 ? "emphasizes with caps" : "standard capitalization"
+  
+  if (content.includes("**") || content.includes("__")) {
+    emphasisMarkers.push("bold formatting")
+  }
+  if (content.includes("*") && !content.includes("**")) {
+    emphasisMarkers.push("italic formatting")
+  }
+  if (content.includes("`")) {
+    emphasisMarkers.push("code formatting")
+  }
+  
+  const transitionWordsDict = [
+    "however", "therefore", "moreover", "furthermore", "consequently", "nevertheless",
+    "meanwhile", "specifically", "essentially", "ultimately", "particularly", "especially"
+  ]
+  
+  const contentLower = content.toLowerCase()
+  transitionWordsDict.forEach(word => {
+    if (contentLower.includes(word)) {
+      transitionWords.push(word)
+    }
+  })
+  
+  return {
+    punctuationPatterns,
+    capitalizationStyle,
+    emphasisMarkers,
+    transitionWords
+  }
+}
+
+function extractTemporalPatternsServer(content: string) {
+  const timeReferences: string[] = []
+  const urgencyIndicators: string[] = []
+  
+  const timeWords = ["today", "tomorrow", "yesterday", "now", "soon", "recently", "future", "past", "current", "next", "this year", "2024", "2025"]
+  const urgencyWords = ["urgent", "asap", "immediately", "critical", "quickly", "fast", "deadline", "rush", "priority"]
+  const futureWords = ["will", "going to", "plan to", "expect", "predict", "anticipate", "upcoming", "future", "next"]
+  
+  const contentLower = content.toLowerCase()
+  
+  timeWords.forEach(word => {
+    if (contentLower.includes(word)) {
+      timeReferences.push(word)
+    }
+  })
+  
+  urgencyWords.forEach(word => {
+    if (contentLower.includes(word)) {
+      urgencyIndicators.push(word)
+    }
+  })
+  
+  const futureMatches = futureWords.filter(word => contentLower.includes(word)).length
+  const totalWords = content.split(/\s+/).length
+  const futureFocusScore = Math.round((futureMatches / totalWords) * 1000) / 10
+  
+  return {
+    timeReferences,
+    urgencyIndicators,
+    futureFocusScore
+  }
+}
+
+function generateMultiModalPromptServer(multiModalPreferences: any): string {
+  if (!multiModalPreferences) return ""
+
+  const { imageStyle, formatting, mediaPatterns } = multiModalPreferences
+  const prompts: string[] = []
+
+  if (imageStyle.frequency !== "rare") {
+    prompts.push(`Include images ${imageStyle.frequency} with ${imageStyle.captionStyle} captions`)
+  }
+
+  if (formatting.headingStyle.length > 0) {
+    prompts.push(`Use ${formatting.headingStyle.join(" and ")} heading styles`)
+  }
+  if (formatting.listPreference !== "bullets") {
+    prompts.push(`Prefer ${formatting.listPreference} lists`)
+  }
+  if (formatting.codeBlockUsage === "frequent") {
+    prompts.push("Include code examples frequently")
+  }
+
+  if (mediaPatterns.socialMediaIntegration) {
+    prompts.push("Include social media references and hashtags where appropriate")
+  }
+
+  return prompts.length > 0 ? `Multi-modal preferences: ${prompts.join("; ")}.` : ""
+}
+
 // Initialize GROQ (OpenAI-compatible) and Gemini clients
 const groqClient = createOpenAI({
   baseURL: "https://api.groq.com/openai/v1",
@@ -14,7 +535,7 @@ const geminiClient = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY,
 })
 
-// Load persona training data with analysis
+// Load persona training data with enhanced analysis
 async function loadPersonaTrainingDataWithAnalysis(personaName: string, contentType?: "posts" | "blogs"): Promise<{
   content: string | null
   analysis?: {
@@ -23,6 +544,7 @@ async function loadPersonaTrainingDataWithAnalysis(personaName: string, contentT
     description?: string
     domain?: string[]
     instructions?: string
+    multiModalPreferences?: any
   }
 }> {
   try {
@@ -30,7 +552,7 @@ async function loadPersonaTrainingDataWithAnalysis(personaName: string, contentT
     const path = await import("path").catch(() => null)
 
     if (fs && path) {
-      // Load training content
+      // Load training content from files
       let fileName = `${personaName}-posts.txt`
       if (contentType === "blogs") {
         fileName = `${personaName}-blogs.txt`
@@ -51,62 +573,47 @@ async function loadPersonaTrainingDataWithAnalysis(personaName: string, contentT
         }
       }
 
-      // For built-in personas, provide enhanced analysis
-      let analysis = {}
-      if (personaName === "bap") {
-        analysis = {
-          description: "AI-native development thought leader and devRel Engineer at Tessl (AI-native is a part of Tessl)",
-          domain: ["ai-development", "mcp", "developer-tools", "ai-infrastructure"],
-          writingPatterns: {
-            tone: ["professional", "technical", "insightful"],
-            structure: ["bullet points", "structured analysis", "practical examples"],
-            vocabulary: ["technical precision", "developer-focused"],
-            engagement: ["questions", "community discussion", "practical insights"]
-          },
-          analytics: {
-            commonTopics: ["ai-development", "mcp", "agent-orchestration", "developer-experience"],
-            writingComplexity: "moderate",
-            keyPhrases: ["AI-native development", "Model Context Protocol", "agent workflows", "developer experience"]
-          }
-        }
-      } else if (personaName === "simon") {
-        analysis = {
-          description: "AI Native Dev podcast host, developer community builder, and head of devRel at Tessl (AI Native is a part of Tessl)",
-          domain: ["ai-development", "developer-communities", "ai-tools", "developer-experience"],
-          writingPatterns: {
-            tone: ["conversational", "thoughtful", "community-focused", "technical"],
-            structure: ["narrative flow", "personal insights", "community examples", "story-telling"],
-            vocabulary: ["accessible technical language", "community-focused"],
-            engagement: ["personal anecdotes", "community questions", "shared experiences"]
-          },
-          analytics: {
-            commonTopics: ["ai-tooling", "developer-communities", "ai-adoption", "development-practices"],
-            writingComplexity: "moderate",
-            keyPhrases: ["AI Native Dev", "developer community", "AI adoption", "development practices"]
-          }
-        }
-      } else if (personaName === "rohan-sharma") {
-        analysis = {
-          description: "LLMWare devRel and open-source AI infrastructure advocate",
-          domain: ["llm-infrastructure", "open-source", "ai-tools", "developer-communities"],
-          writingPatterns: {
-            tone: ["friendly", "enthusiastic", "technical", "community-focused"],
-            structure: ["formatted", "bullet points", "call-to-action"],
-            vocabulary: ["community engagement"],
-            engagement: ["community building", "product announcements", "direct address"]
-          },
-          analytics: {
-            commonTopics: ["llmware", "open-source", "ai-infrastructure", "developer-communities"],
-            writingComplexity: "moderate",
-            keyPhrases: ["LLMWare", "open-source", "developer community", "AI infrastructure"]
-          }
-        }
-      }
+      if (content) {
+        // Generate enhanced analysis for built-in personas
+        const analytics = analyzePersonaContentServer(content)
+        const writingPatterns = extractWritingPatternsServer(content)
+        const multiModalPreferences = analyzeMultiModalPreferencesServer(content)
 
-      return { content, analysis }
+        // Enhanced persona metadata
+        let analysis = {
+          writingPatterns,
+          analytics,
+          multiModalPreferences
+        }
+
+        if (personaName === "bap") {
+          analysis = {
+            ...analysis,
+            description: "AI-native development thought leader and DevRel Engineer at Tessl",
+            domain: ["ai-development", "mcp", "developer-tools", "ai-infrastructure", "agent-orchestration"],
+            instructions: "Focus on technical precision, developer experience, and practical AI implementation insights. Use structured analysis with bullet points and emphasize community discussion."
+          } as any
+        } else if (personaName === "simon") {
+          analysis = {
+            ...analysis,
+            description: "AI Native Dev podcast host, developer community builder, and head of DevRel at Tessl",
+            domain: ["ai-development", "developer-communities", "ai-tools", "developer-experience", "podcasting"],
+            instructions: "Maintain conversational tone with thoughtful analysis. Include personal anecdotes and community examples. Encourage shared experiences and community questions."
+          } as any
+        } else if (personaName === "rohan-sharma") {
+          analysis = {
+            ...analysis,
+            description: "LLMWare DevRel and open-source AI infrastructure advocate",
+            domain: ["llm-infrastructure", "open-source", "ai-tools", "developer-communities", "llmware"],
+            instructions: "Use friendly, enthusiastic tone with technical expertise. Focus on community building and open-source advocacy. Include product announcements and direct audience address."
+          } as any
+        }
+
+        return { content, analysis }
+      }
     }
   } catch (error) {
-    console.error(`Error loading ${personaName} training data with analysis:`, error)
+    console.error(`Error loading ${personaName} training data with enhanced analysis:`, error)
   }
   return { content: null }
 }
@@ -442,26 +949,37 @@ const generateStyledPlatformPrompt = async (
       const keywordText = keywords ? `Include these keywords naturally: ${keywords}.` : ""
       const contentTypeText = contentType === "blogs" ? "blog-style" : "social media post-style"
 
-      // Build enhanced persona context
+      // Build enhanced persona context with advanced analysis
       let personaContext = ""
       if (personaAnalysis) {
-        const { description, domain, writingPatterns, analytics } = personaAnalysis
+        const { description, domain, writingPatterns, analytics, instructions, multiModalPreferences } = personaAnalysis
         
         personaContext = `
 PERSONA PROFILE:
 ${description ? `- Role: ${description}` : ""}
 ${domain ? `- Expertise: ${domain.join(", ")}` : ""}
+${instructions ? `- Special Instructions: ${instructions}` : ""}
 
-WRITING STYLE ANALYSIS:
+ADVANCED WRITING STYLE ANALYSIS:
 ${writingPatterns?.tone ? `- Tone: ${writingPatterns.tone.join(", ")}` : ""}
 ${writingPatterns?.structure ? `- Structure: ${writingPatterns.structure.join(", ")}` : ""}
 ${writingPatterns?.vocabulary ? `- Vocabulary: ${writingPatterns.vocabulary.join(", ")}` : ""}
 ${writingPatterns?.engagement ? `- Engagement: ${writingPatterns.engagement.join(", ")}` : ""}
+${writingPatterns?.sentiment ? `- Sentiment: ${writingPatterns.sentiment.dominant} (${writingPatterns.sentiment.emotionalRange.join(", ")})` : ""}
+${writingPatterns?.readability ? `- Readability: ${writingPatterns.readability.complexityLevel} level (${writingPatterns.readability.fleschKincaid} grade)` : ""}
 
 CONTENT FOCUS AREAS:
 ${analytics?.commonTopics ? `- Topics: ${analytics.commonTopics.join(", ")}` : ""}
-${analytics?.keyPhrases ? `- Key Phrases: ${analytics.keyPhrases.join(", ")}` : ""}
+${analytics?.keyPhrases ? `- Key Phrases: ${analytics.keyPhrases.slice(0, 10).join(", ")}` : ""}
 ${analytics?.writingComplexity ? `- Complexity: ${analytics.writingComplexity}` : ""}
+${analytics?.semanticClusters ? `- Semantic Clusters: ${analytics.semanticClusters.map((c: any) => `${c.topic} (${c.sentiment})`).join(", ")}` : ""}
+
+STYLISTIC PATTERNS:
+${analytics?.stylisticFingerprint?.punctuationPatterns ? `- Punctuation: ${analytics.stylisticFingerprint.punctuationPatterns.join(", ")}` : ""}
+${analytics?.stylisticFingerprint?.emphasisMarkers ? `- Emphasis: ${analytics.stylisticFingerprint.emphasisMarkers.join(", ")}` : ""}
+${analytics?.stylisticFingerprint?.transitionWords ? `- Transitions: ${analytics.stylisticFingerprint.transitionWords.join(", ")}` : ""}
+
+${multiModalPreferences ? generateMultiModalPromptServer(multiModalPreferences) : ""}
 `
       }
 
@@ -483,11 +1001,16 @@ ${trainingData}
 PLATFORM REQUIREMENTS for ${platformGuidelines.format}:
 ${platformGuidelines.guidelines.map((guide) => `- ${guide}`).join("\n")}
 
-PERSONA WRITING INSTRUCTIONS:
+ADVANCED PERSONA WRITING INSTRUCTIONS:
 - Mirror the tone patterns identified in the analysis (${personaAnalysis?.writingPatterns?.tone?.join(", ") || "maintain consistent tone"})
 - Use the preferred structural elements (${personaAnalysis?.writingPatterns?.structure?.join(", ") || "clear structure"})
 - Incorporate vocabulary style that matches the persona (${personaAnalysis?.writingPatterns?.vocabulary?.join(", ") || "appropriate vocabulary"})
 - Apply engagement patterns naturally (${personaAnalysis?.writingPatterns?.engagement?.join(", ") || "engage readers appropriately"})
+${personaAnalysis?.writingPatterns?.sentiment ? `- Maintain emotional range: ${personaAnalysis.writingPatterns.sentiment.emotionalRange.join(", ")} with ${personaAnalysis.writingPatterns.sentiment.dominant} sentiment` : ""}
+${personaAnalysis?.writingPatterns?.readability ? `- Target ${personaAnalysis.writingPatterns.readability.complexityLevel} reading level with average ${Math.round(personaAnalysis.writingPatterns.readability.averageWordsPerSentence)} words per sentence` : ""}
+${personaAnalysis?.analytics?.stylisticFingerprint?.punctuationPatterns ? `- Use punctuation patterns: ${personaAnalysis.analytics.stylisticFingerprint.punctuationPatterns.join(", ")}` : ""}
+${personaAnalysis?.analytics?.stylisticFingerprint?.emphasisMarkers ? `- Apply emphasis methods: ${personaAnalysis.analytics.stylisticFingerprint.emphasisMarkers.join(", ")}` : ""}
+${personaAnalysis?.instructions ? `- Special persona instructions: ${personaAnalysis.instructions}` : ""}
 
 TASK:
 Create a ${platformGuidelines.format} about the article below, written in the exact same ${contentTypeText} style as the examples above. The content should feel like it was written by the same person who created the training examples. ${keywordText} ${linksInstruction} ${sourceInstruction}

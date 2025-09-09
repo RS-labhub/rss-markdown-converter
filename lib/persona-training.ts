@@ -6,6 +6,17 @@ interface WritingPatterns {
   vocabulary: string[]    // characteristic words/phrases
   sentenceLength: "short" | "medium" | "long" | "mixed"
   engagement: string[]    // e.g., ["questions", "call-to-action", "personal anecdotes"]
+  sentiment: {            // New: sentiment analysis
+    dominant: "positive" | "neutral" | "negative" | "mixed"
+    distribution: { positive: number; neutral: number; negative: number }
+    emotionalRange: string[] // e.g., ["optimistic", "analytical", "cautious"]
+  }
+  readability: {          // New: readability metrics
+    fleschKincaid: number
+    averageWordsPerSentence: number
+    averageSyllablesPerWord: number
+    complexityLevel: "elementary" | "middle" | "high-school" | "college" | "graduate"
+  }
 }
 
 interface PersonaAnalytics {
@@ -15,6 +26,24 @@ interface PersonaAnalytics {
   keyPhrases: string[]
   writingComplexity: "simple" | "moderate" | "complex"
   lastAnalyzed: string
+  // New: Advanced analytics
+  semanticClusters?: Array<{
+    topic: string
+    keywords: string[]
+    frequency: number
+    sentiment: string
+  }>
+  stylisticFingerprint?: {
+    punctuationPatterns: string[]
+    capitalizationStyle: string
+    emphasisMarkers: string[]
+    transitionWords: string[]
+  }
+  temporalPatterns?: {
+    timeReferences: string[]
+    urgencyIndicators: string[]
+    futureFocusScore: number
+  }
 }
 
 interface PersonaData {
@@ -33,6 +62,48 @@ interface PersonaData {
   tags?: string[]
   version?: string
   lastUpdated?: string
+  // New: Adaptive learning fields
+  adaptiveLearning?: {
+    feedbackHistory: Array<{
+      generatedContent: string
+      userFeedback: "positive" | "negative" | "neutral"
+      improvements: string[]
+      timestamp: string
+    }>
+    performanceMetrics: {
+      averageRating: number
+      totalGenerations: number
+      successfulGenerations: number
+      commonIssues: string[]
+    }
+    learningPatterns: {
+      improvedAspects: string[]
+      persistentWeaknesses: string[]
+      adaptationSuggestions: string[]
+    }
+  }
+  // New: Multi-modal content preferences
+  multiModalPreferences?: {
+    imageStyle: {
+      preferredTypes: string[]  // e.g., ["diagrams", "screenshots", "illustrations"]
+      frequency: "rare" | "occasional" | "frequent" | "always"
+      placement: string[]       // e.g., ["intro", "middle", "conclusion"]
+      captionStyle: string     // e.g., "descriptive", "technical", "minimal"
+    }
+    formatting: {
+      headingStyle: string[]    // e.g., ["numbered", "descriptive", "question-based"]
+      listPreference: "bullets" | "numbers" | "mixed"
+      codeBlockUsage: "frequent" | "occasional" | "rare"
+      tableUsage: "frequent" | "occasional" | "rare"
+      quoteUsage: "frequent" | "occasional" | "rare"
+    }
+    mediaPatterns: {
+      videoFrequency: "never" | "rare" | "occasional" | "frequent"
+      linkingStyle: "inline" | "reference" | "mixed"
+      citationPreference: "formal" | "informal" | "none"
+      socialMediaIntegration: boolean
+    }
+  }
 }
 
 const STORAGE_KEY = "rss-platform-persona-training"
@@ -53,13 +124,21 @@ export function analyzePersonaContent(content: string): PersonaAnalytics {
   if (avgWordsPerSentence > 20) complexity = "complex"
   else if (avgWordsPerSentence > 12) complexity = "moderate"
   
+  // Advanced analytics
+  const semanticClusters = extractSemanticClusters(content)
+  const stylisticFingerprint = extractStylisticFingerprint(content)
+  const temporalPatterns = extractTemporalPatterns(content)
+  
   return {
     wordCount: words.length,
     avgPostLength: words.length / Math.max(paragraphs.length, 1),
     commonTopics: extractTopics(content),
     keyPhrases,
     writingComplexity: complexity,
-    lastAnalyzed: new Date().toISOString()
+    lastAnalyzed: new Date().toISOString(),
+    semanticClusters,
+    stylisticFingerprint,
+    temporalPatterns
   }
 }
 
@@ -69,13 +148,17 @@ export function extractWritingPatterns(content: string): WritingPatterns {
   const vocabulary = extractVocabulary(content)
   const sentenceLength = analyzeSentenceLength(content)
   const engagement = analyzeEngagement(content)
+  const sentiment = analyzeSentiment(content)
+  const readability = analyzeReadability(content)
   
   return {
     tone,
     structure,
     vocabulary,
     sentenceLength,
-    engagement
+    engagement,
+    sentiment,
+    readability
   }
 }
 
@@ -270,6 +353,296 @@ function analyzeEngagement(content: string): string[] {
   }
   
   return engagement
+}
+
+// New: Advanced sentiment analysis
+function analyzeSentiment(content: string): {
+  dominant: "positive" | "neutral" | "negative" | "mixed"
+  distribution: { positive: number; neutral: number; negative: number }
+  emotionalRange: string[]
+} {
+  const positiveWords = [
+    "amazing", "excellent", "fantastic", "great", "awesome", "wonderful", "brilliant", 
+    "outstanding", "impressive", "incredible", "powerful", "effective", "successful",
+    "exciting", "innovative", "revolutionary", "breakthrough", "opportunity", "progress",
+    "growth", "improvement", "solution", "benefit", "advantage", "love", "enjoy"
+  ]
+  
+  const negativeWords = [
+    "terrible", "awful", "horrible", "bad", "worst", "disappointing", "frustrating",
+    "difficult", "challenging", "problem", "issue", "concern", "worry", "risk",
+    "danger", "threat", "failure", "mistake", "error", "bug", "broken", "hate"
+  ]
+  
+  const emotionalIndicators = {
+    optimistic: ["future", "will", "can", "opportunity", "potential", "growth"],
+    analytical: ["analysis", "data", "research", "study", "examine", "investigate"],
+    cautious: ["however", "but", "careful", "consider", "might", "potential risk"],
+    enthusiastic: ["!", "exciting", "amazing", "can't wait", "thrilled"],
+    authoritative: ["should", "must", "recommend", "important", "critical", "essential"]
+  }
+  
+  const words = content.toLowerCase().split(/\s+/)
+  let positiveCount = 0
+  let negativeCount = 0
+  let totalWords = words.length
+  
+  // Count sentiment words
+  words.forEach(word => {
+    if (positiveWords.some(pw => word.includes(pw))) positiveCount++
+    if (negativeWords.some(nw => word.includes(nw))) negativeCount++
+  })
+  
+  // Calculate percentages
+  const positivePerc = (positiveCount / totalWords) * 100
+  const negativePerc = (negativeCount / totalWords) * 100
+  const neutralPerc = 100 - positivePerc - negativePerc
+  
+  // Determine dominant sentiment
+  let dominant: "positive" | "neutral" | "negative" | "mixed" = "neutral"
+  if (positivePerc > negativePerc && positivePerc > 2) {
+    dominant = "positive"
+  } else if (negativePerc > positivePerc && negativePerc > 2) {
+    dominant = "negative"
+  } else if (Math.abs(positivePerc - negativePerc) < 1 && (positivePerc > 1 || negativePerc > 1)) {
+    dominant = "mixed"
+  }
+  
+  // Extract emotional range
+  const emotionalRange: string[] = []
+  const contentLower = content.toLowerCase()
+  
+  for (const [emotion, indicators] of Object.entries(emotionalIndicators)) {
+    const matches = indicators.filter(indicator => contentLower.includes(indicator))
+    if (matches.length >= 2) {
+      emotionalRange.push(emotion)
+    }
+  }
+  
+  return {
+    dominant,
+    distribution: {
+      positive: Math.round(positivePerc * 10) / 10,
+      neutral: Math.round(neutralPerc * 10) / 10,
+      negative: Math.round(negativePerc * 10) / 10
+    },
+    emotionalRange: emotionalRange.length > 0 ? emotionalRange : ["neutral"]
+  }
+}
+
+// New: Advanced readability analysis
+function analyzeReadability(content: string): {
+  fleschKincaid: number
+  averageWordsPerSentence: number
+  averageSyllablesPerWord: number
+  complexityLevel: "elementary" | "middle" | "high-school" | "college" | "graduate"
+} {
+  const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 0)
+  const words = content.split(/\s+/).filter(w => w.length > 0)
+  
+  // Calculate syllables (approximation)
+  function countSyllables(word: string): number {
+    word = word.toLowerCase()
+    if (word.length <= 3) return 1
+    
+    // Remove common endings that don't add syllables
+    word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, '')
+    word = word.replace(/^y/, '')
+    
+    // Count vowel groups
+    const matches = word.match(/[aeiouy]{1,2}/g)
+    return Math.max(1, matches ? matches.length : 1)
+  }
+  
+  const totalSyllables = words.reduce((total, word) => total + countSyllables(word), 0)
+  const avgWordsPerSentence = words.length / Math.max(sentences.length, 1)
+  const avgSyllablesPerWord = totalSyllables / Math.max(words.length, 1)
+  
+  // Flesch-Kincaid Grade Level
+  const fleschKincaid = 0.39 * avgWordsPerSentence + 11.8 * avgSyllablesPerWord - 15.59
+  
+  // Determine complexity level
+  let complexityLevel: "elementary" | "middle" | "high-school" | "college" | "graduate" = "elementary"
+  if (fleschKincaid >= 16) {
+    complexityLevel = "graduate"
+  } else if (fleschKincaid >= 13) {
+    complexityLevel = "college"
+  } else if (fleschKincaid >= 9) {
+    complexityLevel = "high-school"
+  } else if (fleschKincaid >= 6) {
+    complexityLevel = "middle"
+  }
+  
+  return {
+    fleschKincaid: Math.round(fleschKincaid * 10) / 10,
+    averageWordsPerSentence: Math.round(avgWordsPerSentence * 10) / 10,
+    averageSyllablesPerWord: Math.round(avgSyllablesPerWord * 100) / 100,
+    complexityLevel
+  }
+}
+
+// New: Extract semantic clusters for better topic understanding
+function extractSemanticClusters(content: string): Array<{
+  topic: string
+  keywords: string[]
+  frequency: number
+  sentiment: string
+}> {
+  const clusters = []
+  const contentLower = content.toLowerCase()
+  
+  // Define semantic clusters with related terms
+  const semanticGroups = {
+    "AI/Machine Learning": {
+      keywords: ["ai", "artificial intelligence", "machine learning", "ml", "neural", "algorithm", "model", "training", "inference"],
+      sentiment: "innovative"
+    },
+    "Software Development": {
+      keywords: ["code", "coding", "programming", "development", "software", "api", "framework", "library", "github"],
+      sentiment: "technical"
+    },
+    "Business Strategy": {
+      keywords: ["business", "strategy", "growth", "revenue", "market", "customer", "product", "solution", "value"],
+      sentiment: "professional"
+    },
+    "DevOps/Infrastructure": {
+      keywords: ["deployment", "infrastructure", "cloud", "docker", "kubernetes", "ci/cd", "automation", "scalability"],
+      sentiment: "operational"
+    },
+    "Data & Analytics": {
+      keywords: ["data", "analytics", "metrics", "insights", "visualization", "analysis", "statistics", "dashboard"],
+      sentiment: "analytical"
+    }
+  }
+  
+  for (const [topic, group] of Object.entries(semanticGroups)) {
+    const matchedKeywords = group.keywords.filter(keyword => contentLower.includes(keyword))
+    if (matchedKeywords.length >= 2) {
+      // Calculate frequency (simple word count)
+      const frequency = matchedKeywords.reduce((total, keyword) => {
+        const regex = new RegExp(keyword, 'gi')
+        const matches = content.match(regex)
+        return total + (matches ? matches.length : 0)
+      }, 0)
+      
+      clusters.push({
+        topic,
+        keywords: matchedKeywords,
+        frequency,
+        sentiment: group.sentiment
+      })
+    }
+  }
+  
+  return clusters.sort((a, b) => b.frequency - a.frequency)
+}
+
+// New: Extract stylistic fingerprint for unique writing characteristics
+function extractStylisticFingerprint(content: string): {
+  punctuationPatterns: string[]
+  capitalizationStyle: string
+  emphasisMarkers: string[]
+  transitionWords: string[]
+} {
+  const punctuationPatterns: string[] = []
+  const emphasisMarkers: string[] = []
+  const transitionWords: string[] = []
+  
+  // Analyze punctuation patterns
+  if ((content.match(/!/g) || []).length > 3) {
+    punctuationPatterns.push("frequent exclamations")
+  }
+  if ((content.match(/\?/g) || []).length > 2) {
+    punctuationPatterns.push("questioning style")
+  }
+  if (content.includes("...")) {
+    punctuationPatterns.push("ellipsis usage")
+  }
+  if ((content.match(/;/g) || []).length > 1) {
+    punctuationPatterns.push("semicolon preference")
+  }
+  if ((content.match(/:/g) || []).length > 2) {
+    punctuationPatterns.push("colon usage")
+  }
+  
+  // Analyze capitalization
+  const upperCaseWords = content.match(/\b[A-Z]{2,}\b/g) || []
+  const capitalizationStyle = upperCaseWords.length > 3 ? "emphasizes with caps" : "standard capitalization"
+  
+  // Find emphasis markers
+  if (content.includes("**") || content.includes("__")) {
+    emphasisMarkers.push("bold formatting")
+  }
+  if (content.includes("*") && !content.includes("**")) {
+    emphasisMarkers.push("italic formatting")
+  }
+  if (content.includes("`")) {
+    emphasisMarkers.push("code formatting")
+  }
+  if (content.match(/\b[A-Z]{2,}\b/)) {
+    emphasisMarkers.push("capitalization emphasis")
+  }
+  
+  // Find transition words
+  const transitionWordsDict = [
+    "however", "therefore", "moreover", "furthermore", "consequently", "nevertheless",
+    "meanwhile", "specifically", "essentially", "ultimately", "particularly", "especially"
+  ]
+  
+  const contentLower = content.toLowerCase()
+  transitionWordsDict.forEach(word => {
+    if (contentLower.includes(word)) {
+      transitionWords.push(word)
+    }
+  })
+  
+  return {
+    punctuationPatterns,
+    capitalizationStyle,
+    emphasisMarkers,
+    transitionWords
+  }
+}
+
+// New: Extract temporal patterns for time-based writing characteristics
+function extractTemporalPatterns(content: string): {
+  timeReferences: string[]
+  urgencyIndicators: string[]
+  futureFocusScore: number
+} {
+  const timeReferences: string[] = []
+  const urgencyIndicators: string[] = []
+  
+  const timeWords = ["today", "tomorrow", "yesterday", "now", "soon", "recently", "future", "past", "current", "next", "this year", "2024", "2025"]
+  const urgencyWords = ["urgent", "asap", "immediately", "critical", "quickly", "fast", "deadline", "rush", "priority"]
+  const futureWords = ["will", "going to", "plan to", "expect", "predict", "anticipate", "upcoming", "future", "next"]
+  
+  const contentLower = content.toLowerCase()
+  
+  // Extract time references
+  timeWords.forEach(word => {
+    if (contentLower.includes(word)) {
+      timeReferences.push(word)
+    }
+  })
+  
+  // Extract urgency indicators
+  urgencyWords.forEach(word => {
+    if (contentLower.includes(word)) {
+      urgencyIndicators.push(word)
+    }
+  })
+  
+  // Calculate future focus score
+  const futureMatches = futureWords.filter(word => contentLower.includes(word)).length
+  const totalWords = content.split(/\s+/).length
+  const futureFocusScore = Math.round((futureMatches / totalWords) * 1000) / 10 // percentage * 10 for precision
+  
+  return {
+    timeReferences,
+    urgencyIndicators,
+    futureFocusScore
+  }
 }
 
 // Get detailed insights about a persona
@@ -629,6 +1002,7 @@ export function savePersonaTrainingDataWithType(
     // Analyze the content automatically
     const analytics = analyzePersonaContent(rawContent)
     const writingPatterns = extractWritingPatterns(rawContent)
+    const multiModalPreferences = analyzeMultiModalPreferences(rawContent)
     
     const newPersona: PersonaData = {
       name: name.toLowerCase(),
@@ -643,8 +1017,9 @@ export function savePersonaTrainingDataWithType(
       writingPatterns,
       analytics,
       tags: tags || [],
-      version: "2.0",
+      version: "3.0", // Updated version for multi-modal support
       lastUpdated: new Date().toISOString(),
+      multiModalPreferences,
     }
 
     // Remove existing persona with same name (regardless of content type)
@@ -885,4 +1260,399 @@ export function removeBuiltInPersonaInstructions(name: string): boolean {
     console.error("Error removing built-in persona instructions:", error)
     return false
   }
+}
+
+// New: Adaptive learning functions
+export function recordPersonaFeedback(
+  personaName: string,
+  generatedContent: string,
+  userFeedback: "positive" | "negative" | "neutral",
+  improvements: string[] = []
+): void {
+  if (typeof window === "undefined") return
+
+  try {
+    const persona = getPersonaTrainingData(personaName)
+    if (!persona) throw new Error("Persona not found")
+
+    // Initialize adaptive learning if not present
+    if (!persona.adaptiveLearning) {
+      persona.adaptiveLearning = {
+        feedbackHistory: [],
+        performanceMetrics: {
+          averageRating: 0,
+          totalGenerations: 0,
+          successfulGenerations: 0,
+          commonIssues: []
+        },
+        learningPatterns: {
+          improvedAspects: [],
+          persistentWeaknesses: [],
+          adaptationSuggestions: []
+        }
+      }
+    }
+
+    // Add feedback to history
+    persona.adaptiveLearning.feedbackHistory.push({
+      generatedContent,
+      userFeedback,
+      improvements,
+      timestamp: new Date().toISOString()
+    })
+
+    // Update performance metrics
+    persona.adaptiveLearning.performanceMetrics.totalGenerations++
+    if (userFeedback === "positive") {
+      persona.adaptiveLearning.performanceMetrics.successfulGenerations++
+    }
+
+    // Recalculate average rating (positive=100, neutral=50, negative=0)
+    const ratingValue = userFeedback === "positive" ? 100 : userFeedback === "neutral" ? 50 : 0
+    const currentAvg = persona.adaptiveLearning.performanceMetrics.averageRating
+    const totalGens = persona.adaptiveLearning.performanceMetrics.totalGenerations
+    persona.adaptiveLearning.performanceMetrics.averageRating = 
+      ((currentAvg * (totalGens - 1)) + ratingValue) / totalGens
+
+    // Update common issues
+    if (userFeedback === "negative" && improvements.length > 0) {
+      improvements.forEach(issue => {
+        if (!persona.adaptiveLearning!.performanceMetrics.commonIssues.includes(issue)) {
+          persona.adaptiveLearning!.performanceMetrics.commonIssues.push(issue)
+        }
+      })
+    }
+
+    // Generate learning patterns
+    updateLearningPatterns(persona)
+
+    // Save updated persona
+    const existingData = getStoredPersonaData()
+    const filteredData = existingData.filter((p) => p.name !== persona.name)
+    const updatedData = [...filteredData, { ...persona, lastUpdated: new Date().toISOString() }]
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedData))
+
+  } catch (error) {
+    console.error("Error recording persona feedback:", error)
+    throw error
+  }
+}
+
+function updateLearningPatterns(persona: PersonaData): void {
+  if (!persona.adaptiveLearning) return
+
+  const { feedbackHistory, performanceMetrics } = persona.adaptiveLearning
+  
+  // Analyze recent feedback (last 10 entries)
+  const recentFeedback = feedbackHistory.slice(-10)
+  const positiveCount = recentFeedback.filter(f => f.userFeedback === "positive").length
+  const negativeCount = recentFeedback.filter(f => f.userFeedback === "negative").length
+
+  // Identify improved aspects
+  const improvedAspects: string[] = []
+  if (positiveCount > negativeCount && performanceMetrics.averageRating > 70) {
+    improvedAspects.push("Overall content quality improving")
+  }
+
+  // Identify persistent weaknesses
+  const persistentWeaknesses: string[] = []
+  const commonIssues = performanceMetrics.commonIssues
+  if (commonIssues.length > 0) {
+    // Issues that appear in recent feedback are persistent
+    const recentIssues = recentFeedback.flatMap(f => f.improvements)
+    persistentWeaknesses.push(...commonIssues.filter(issue => 
+      recentIssues.includes(issue)
+    ))
+  }
+
+  // Generate adaptation suggestions
+  const adaptationSuggestions: string[] = []
+  if (performanceMetrics.averageRating < 50) {
+    adaptationSuggestions.push("Consider adding more diverse training examples")
+  }
+  if (persistentWeaknesses.length > 2) {
+    adaptationSuggestions.push("Focus on addressing recurring issues in training content")
+  }
+  if (performanceMetrics.successfulGenerations / performanceMetrics.totalGenerations < 0.6) {
+    adaptationSuggestions.push("Review and refine persona instructions")
+  }
+
+  persona.adaptiveLearning.learningPatterns = {
+    improvedAspects,
+    persistentWeaknesses,
+    adaptationSuggestions
+  }
+}
+
+export function getPersonaLearningInsights(personaName: string): {
+  currentPerformance: {
+    rating: number
+    successRate: number
+    totalGenerations: number
+  }
+  trends: {
+    improving: boolean
+    recentFeedback: string[]
+    problematicAreas: string[]
+  }
+  recommendations: string[]
+} | null {
+  const persona = getPersonaTrainingData(personaName)
+  if (!persona || !persona.adaptiveLearning) return null
+
+  const { performanceMetrics, feedbackHistory, learningPatterns } = persona.adaptiveLearning
+
+  // Calculate trends
+  const recentFeedback = feedbackHistory.slice(-5).map(f => f.userFeedback)
+  const recentPositive = recentFeedback.filter(f => f === "positive").length
+  const improving = recentPositive > recentFeedback.length / 2
+
+  const successRate = performanceMetrics.totalGenerations > 0 
+    ? performanceMetrics.successfulGenerations / performanceMetrics.totalGenerations 
+    : 0
+
+  return {
+    currentPerformance: {
+      rating: Math.round(performanceMetrics.averageRating),
+      successRate: Math.round(successRate * 100),
+      totalGenerations: performanceMetrics.totalGenerations
+    },
+    trends: {
+      improving,
+      recentFeedback,
+      problematicAreas: learningPatterns.persistentWeaknesses
+    },
+    recommendations: learningPatterns.adaptationSuggestions
+  }
+}
+
+export function suggestPersonaImprovements(personaName: string): {
+  contentSuggestions: string[]
+  instructionUpdates: string[]
+  trainingDataNeeds: string[]
+} | null {
+  const persona = getPersonaTrainingData(personaName)
+  if (!persona) return null
+
+  const suggestions = {
+    contentSuggestions: [] as string[],
+    instructionUpdates: [] as string[],
+    trainingDataNeeds: [] as string[]
+  }
+
+  // Analyze based on adaptive learning
+  if (persona.adaptiveLearning) {
+    const { performanceMetrics, learningPatterns } = persona.adaptiveLearning
+
+    // Content suggestions based on common issues
+    performanceMetrics.commonIssues.forEach(issue => {
+      if (issue.includes("tone")) {
+        suggestions.contentSuggestions.push("Add more examples with consistent tone")
+      }
+      if (issue.includes("structure")) {
+        suggestions.contentSuggestions.push("Include more varied structural examples")
+      }
+      if (issue.includes("technical")) {
+        suggestions.contentSuggestions.push("Expand technical vocabulary and examples")
+      }
+    })
+
+    // Instruction updates based on learning patterns
+    if (learningPatterns.persistentWeaknesses.length > 0) {
+      suggestions.instructionUpdates.push("Add specific guidance for addressing weak areas")
+      suggestions.instructionUpdates.push("Include examples of preferred writing patterns")
+    }
+
+    // Training data needs
+    if (performanceMetrics.averageRating < 70) {
+      suggestions.trainingDataNeeds.push("More diverse content examples needed")
+      suggestions.trainingDataNeeds.push("Focus on successful content patterns")
+    }
+  }
+
+  // Analyze based on current analytics
+  if (persona.analytics) {
+    if (persona.analytics.wordCount < 1000) {
+      suggestions.trainingDataNeeds.push("Increase training content volume")
+    }
+    if (persona.analytics.commonTopics.length < 3) {
+      suggestions.trainingDataNeeds.push("Add content covering more topic areas")
+    }
+  }
+
+  return suggestions
+}
+
+// New: Multi-modal content analysis
+export function analyzeMultiModalPreferences(content: string): {
+  imageStyle: {
+    preferredTypes: string[]
+    frequency: "rare" | "occasional" | "frequent" | "always"
+    placement: string[]
+    captionStyle: string
+  }
+  formatting: {
+    headingStyle: string[]
+    listPreference: "bullets" | "numbers" | "mixed"
+    codeBlockUsage: "frequent" | "occasional" | "rare"
+    tableUsage: "frequent" | "occasional" | "rare"
+    quoteUsage: "frequent" | "occasional" | "rare"
+  }
+  mediaPatterns: {
+    videoFrequency: "never" | "rare" | "occasional" | "frequent"
+    linkingStyle: "inline" | "reference" | "mixed"
+    citationPreference: "formal" | "informal" | "none"
+    socialMediaIntegration: boolean
+  }
+} {
+  // Analyze image preferences
+  const imageReferences = (content.match(/!\[.*?\]/g) || []).length
+  const totalParagraphs = content.split(/\n\s*\n/).length
+  let imageFrequency: "rare" | "occasional" | "frequent" | "always" = "rare"
+  
+  if (imageReferences / totalParagraphs > 0.5) imageFrequency = "always"
+  else if (imageReferences / totalParagraphs > 0.3) imageFrequency = "frequent"
+  else if (imageReferences / totalParagraphs > 0.1) imageFrequency = "occasional"
+
+  // Analyze image types and captions
+  const preferredTypes: string[] = []
+  const imageCaptions = content.match(/!\[(.*?)\]/g) || []
+  
+  if (imageCaptions.some(cap => /diagram|chart|graph|visual/.test(cap.toLowerCase()))) {
+    preferredTypes.push("diagrams")
+  }
+  if (imageCaptions.some(cap => /screenshot|interface|ui/.test(cap.toLowerCase()))) {
+    preferredTypes.push("screenshots")
+  }
+  if (imageCaptions.some(cap => /illustration|art|design/.test(cap.toLowerCase()))) {
+    preferredTypes.push("illustrations")
+  }
+
+  // Determine caption style
+  let captionStyle = "minimal"
+  if (imageCaptions.length > 0) {
+    const avgCaptionLength = imageCaptions.reduce((total, cap) => total + cap.length, 0) / imageCaptions.length
+    if (avgCaptionLength > 50) captionStyle = "descriptive"
+    else if (avgCaptionLength > 20) captionStyle = "technical"
+  }
+
+  // Analyze formatting preferences
+  const headings = content.match(/^#{1,6}\s/gm) || []
+  const headingStyle: string[] = []
+  
+  if (headings.some(h => /^\d+\./.test(h))) headingStyle.push("numbered")
+  if (headings.some(h => /\?$/.test(h))) headingStyle.push("question-based")
+  if (headings.length > 0) headingStyle.push("descriptive")
+
+  // List preferences
+  const bulletLists = (content.match(/^[•\-\*]\s/gm) || []).length
+  const numberedLists = (content.match(/^\d+\.\s/gm) || []).length
+  let listPreference: "bullets" | "numbers" | "mixed" = "bullets"
+  
+  if (numberedLists > bulletLists * 2) listPreference = "numbers"
+  else if (numberedLists > 0 && bulletLists > 0) listPreference = "mixed"
+
+  // Code block usage
+  const codeBlocks = (content.match(/```/g) || []).length / 2
+  const inlineCode = (content.match(/`[^`]+`/g) || []).length
+  let codeBlockUsage: "frequent" | "occasional" | "rare" = "rare"
+  
+  if (codeBlocks + inlineCode > totalParagraphs * 0.3) codeBlockUsage = "frequent"
+  else if (codeBlocks + inlineCode > 0) codeBlockUsage = "occasional"
+
+  // Table usage
+  const tables = (content.match(/\|.*\|/g) || []).length
+  let tableUsage: "frequent" | "occasional" | "rare" = "rare"
+  
+  if (tables > totalParagraphs * 0.2) tableUsage = "frequent"
+  else if (tables > 0) tableUsage = "occasional"
+
+  // Quote usage
+  const quotes = (content.match(/^>/gm) || []).length
+  let quoteUsage: "frequent" | "occasional" | "rare" = "rare"
+  
+  if (quotes > totalParagraphs * 0.2) quoteUsage = "frequent"
+  else if (quotes > 0) quoteUsage = "occasional"
+
+  // Media patterns
+  const videoReferences = (content.match(/video|youtube|vimeo|mp4/gi) || []).length
+  let videoFrequency: "never" | "rare" | "occasional" | "frequent" = "never"
+  
+  if (videoReferences > totalParagraphs * 0.2) videoFrequency = "frequent"
+  else if (videoReferences > totalParagraphs * 0.1) videoFrequency = "occasional"
+  else if (videoReferences > 0) videoFrequency = "rare"
+
+  // Linking style
+  const inlineLinks = (content.match(/\[.*?\]\(.*?\)/g) || []).length
+  const referenceLinks = (content.match(/\[.*?\]:\s*http/g) || []).length
+  let linkingStyle: "inline" | "reference" | "mixed" = "inline"
+  
+  if (referenceLinks > inlineLinks) linkingStyle = "reference"
+  else if (referenceLinks > 0 && inlineLinks > 0) linkingStyle = "mixed"
+
+  // Citation preference
+  let citationPreference: "formal" | "informal" | "none" = "none"
+  if (/\[\d+\]|\(.*?\d{4}.*?\)/.test(content)) citationPreference = "formal"
+  else if (/source:|via:|h\/t:|credit:/.test(content.toLowerCase())) citationPreference = "informal"
+
+  // Social media integration
+  const socialMediaIntegration = /@\w+|#\w+|twitter|linkedin|instagram|facebook/.test(content.toLowerCase())
+
+  return {
+    imageStyle: {
+      preferredTypes: preferredTypes.length > 0 ? preferredTypes : ["screenshots"],
+      frequency: imageFrequency,
+      placement: imageReferences > 0 ? ["middle"] : [],
+      captionStyle
+    },
+    formatting: {
+      headingStyle: headingStyle.length > 0 ? headingStyle : ["descriptive"],
+      listPreference,
+      codeBlockUsage,
+      tableUsage,
+      quoteUsage
+    },
+    mediaPatterns: {
+      videoFrequency,
+      linkingStyle,
+      citationPreference,
+      socialMediaIntegration
+    }
+  }
+}
+
+export function generateMultiModalPrompt(persona: PersonaData): string {
+  if (!persona.multiModalPreferences) return ""
+
+  const { imageStyle, formatting, mediaPatterns } = persona.multiModalPreferences
+  const prompts: string[] = []
+
+  // Image guidance
+  if (imageStyle.frequency !== "rare") {
+    prompts.push(`Include images ${imageStyle.frequency} with ${imageStyle.captionStyle} captions`)
+    if (imageStyle.preferredTypes.length > 0) {
+      prompts.push(`Prefer ${imageStyle.preferredTypes.join(", ")} style images`)
+    }
+  }
+
+  // Formatting guidance
+  if (formatting.headingStyle.length > 0) {
+    prompts.push(`Use ${formatting.headingStyle.join(" and ")} heading styles`)
+  }
+  if (formatting.listPreference !== "bullets") {
+    prompts.push(`Prefer ${formatting.listPreference} lists`)
+  }
+  if (formatting.codeBlockUsage === "frequent") {
+    prompts.push("Include code examples frequently")
+  }
+
+  // Media patterns
+  if (mediaPatterns.videoFrequency !== "never") {
+    prompts.push(`Reference videos ${mediaPatterns.videoFrequency}`)
+  }
+  if (mediaPatterns.socialMediaIntegration) {
+    prompts.push("Include social media references and hashtags where appropriate")
+  }
+
+  return prompts.length > 0 ? `Multi-modal preferences: ${prompts.join("; ")}.` : ""
 }
