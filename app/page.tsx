@@ -375,8 +375,6 @@ export default function RSSMarkdownPlatform() {
       defaultModels: [
         "black-forest-labs/FLUX.1-schnell",
         "stabilityai/stable-diffusion-xl-base-1.0",
-        "runwayml/stable-diffusion-v1-5",
-        "CompVis/stable-diffusion-v1-4"
       ],
       supportsCustomModels: true,
     },

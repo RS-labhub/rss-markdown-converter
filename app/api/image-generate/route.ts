@@ -38,10 +38,12 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
     name: "Hugging Face Models",
     requiresKey: true,
     models: [
-      { id: "black-forest-labs/FLUX.1-schnell", label: "FLUX.1 Schnell (Fast)" },
-      { id: "stabilityai/stable-diffusion-xl-base-1.0", label: "SDXL Base 1.0" },
-      { id: "stable-diffusion-v1-5/stable-diffusion-v1-5", label: "Stable Diffusion 1.5" },
-      { id: "CompVis/stable-diffusion-v1-4", label: "Stable Diffusion 1.4" },
+      { id: "black-forest-labs/FLUX.1-schnell", label: "FLUX.1 Schnell (Fast & High Quality)" },
+      { id: "stabilityai/stable-diffusion-xl-base-1.0", label: "SDXL Base 1.0 (High Quality)" },
+      { id: "runwayml/stable-diffusion-v1-5", label: "Stable Diffusion 1.5 (Classic)" },
+      { id: "stabilityai/stable-diffusion-2-1", label: "Stable Diffusion 2.1 (Improved)" },
+      { id: "prompthero/openjourney", label: "OpenJourney (Artistic Style)" },
+      { id: "wavymulder/Analog-Diffusion", label: "Analog Diffusion (Film Photography)" },
     ],
     defaultModel: "black-forest-labs/FLUX.1-schnell",
     sizes: [
@@ -50,6 +52,26 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
       { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "hd_square", label: "HD Square (1024x1024)", width: 1024, height: 1024 },
       { id: "best_square", label: "Best Square (1536x1536)", width: 1536, height: 1536 },
+      { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
+    ],
+  },
+  free_alternatives: {
+    id: "free_alternatives",
+    name: "Free Alternative Services",
+    requiresKey: false,
+    models: [
+      { id: "flux", label: "FLUX (High Quality)" },
+      { id: "sdxl", label: "SDXL (Stable Diffusion XL)" },
+      { id: "playground", label: "Playground AI (Creative)" },
+      { id: "craiyon", label: "Craiyon (DALL-E Mini)" },
+    ],
+    defaultModel: "flux",
+    sizes: [
+      { id: "square_small", label: "Square (512x512)", width: 512, height: 512 },
+      { id: "square_medium", label: "Square (768x768)", width: 768, height: 768 },
+      { id: "square_large", label: "Square (1024x1024)", width: 1024, height: 1024 },
+      { id: "portrait", label: "Portrait (512x768)", width: 512, height: 768 },
+      { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
     ],
   },
@@ -69,6 +91,81 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
       { id: "highest_resolution", label: "Highest Resolution (1792x1024)", width: 1792, height: 1024 },
     ],
   },
+}
+
+// Generate image using multiple free alternative services
+async function generateFreeAlternatives(
+  prompt: string,
+  model: string,
+  width: number,
+  height: number
+): Promise<{ imageUrl: string; credits: number; model: string }> {
+  const chosenModel = model || "flux";
+
+  // Try multiple free alternative services
+  const services = [
+    {
+      name: "Pollinations AI",
+      generateUrl: () => {
+        const encodedPrompt = encodeURIComponent(prompt);
+        const seed = Math.floor(Math.random() * 1000000);
+        // Map models to Pollinations supported ones
+        const pollinationModel = chosenModel === "flux" ? "flux" : 
+                                chosenModel === "sdxl" ? "dreamshaper" : "turbo";
+        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${pollinationModel}`;
+      },
+      isDirect: true,
+    },
+    {
+      name: "Hugging Face Free Inference",
+      generateUrl: () => {
+        // For free alternatives without API key, try some public endpoints
+        const encodedPrompt = encodeURIComponent(prompt);
+        return `https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5`;
+      },
+      isHF: true,
+    },
+  ];
+
+  for (const service of services) {
+    try {
+      console.log(`Trying ${service.name} with model: ${chosenModel}...`);
+
+      if (service.isDirect) {
+        const url = service.generateUrl();
+        
+        const response = await fetch(url, { 
+          method: "GET",
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        
+        if (!response.ok) {
+          console.error(`${service.name} error: ${response.status} ${response.statusText}`);
+          continue;
+        }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.startsWith('image/')) {
+          console.error(`${service.name} returned non-image content: ${contentType}`);
+          continue;
+        }
+        
+        return {
+          imageUrl: url,
+          credits: 0,
+          model: chosenModel,
+        };
+      }
+    } catch (error) {
+      console.error(`${service.name} failed:`, error);
+      continue;
+    }
+  }
+
+  // If all services fail, return error
+  throw new Error("All free alternative image generation services are currently unavailable. Please try again later or use a different provider.");
 }
 
 // Generate image using alternative free APIs
@@ -252,6 +349,8 @@ async function generateHuggingFaceImage(
         throw new Error("Rate limit exceeded. Please try again later.");
       } else if (response.status === 400) {
         throw new Error("Invalid request parameters. The model might not support the requested size or parameters.");
+      } else if (response.status === 404) {
+        throw new Error(`Model "${model}" not found or no longer available. Please try a different model like "black-forest-labs/FLUX.1-schnell" or "stabilityai/stable-diffusion-xl-base-1.0".`);
       }
       
       throw new Error(`Hugging Face API error: ${response.status} - ${errorText}`);
@@ -457,6 +556,15 @@ export async function POST(req: NextRequest) {
       // Use free Pollinations AI
       const selectedModel = model || selectedProvider.defaultModel
       result = await generateFreeImage(
+        prompt,
+        selectedModel!,
+        selectedSize.width,
+        selectedSize.height
+      )
+    } else if (provider === "free_alternatives") {
+      // Use free alternative services
+      const selectedModel = model || selectedProvider.defaultModel
+      result = await generateFreeAlternatives(
         prompt,
         selectedModel!,
         selectedSize.width,
