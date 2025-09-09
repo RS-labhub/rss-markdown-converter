@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({ error: "OpenAI API key is required" }, { status: 400 })
         }
         const openaiClient = createOpenAI({ apiKey })
-        aiModel = openaiClient.chat(model || "gpt-4o-mini")
+        aiModel = openaiClient.chat(model || "gpt-5")
         break
       case "anthropic":
         if (!apiKey) {

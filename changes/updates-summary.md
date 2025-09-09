@@ -20,9 +20,9 @@ Updated all platform guidelines in both `api/ai-generate/route.ts` and `api/auth
 ### 3. Model Selection Improvements:
 
 #### OpenAI Models:
-- **Blog content** (Medium, Dev.to, Hashnode): Uses `gpt-4o` (best quality)
-- **Social posts**: Uses `gpt-4o-mini` (faster, cost-effective)
-- Available models: gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-4, gpt-3.5-turbo
+- **All content types**: Now defaults to `gpt-5` (latest cutting-edge model)
+- **Fallback models**: gpt-4o, gpt-4o-mini (for compatibility)
+- Available models: gpt-5, gpt-4o, gpt-4o-mini, gpt-4-turbo, gpt-4, gpt-3.5-turbo
 
 #### Anthropic Models:
 - **Blog content**: Uses `claude-3-opus-20240229` (highest quality for long-form content)

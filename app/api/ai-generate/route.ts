@@ -1126,9 +1126,9 @@ export async function POST(request: NextRequest) {
         }
         const openaiClient = createOpenAI({ apiKey })
         // Determine best model based on content type
-        let defaultOpenAIModel = "gpt-4o-mini"; // Default for posts
+        let defaultOpenAIModel = "gpt-5"; // Default for posts - using latest GPT-5
         if (type === "medium" || type === "devto" || type === "hashnode") {
-          defaultOpenAIModel = "gpt-4o"; // Better model for blog content
+          defaultOpenAIModel = "gpt-5"; // Best model for blog content - using GPT-5
         }
         aiModel = openaiClient.chat(model || defaultOpenAIModel)
         break

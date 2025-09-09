@@ -420,9 +420,8 @@ export async function POST(request: NextRequest) {
           );
         }
         const openaiClient = createOpenAI({ apiKey });
-        // Use GPT-4o-mini for posts, GPT-4o for blogs
-        const defaultOpenAIModel =
-          contentType === "blog" ? "gpt-4o" : "gpt-4o-mini";
+        // Use GPT-5 for both posts and blogs - latest model
+        const defaultOpenAIModel = "gpt-5";
         aiModel = openaiClient.chat(model || defaultOpenAIModel);
         break;
       case "anthropic":
