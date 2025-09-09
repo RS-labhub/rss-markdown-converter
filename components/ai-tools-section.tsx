@@ -81,6 +81,9 @@ interface AIToolsSectionProps {
   lastErrorDetails?: string
   onRetryGeneration?: () => void
   selectedItem?: RSSItem | null
+  generateComments?: (personaName?: string) => void
+  generatedComments?: string[]
+  commentLoading?: boolean
 }
 
 export function AIToolsSection({
@@ -110,6 +113,9 @@ export function AIToolsSection({
   lastErrorDetails,
   onRetryGeneration,
   selectedItem,
+  generateComments,
+  generatedComments = [],
+  commentLoading = false,
 }: AIToolsSectionProps) {
   const [showPersonaTrainingDialog, setShowPersonaTrainingDialog] = useState(false)
   const [trainedPersonas, setTrainedPersonas] = useState<string[]>([])
@@ -419,6 +425,117 @@ export function AIToolsSection({
             </div>
 
             <Separator className="my-4 md:my-6" />
+
+            {/* Comment Generation */}
+            {selectedItem && (
+              <>
+                <div className="space-y-3 md:space-y-4">
+                  <div className="flex items-center gap-2">
+                    <MessageCircle className="w-4 h-4 text-primary" />
+                    <Label className="text-sm font-medium">Comment Generation</Label>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground">
+                      Generate 5-10 engaging comments for the selected article using your chosen persona style.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {/* General Comments */}
+                      <Button
+                        variant="outline"
+                        onClick={() => generateComments?.()}
+                        disabled={commentLoading || !selectedItem}
+                        className="flex items-center gap-2 h-auto p-3 flex-col"
+                      >
+                        <div className="p-2 rounded-lg text-white bg-primary">
+                          <MessageCircle className="w-3 h-3" />
+                        </div>
+                        <span className="text-xs font-medium">General Style</span>
+                      </Button>
+
+                      {/* Persona-based Comments */}
+                      {isTrainedPersona(postType) && (
+                        <Button
+                          variant="outline"
+                          onClick={() => generateComments?.(postType)}
+                          disabled={commentLoading || !selectedItem}
+                          className="flex items-center gap-2 h-auto p-3 flex-col border-primary/50"
+                        >
+                          <div className="p-2 rounded-lg text-white bg-primary">
+                            <Brain className="w-3 h-3" />
+                          </div>
+                          <span className="text-xs font-medium">
+                            {postType.charAt(0).toUpperCase() + postType.slice(1)} Style
+                          </span>
+                        </Button>
+                      )}
+
+                      {/* Show available personas */}
+                      {["bap", "simon", "rohan-sharma"].filter(p => p !== postType).map((persona) => (
+                        <Button
+                          key={persona}
+                          variant="outline"
+                          onClick={() => generateComments?.(persona)}
+                          disabled={commentLoading || !selectedItem}
+                          className="flex items-center gap-2 h-auto p-3 flex-col"
+                        >
+                          <div className="p-2 rounded-lg text-white bg-blue-600">
+                            <Brain className="w-3 h-3" />
+                          </div>
+                          <span className="text-xs font-medium">
+                            {persona.charAt(0).toUpperCase() + persona.slice(1)} Style
+                          </span>
+                        </Button>
+                      ))}
+                    </div>
+
+                    {/* Generated Comments Display */}
+                    {generatedComments.length > 0 && (
+                      <div className="mt-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium">Generated Comments ({generatedComments.length})</Label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => copyToClipboard(generatedComments.join('\n\n'))}
+                            className="h-8"
+                          >
+                            <Copy className="w-3 h-3 mr-1" />
+                            Copy All
+                          </Button>
+                        </div>
+                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                          {generatedComments.map((comment, index) => (
+                            <div key={index} className="p-3 bg-muted/50 rounded-lg border">
+                              <div className="flex items-start justify-between gap-2">
+                                <p className="text-sm flex-1">{comment}</p>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => copyToClipboard(comment)}
+                                  className="h-8 w-8 p-0 flex-shrink-0"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {commentLoading && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        Generating comments...
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Separator className="my-4 md:my-6" />
+              </>
+            )}
 
             {/* Blogging Platforms */}
             <div className="space-y-3 md:space-y-4">

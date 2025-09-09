@@ -77,6 +77,10 @@ export default function RSSMarkdownPlatform() {
   // New state for includeSourceLink
   const [includeSourceLink, setIncludeSourceLink] = useState(false)
 
+  // Comment Generation State
+  const [generatedComments, setGeneratedComments] = useState<string[]>([])
+  const [commentLoading, setCommentLoading] = useState(false)
+
   const { toast } = useToast()
   const generatedContentRef = useRef<HTMLDivElement>(null!)
 
@@ -307,6 +311,78 @@ export default function RSSMarkdownPlatform() {
     }
   }
 
+  const generateComments = async (personaName?: string) => {
+    if (!selectedItem) return
+
+    setCommentLoading(true)
+    setGeneratedComments([]) // Clear previous comments
+
+    try {
+      const requestBody: any = {
+        title: selectedItem.title,
+        content: selectedItem.content,
+        link: selectedItem.link,
+        provider: aiProvider,
+        keywords,
+        personaName: personaName || "general",
+      }
+
+      // Add custom model and API key for custom providers
+      if ((aiProvider === "openai" || aiProvider === "anthropic") && selectedKeyId) {
+        const apiKey = apiKeyManager.getAPIKey(selectedKeyId)
+        if (!apiKey) {
+          throw new Error("API key not found")
+        }
+        requestBody.apiKey = apiKey
+        requestBody.model = selectedModel
+      }
+
+      // Check if using a custom persona and get its training data
+      if (personaName && personaName !== "general") {
+        const standardPersonas = ["bap", "simon", "rohan-sharma"]
+        if (!standardPersonas.includes(personaName)) {
+          // Import persona training functions
+          const { getPersonaTrainingDataWithType } = await import("@/lib/persona-training")
+          const personaData = getPersonaTrainingDataWithType(personaName)
+          if (personaData) {
+            requestBody.clientPersonaTrainingData = personaData.rawContent
+          }
+        }
+      }
+
+      const response = await fetch("/api/comment-generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestBody),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate comments")
+      }
+
+      setGeneratedComments(data.comments || [])
+
+      toast({
+        title: "Comments Generated!",
+        description: `Generated ${data.count} comments${personaName && personaName !== "general" ? ` in ${personaName} style` : ""}.`,
+        duration: 3000,
+      })
+
+    } catch (error) {
+      console.error("Comment generation error:", error)
+      toast({
+        title: "Comment Generation Failed",
+        description: error instanceof Error ? error.message : "Please try again or switch to a different provider.",
+        variant: "destructive",
+        duration: 6000,
+      })
+    } finally {
+      setCommentLoading(false)
+    }
+  }
+
   const handleKeyAdded = (provider: string, keyId: string) => {
     setAiProvider(provider as AIProvider)
     setSelectedKeyId(keyId)
@@ -452,6 +528,9 @@ export default function RSSMarkdownPlatform() {
                     lastErrorDetails={lastErrorDetails}
                     onRetryGeneration={retryGeneration}
                     selectedItem={selectedItem}
+                    generateComments={generateComments}
+                    generatedComments={generatedComments}
+                    commentLoading={commentLoading}
                   />
                 </ContentPreview>
               </div>

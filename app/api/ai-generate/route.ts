@@ -90,8 +90,8 @@ async function loadPersonaTrainingDataWithAnalysis(personaName: string, contentT
           description: "LLMWare devRel and open-source AI infrastructure advocate",
           domain: ["llm-infrastructure", "open-source", "ai-tools", "developer-communities"],
           writingPatterns: {
-            tone: ["enthusiastic", "technical", "community-focused"],
-            structure: [ "bullet points", "call-to-action"],
+            tone: ["friendly", "enthusiastic", "technical", "community-focused"],
+            structure: ["formatted", "bullet points", "call-to-action"],
             vocabulary: ["community engagement"],
             engagement: ["community building", "product announcements", "direct address"]
           },
