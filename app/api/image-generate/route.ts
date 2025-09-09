@@ -40,10 +40,6 @@ const IMAGE_PROVIDERS: Record<string, ImageGenerationProvider> = {
     models: [
       { id: "black-forest-labs/FLUX.1-schnell", label: "FLUX.1 Schnell (Fast & High Quality)" },
       { id: "stabilityai/stable-diffusion-xl-base-1.0", label: "SDXL Base 1.0 (High Quality)" },
-      { id: "runwayml/stable-diffusion-v1-5", label: "Stable Diffusion 1.5 (Classic)" },
-      { id: "stabilityai/stable-diffusion-2-1", label: "Stable Diffusion 2.1 (Improved)" },
-      { id: "prompthero/openjourney", label: "OpenJourney (Artistic Style)" },
-      { id: "wavymulder/Analog-Diffusion", label: "Analog Diffusion (Film Photography)" },
     ],
     defaultModel: "black-forest-labs/FLUX.1-schnell",
     sizes: [
