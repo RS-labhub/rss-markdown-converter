@@ -40,7 +40,7 @@ interface RecentFeed {
   articleCount: number
 }
 
-type AIProvider = "groq" | "gemini" | "openai" | "anthropic"
+type AIProvider = "groq" | "gemini" | "openai" | "anthropic" | "huggingface"
 
 export default function RSSMarkdownPlatform() {
   // RSS State

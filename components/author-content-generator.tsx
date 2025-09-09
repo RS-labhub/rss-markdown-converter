@@ -35,7 +35,7 @@ import type { APIProvider } from "@/lib/api-key-manager"
 import { ErrorState } from "@/components/error-state"
 import { useToast } from "@/hooks/use-toast"
 
-type AIProvider = "groq" | "gemini" | "openai" | "anthropic"
+type AIProvider = "groq" | "gemini" | "openai" | "anthropic" | "huggingface"
 
 interface RSSItem {
   title: string
