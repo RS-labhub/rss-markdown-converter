@@ -210,13 +210,13 @@ export function ImageGenerationDialog({
     setError("")
     try {
       const currentProvider = IMAGE_PROVIDERS[provider]
-      // Only require API key for OpenAI
+      // Only require API key for OpenAI and Hugging Face
       if (currentProvider.requiresKey && !selectedApiKeyId) {
         setError(`Please select an API key for ${currentProvider.name}`)
         setLoading(false)
         return
       }
-      // Get the actual API key for OpenAI
+      // Get the actual API key for providers that need it
       let apiKey: string | null = null
       if (currentProvider.requiresKey && selectedApiKeyId) {
         apiKey = apiKeyManager.getAPIKey(selectedApiKeyId)
@@ -238,14 +238,49 @@ export function ImageGenerationDialog({
           apiKey: apiKey || undefined,
         }),
       })
-      const data = await response.json()
+
+      // Check if response is JSON or HTML/text
+      const contentType = response.headers.get("content-type") || ""
+      
       if (!response.ok) {
-        throw new Error(data.error || "Failed to generate image")
+        let errorMessage = "Failed to generate image"
+        
+        if (contentType.includes("application/json")) {
+          const data = await response.json()
+          errorMessage = data.error || errorMessage
+        } else {
+          // If response is HTML or plain text, it's likely an error page
+          const textResponse = await response.text()
+          if (textResponse.includes("<html") || textResponse.includes("<!DOCTYPE")) {
+            errorMessage = "Server returned an error page instead of image data. Please check your API keys and try again."
+          } else {
+            errorMessage = textResponse.slice(0, 200) // Limit error message length
+          }
+        }
+        
+        throw new Error(errorMessage)
       }
+
+      if (!contentType.includes("application/json")) {
+        throw new Error("Server returned unexpected content type. Expected JSON response.")
+      }
+
+      const data = await response.json()
+      
+      // Validate the response data
+      if (!data.imageUrl) {
+        throw new Error("No image URL received from server")
+      }
+
+      if (data.imageUrl.includes("<html") || data.imageUrl.includes("<!DOCTYPE")) {
+        throw new Error("Received HTML content instead of image URL. Please check your API configuration.")
+      }
+
       setGeneratedImage(data)
     } catch (err) {
       console.error("Image generation error:", err)
-      setError(err instanceof Error ? err.message : "Failed to generate image")
+      const errorMessage = err instanceof Error ? err.message : "Failed to generate image"
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

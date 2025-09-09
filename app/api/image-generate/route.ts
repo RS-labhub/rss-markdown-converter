@@ -80,6 +80,14 @@ async function generateFreeImage(
 ): Promise<{ imageUrl: string; credits: number; model: string }> {
   // Normalize model (default to turbo if not provided)
   const chosenModel = model || "turbo";
+  
+  // Map frontend model names to Pollinations model names
+  const modelMapping: Record<string, string> = {
+    "turbo": "turbo",
+    "sdxl": "dreamshaper"  // Pollinations uses 'dreamshaper' for SDXL-like models
+  };
+  
+  const pollinationModel = modelMapping[chosenModel] || "turbo";
 
   // Try multiple free services in order
   const services = [
@@ -89,7 +97,8 @@ async function generateFreeImage(
         const encodedPrompt = encodeURIComponent(prompt);
         const seed = Math.floor(Math.random() * 1000000);
 
-        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${chosenModel}`;
+        // Updated URL format for Pollinations API
+        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${pollinationModel}`;
       },
       isDirect: true,
     },
@@ -105,30 +114,58 @@ async function generateFreeImage(
 
   for (const service of services) {
     try {
-      console.log(`Trying ${service.name} with model: ${chosenModel}...`);
+      console.log(`Trying ${service.name} with model: ${chosenModel} (mapped to: ${pollinationModel})...`);
 
-      // Handle Pollinations (turbo, flux, etc.)
+      // Handle Pollinations (turbo, dreamshaper, etc.)
       if (service.isDirect) {
         const url = service.generateUrl();
-        const response = await fetch(url, { method: "HEAD" }); // check if alive
+        
+        // First, try to fetch the image to validate it works
+        const response = await fetch(url, { 
+          method: "GET",
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        
         if (!response.ok) {
           console.error(`${service.name} error: ${response.status} ${response.statusText}`);
           continue;
         }
+        
+        // Check if response is actually an image
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.startsWith('image/')) {
+          console.error(`${service.name} returned non-image content: ${contentType}`);
+          continue;
+        }
+        
         return {
           imageUrl: url,
           credits: 0,
-          model: chosenModel, // could be turbo, sdxl or flux
+          model: chosenModel,
         };
       }
 
       // Handle Lexica (search-based, fallback only)
       if (service.isSearch) {
-        const response = await fetch(service.generateUrl());
+        const response = await fetch(service.generateUrl(), {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+        
         if (!response.ok) {
           console.error(`${service.name} error: ${response.status} ${response.statusText}`);
           continue;
         }
+        
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          console.error(`${service.name} returned non-JSON content: ${contentType}`);
+          continue;
+        }
+        
         const data = await response.json();
         if (data.images && data.images.length > 0) {
           return {
@@ -144,18 +181,9 @@ async function generateFreeImage(
     }
   }
 
-  // If all services fail, fallback placeholder
-  console.warn("All services failed, generating placeholder...");
-  const placeholderText = prompt.slice(0, 50).replace(/[^a-zA-Z0-9\s]/g, "");
-  const placeholderUrl = `https://via.placeholder.com/${width}x${height}/3b82f6/ffffff?text=${encodeURIComponent(
-    placeholderText
-  )}`;
-
-  return {
-    imageUrl: placeholderUrl,
-    credits: 0,
-    model: "Placeholder (Services Unavailable)",
-  };
+  // If all services fail, return a more descriptive error instead of placeholder
+  console.warn("All free image generation services failed");
+  throw new Error("All free image generation services are currently unavailable. Please try again later or use a different provider.");
 }
 
 // Generate image using Hugging Face API
@@ -166,47 +194,100 @@ async function generateHuggingFaceImage(
   size: { width: number; height: number }
 ): Promise<{ imageUrl: string; credits: number; model: string }> {
   try {
+    // Handle different model types with appropriate parameters
+    const isFluxModel = model.includes("FLUX");
+    const isSDXLModel = model.includes("xl") || model.includes("SDXL");
+    
+    let requestBody: any = {
+      inputs: prompt,
+    };
+
+    // Add parameters based on model type
+    if (isFluxModel) {
+      requestBody.parameters = {
+        width: Math.min(size.width, 1024), // FLUX has size limits
+        height: Math.min(size.height, 1024),
+        guidance_scale: 3.5, // FLUX uses lower guidance scale
+        num_inference_steps: 4, // FLUX Schnell is optimized for 4 steps
+        max_sequence_length: 256,
+      };
+    } else if (isSDXLModel) {
+      requestBody.parameters = {
+        width: size.width,
+        height: size.height,
+        guidance_scale: 7.5,
+        num_inference_steps: 20,
+      };
+    } else {
+      // Standard Stable Diffusion parameters
+      requestBody.parameters = {
+        width: Math.min(size.width, 512), // SD 1.x works best at 512x512
+        height: Math.min(size.height, 512),
+        guidance_scale: 7.5,
+        num_inference_steps: 50,
+      };
+    }
+
+    console.log(`Generating image with Hugging Face model: ${model}`, requestBody);
+
     const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
+        "X-Wait-For-Model": "true", // Wait for model to load if needed
       },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: {
-          width: size.width,
-          height: size.height,
-          guidance_scale: 7.5,
-          num_inference_steps: model.includes("schnell") ? 4 : 50,
-        },
-      }),
-    })
+      body: JSON.stringify(requestBody),
+    });
 
     if (!response.ok) {
-      const errorData = await response.text()
-      console.error("Hugging Face API error:", errorData)
+      const errorText = await response.text();
+      console.error("Hugging Face API error:", errorText);
       
       if (response.status === 503) {
-        throw new Error("Model is loading. Please try again in a few seconds.")
+        throw new Error("Model is currently loading. Please try again in 20-30 seconds.");
+      } else if (response.status === 401) {
+        throw new Error("Invalid Hugging Face API key. Please check your API key.");
+      } else if (response.status === 429) {
+        throw new Error("Rate limit exceeded. Please try again later.");
+      } else if (response.status === 400) {
+        throw new Error("Invalid request parameters. The model might not support the requested size or parameters.");
       }
       
-      throw new Error(`Hugging Face API error: ${response.status} - ${errorData}`)
+      throw new Error(`Hugging Face API error: ${response.status} - ${errorText}`);
     }
 
-    const imageBlob = await response.blob()
-    const buffer = Buffer.from(await imageBlob.arrayBuffer())
-    const base64Image = buffer.toString("base64")
-    const dataUrl = `data:image/jpeg;base64,${base64Image}`
+    // Check if response is JSON (error) or binary (image)
+    const contentType = response.headers.get("content-type") || "";
+    
+    if (contentType.includes("application/json")) {
+      const errorData = await response.json();
+      if (errorData.error) {
+        throw new Error(`Hugging Face API error: ${errorData.error}`);
+      }
+    }
+
+    // Get image as blob
+    const imageBlob = await response.blob();
+    
+    if (imageBlob.size === 0) {
+      throw new Error("Received empty image from Hugging Face API");
+    }
+
+    // Convert to base64 data URL
+    const buffer = Buffer.from(await imageBlob.arrayBuffer());
+    const base64Image = buffer.toString("base64");
+    const mimeType = imageBlob.type || "image/jpeg";
+    const dataUrl = `data:${mimeType};base64,${base64Image}`;
 
     return {
       imageUrl: dataUrl,
       credits: 0, // Hugging Face doesn't use credits
       model: model.split("/").pop() || model,
-    }
+    };
   } catch (error) {
-    console.error("Hugging Face generation error:", error)
-    throw error
+    console.error("Hugging Face generation error:", error);
+    throw error;
   }
 }
 
