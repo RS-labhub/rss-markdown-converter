@@ -95,6 +95,7 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
       { id: "landscape_wide", label: "Wide (1024x576)", width: 1024, height: 576 },
       { id: "hd_landscape", label: "HD Landscape (1536x864)", width: 1536, height: 864 },
       { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
+      { id: "custom", label: "Custom Dimensions", width: 0, height: 0 },
     ],
   },
   free_alternatives: {
@@ -117,6 +118,7 @@ const IMAGE_PROVIDERS: Record<string, ImageProvider> = {
       { id: "portrait", label: "Portrait (512x768)", width: 512, height: 768 },
       { id: "landscape", label: "Landscape (768x512)", width: 768, height: 512 },
       { id: "dev_to_cover_image", label: "dev.to Cover Image (1000x420)", width: 1000, height: 420 },
+      { id: "custom", label: "Custom Dimensions", width: 512, height: 512 },
     ],
   },
   openai: {
@@ -235,6 +237,8 @@ export function ImageGenerationDialog({
   const [provider, setProvider] = useState("pollinations_free")
   const [model, setModel] = useState("")
   const [size, setSize] = useState("")
+  const [customWidth, setCustomWidth] = useState("512")
+  const [customHeight, setCustomHeight] = useState("512")
   const [prompt, setPrompt] = useState("")
   const [useCustomPrompt, setUseCustomPrompt] = useState(false)
   const [style, setStyle] = useState("none")
@@ -310,6 +314,19 @@ export function ImageGenerationDialog({
   const handleGenerate = async () => {
     setLoading(true)
     setError("")
+
+    // Validate custom dimensions if custom size is selected
+    if (size === "custom" && (provider === "pollinations_free" || provider === "free_alternatives")) {
+      const width = parseInt(customWidth)
+      const height = parseInt(customHeight)
+      
+      if (isNaN(width) || isNaN(height) || width < 64 || height < 64 || width > 2048 || height > 2048) {
+        setError("Please enter valid dimensions (64-2048 pixels)")
+        setLoading(false)
+        return
+      }
+    }
+
     try {
       const currentProvider = IMAGE_PROVIDERS[provider]
       // Only require API key for OpenAI and Hugging Face
@@ -335,6 +352,8 @@ export function ImageGenerationDialog({
           content: selectedItem?.content,
           title: selectedItem?.title,
           size,
+          customWidth: size === "custom" ? parseInt(customWidth) : undefined,
+          customHeight: size === "custom" ? parseInt(customHeight) : undefined,
           model,
           keyId: selectedApiKeyId || undefined,
           apiKey: apiKey || undefined,
@@ -589,6 +608,36 @@ export function ImageGenerationDialog({
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Custom Dimensions - Show only when custom size is selected for free providers */}
+                  {size === "custom" && (provider === "pollinations_free" || provider === "free_alternatives") && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label className="text-sm">Width (px)</Label>
+                        <Input
+                          type="number"
+                          value={customWidth}
+                          onChange={(e) => setCustomWidth(e.target.value)}
+                          placeholder="512"
+                          min="64"
+                          max="2048"
+                          className="text-sm"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm">Height (px)</Label>
+                        <Input
+                          type="number"
+                          value={customHeight}
+                          onChange={(e) => setCustomHeight(e.target.value)}
+                          placeholder="512"
+                          min="64"
+                          max="2048"
+                          className="text-sm"
+                        />
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

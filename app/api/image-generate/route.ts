@@ -108,34 +108,54 @@ async function generateFreeAlternatives(
         // Map models to Pollinations supported ones
         const pollinationModel = chosenModel === "flux" ? "flux" : 
                                 chosenModel === "sdxl" ? "dreamshaper" : "turbo";
-        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${pollinationModel}`;
+        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${pollinationModel}&enhance=true`;
       },
       isDirect: true,
     },
     {
-      name: "Hugging Face Free Inference",
+      name: "ImgGen AI",
       generateUrl: () => {
         // For free alternatives without API key, try some public endpoints
         const encodedPrompt = encodeURIComponent(prompt);
-        return `https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5`;
+        return `https://api.limewire.com/api/image/generation?prompt=${encodedPrompt}&aspect_ratio=${width}:${height}`;
       },
-      isHF: true,
+      isDirect: true,
+      requiresPost: true,
     },
+  {
+      name: "Replicate Flux Schnell",
+      generateUrl: () => {
+        // This is a fallback using a public proxy
+        const encodedPrompt = encodeURIComponent(prompt);
+        return `https://fal.ai/api/v1/run/fal-ai/flux/schnell?prompt=${encodedPrompt}&image_size=${width}x${height}`;
+      },
+      isDirect: true,
+      isBackup: true,
+    }
   ];
 
   for (const service of services) {
     try {
       console.log(`Trying ${service.name} with model: ${chosenModel}...`);
 
-      if (service.isDirect) {
+      if (service.isDirect && !service.requiresPost) {
         const url = service.generateUrl();
         
-        const response = await fetch(url, { 
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout')), 30000)
+        );
+        
+        const fetchPromise = fetch(url, { 
           method: "GET",
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'image/*,*/*',
+            'Referer': 'https://pollinations.ai/',
+          },
         });
+
+        const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
         
         if (!response.ok) {
           console.error(`${service.name} error: ${response.status} ${response.statusText}`);
@@ -145,6 +165,13 @@ async function generateFreeAlternatives(
         const contentType = response.headers.get('content-type');
         if (!contentType || !contentType.startsWith('image/')) {
           console.error(`${service.name} returned non-image content: ${contentType}`);
+          continue;
+        }
+
+        // Validate that the URL actually returns an image by checking size
+        const contentLength = response.headers.get('content-length');
+        if (contentLength && parseInt(contentLength) < 1000) {
+          console.error(`${service.name} returned suspiciously small image: ${contentLength} bytes`);
           continue;
         }
         
@@ -191,17 +218,19 @@ async function generateFreeImage(
         const seed = Math.floor(Math.random() * 1000000);
 
         // Updated URL format for Pollinations API
-        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${pollinationModel}`;
+        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true&model=${pollinationModel}&enhance=true&safe=true`;
       },
       isDirect: true,
     },
     {
-      name: "Lexica Art",
+      name: "Pollinations AI (Backup)",
       generateUrl: () => {
         const encodedPrompt = encodeURIComponent(prompt);
-        return `https://lexica.art/api/v1/search?q=${encodedPrompt}`;
+        const seed = Math.floor(Math.random() * 1000000);
+        // Simpler URL as backup
+        return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
       },
-      isSearch: true,
+      isDirect: true,
     },
   ];
 
@@ -209,18 +238,27 @@ async function generateFreeImage(
     try {
       console.log(`Trying ${service.name} with model: ${chosenModel} (mapped to: ${pollinationModel})...`);
 
-      // Handle Pollinations (turbo, dreamshaper, etc.)
       if (service.isDirect) {
         const url = service.generateUrl();
         
         // First, try to fetch the image to validate it works
-        const response = await fetch(url, { 
+        // Create a timeout promise
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Request timeout')), 45000)
+        );
+        
+        const fetchPromise = fetch(url, {  
           method: "GET",
           headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'image/*,*/*',
+            'Referer': 'https://pollinations.ai/',
+            'Cache-Control': 'no-cache',
           }
         });
         
+        const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
+
         if (!response.ok) {
           console.error(`${service.name} error: ${response.status} ${response.statusText}`);
           continue;
@@ -232,41 +270,19 @@ async function generateFreeImage(
           console.error(`${service.name} returned non-image content: ${contentType}`);
           continue;
         }
+
+        // Additional validation for image size
+        const contentLength = response.headers.get('content-length');
+        if (contentLength && parseInt(contentLength) < 1000) {
+          console.error(`${service.name} returned suspiciously small image: ${contentLength} bytes`);
+          continue;
+        }
         
         return {
           imageUrl: url,
           credits: 0,
           model: chosenModel,
         };
-      }
-
-      // Handle Lexica (search-based, fallback only)
-      if (service.isSearch) {
-        const response = await fetch(service.generateUrl(), {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        });
-        
-        if (!response.ok) {
-          console.error(`${service.name} error: ${response.status} ${response.statusText}`);
-          continue;
-        }
-        
-        const contentType = response.headers.get('content-type');
-        if (!contentType || !contentType.includes('application/json')) {
-          console.error(`${service.name} returned non-JSON content: ${contentType}`);
-          continue;
-        }
-        
-        const data = await response.json();
-        if (data.images && data.images.length > 0) {
-          return {
-            imageUrl: data.images[0].src || data.images[0].url,
-            credits: 0,
-            model: service.name,
-          };
-        }
       }
     } catch (error) {
       console.error(`${service.name} failed:`, error);
@@ -514,6 +530,8 @@ export async function POST(req: NextRequest) {
       content,
       title,
       size,
+      customWidth,
+      customHeight,
       model,
       keyId,
       apiKey: providedApiKey,
@@ -529,12 +547,32 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const selectedSize = selectedProvider.sizes.find((s) => s.id === size)
-    if (!selectedSize) {
-      return NextResponse.json(
-        { error: "Invalid image size" },
-        { status: 400 }
-      )
+    // Handle custom dimensions or use predefined size
+    let selectedSize: { width: number; height: number }
+    
+    if (size === "custom" && customWidth && customHeight) {
+      // Validate custom dimensions
+      const width = parseInt(customWidth.toString())
+      const height = parseInt(customHeight.toString())
+      
+      if (isNaN(width) || isNaN(height) || width < 64 || height < 64 || width > 2048 || height > 2048) {
+        return NextResponse.json(
+          { error: "Invalid custom dimensions. Width and height must be between 64 and 2048 pixels." },
+          { status: 400 }
+        )
+      }
+      
+      selectedSize = { width, height }
+    } else {
+      // Use predefined size
+      const predefinedSize = selectedProvider.sizes.find((s) => s.id === size)
+      if (!predefinedSize) {
+        return NextResponse.json(
+          { error: "Invalid image size" },
+          { status: 400 }
+        )
+      }
+      selectedSize = predefinedSize
     }
 
     // Generate prompt with style
@@ -551,6 +589,7 @@ export async function POST(req: NextRequest) {
     if (provider === "pollinations_free") {
       // Use free Pollinations AI
       const selectedModel = model || selectedProvider.defaultModel
+      console.log(`Generating image with pollinations_free: ${selectedModel}, ${selectedSize.width}x${selectedSize.height}`)
       result = await generateFreeImage(
         prompt,
         selectedModel!,
@@ -560,12 +599,30 @@ export async function POST(req: NextRequest) {
     } else if (provider === "free_alternatives") {
       // Use free alternative services
       const selectedModel = model || selectedProvider.defaultModel
-      result = await generateFreeAlternatives(
-        prompt,
-        selectedModel!,
-        selectedSize.width,
-        selectedSize.height
-      )
+      console.log(`Generating image with free alternatives: ${selectedModel}, ${selectedSize.width}x${selectedSize.height}`)
+      
+      try {
+        result = await generateFreeAlternatives(
+          prompt,
+          selectedModel!,
+          selectedSize.width,
+          selectedSize.height
+        )
+      } catch (error) {
+        console.error("Free alternatives failed, trying pollinations as fallback:", error)
+        // Fallback to the basic pollinations service
+        try {
+          result = await generateFreeImage(
+            prompt,
+            selectedModel!,
+            selectedSize.width,
+            selectedSize.height
+          )
+        } catch (fallbackError) {
+          console.error("All free services failed:", fallbackError)
+          throw new Error("All free image generation services are currently unavailable. Please try again later or use a different provider.")
+        }
+      }
     } else if (provider === "openai") {
       // Use OpenAI with API key
       let apiKey: string | null = null
@@ -639,7 +696,8 @@ export async function POST(req: NextRequest) {
       size: `${selectedSize.width}x${selectedSize.height}`,
       originalUrl: result.imageUrl,
     })
-  } catch (error) {
+  }
+  catch (error) {
     console.error("Image generation error:", error)
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Image generation failed" },
