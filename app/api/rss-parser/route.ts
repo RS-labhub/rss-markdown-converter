@@ -7,6 +7,54 @@ const turndownService = new TurndownService({
   codeBlockStyle: "fenced",
 })
 
+// In-memory cache for RSS feeds
+interface CacheEntry {
+  data: any
+  timestamp: number
+}
+
+const rssCache = new Map<string, CacheEntry>()
+const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes in milliseconds
+
+// Function to get cached data if still valid
+function getCachedData(url: string): any | null {
+  const cached = rssCache.get(url)
+  if (!cached) return null
+
+  const now = Date.now()
+  const age = now - cached.timestamp
+
+  // Check if cache is still valid
+  if (age < CACHE_DURATION) {
+    console.log(`Cache hit for ${url} (age: ${Math.round(age / 1000)}s)`)
+    return cached.data
+  }
+
+  // Cache expired, remove it
+  rssCache.delete(url)
+  return null
+}
+
+// Function to set cache data
+function setCachedData(url: string, data: any): void {
+  rssCache.set(url, {
+    data,
+    timestamp: Date.now(),
+  })
+  console.log(`Cached data for ${url}`)
+}
+
+// Clean up expired cache entries periodically
+setInterval(() => {
+  const now = Date.now()
+  for (const [url, entry] of rssCache.entries()) {
+    if (now - entry.timestamp >= CACHE_DURATION) {
+      rssCache.delete(url)
+      console.log(`Removed expired cache for ${url}`)
+    }
+  }
+}, CACHE_DURATION) // Run cleanup every 5 minutes
+
 // Configure turndown to handle images and code blocks properly
 turndownService.addRule("images", {
   filter: "img",
@@ -96,6 +144,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "RSS URL is required" }, { status: 400 })
     }
 
+    // Check cache first
+    const cachedResult = getCachedData(url)
+    if (cachedResult) {
+      return NextResponse.json({
+        ...cachedResult,
+        cached: true,
+        cacheAge: Math.round((Date.now() - rssCache.get(url)!.timestamp) / 1000),
+      })
+    }
+
     // Fetch RSS feed
     const response = await fetch(url, {
       headers: {
@@ -175,11 +233,17 @@ export async function POST(request: NextRequest) {
     // Sort by date (newest first)
     processedItems.sort((a: { date: string | number | Date }, b: { date: string | number | Date }) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-    return NextResponse.json({
+    const responseData = {
       items: processedItems,
       total: processedItems.length,
       feedTitle: result.rss?.channel?.[0]?.title?.[0] || result.feed?.title?.[0] || "RSS Feed",
-    })
+      cached: false,
+    }
+
+    // Cache the result
+    setCachedData(url, responseData)
+
+    return NextResponse.json(responseData)
   } catch (error) {
     console.error("RSS parsing error:", error)
     return NextResponse.json(
