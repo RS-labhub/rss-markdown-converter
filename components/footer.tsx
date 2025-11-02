@@ -1,7 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import { Heart, Github, Linkedin, Twitter, Globe } from 'lucide-react'
+import { HeartCrack, Github, Linkedin, Twitter, Globe } from 'lucide-react'
 
 export function Footer() {
   return (
@@ -9,9 +9,11 @@ export function Footer() {
       <div className="px-4 py-6 sm:px-6">
         <div className="flex flex-col items-center space-y-4">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">Made with love by</span>
+            <span className="text-sm text-gray-600">
+              Made with memories of RS by
+            </span>
             <span className="font-semibold text-gray-900">Rohan Sharma</span>
-            <Heart className="h-4 w-4 text-red-500" />
+            <HeartCrack className="h-4 w-4 text-red-500" />
           </div>
 
           <div className="flex flex-wrap justify-center gap-4 text-sm">
@@ -19,7 +21,7 @@ export function Footer() {
               variant="ghost"
               size="sm"
               className="h-8 px-3 text-gray-600 hover:text-gray-900"
-              onClick={() => window.open("https://github.com/RS-labhub", "_blank")}
+              onClick={() => window.open("https://github.com/RS-labhub/rss-markdown-converter", "_blank")}
             >
               <Github className="mr-2 h-4 w-4" />
               GitHub

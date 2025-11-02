@@ -40,6 +40,17 @@ interface RecentFeed {
   articleCount: number
 }
 
+interface CachedFeedEntry {
+  feedTitle: string
+  items: RSSItem[]
+  timestamp: number
+  selectedItemLink?: string
+}
+
+const RSS_CACHE_KEY = "rss-feed-cache-v1"
+const RSS_LAST_URL_KEY = "rss-last-feed-url"
+const RSS_CACHE_TTL_MS = 1000 * 60 * 15
+
 type AIProvider = "groq" | "gemini" | "openai" | "anthropic" | "huggingface"
 
 export default function RSSMarkdownPlatform() {
@@ -84,6 +95,94 @@ export default function RSSMarkdownPlatform() {
   const { toast } = useToast()
   const generatedContentRef = useRef<HTMLDivElement>(null!)
 
+  const readCacheMap = (): Record<string, CachedFeedEntry> => {
+    if (typeof window === "undefined") {
+      return {}
+    }
+
+    try {
+      const raw = localStorage.getItem(RSS_CACHE_KEY)
+      if (!raw) {
+        return {}
+      }
+      return JSON.parse(raw) as Record<string, CachedFeedEntry>
+    } catch (error) {
+      console.error("Error reading RSS cache:", error)
+      return {}
+    }
+  }
+
+  const writeCacheMap = (cache: Record<string, CachedFeedEntry>) => {
+    if (typeof window === "undefined") {
+      return
+    }
+
+    try {
+      localStorage.setItem(RSS_CACHE_KEY, JSON.stringify(cache))
+    } catch (error) {
+      console.error("Error writing RSS cache:", error)
+    }
+  }
+
+  const readCachedFeed = (url: string): CachedFeedEntry | null => {
+    if (!url) {
+      return null
+    }
+
+    const cache = readCacheMap()
+    const entry = cache[url]
+    if (!entry) {
+      return null
+    }
+
+    if (!Array.isArray(entry.items) || typeof entry.timestamp !== "number") {
+      delete cache[url]
+      writeCacheMap(cache)
+      return null
+    }
+
+    if (Date.now() - entry.timestamp > RSS_CACHE_TTL_MS) {
+      delete cache[url]
+      writeCacheMap(cache)
+      return null
+    }
+
+    return entry
+  }
+
+  const persistFeedCache = (url: string, payload: CachedFeedEntry) => {
+    if (!url) {
+      return
+    }
+
+    const cache = readCacheMap()
+    cache[url] = payload
+
+    const cacheEntries = Object.entries(cache)
+    if (cacheEntries.length > 10) {
+      cacheEntries.sort(([, a], [, b]) => b.timestamp - a.timestamp)
+      const pruned = Object.fromEntries(cacheEntries.slice(0, 10)) as Record<string, CachedFeedEntry>
+      writeCacheMap(pruned)
+      return
+    }
+
+    writeCacheMap(cache)
+  }
+
+  const deleteCachedFeed = (url: string) => {
+    if (!url) {
+      return
+    }
+
+    const cache = readCacheMap()
+    if (!cache[url]) {
+      return
+    }
+
+    delete cache[url]
+    writeCacheMap(cache)
+  }
+
   // Update selectedKeyId when provider changes
   useEffect(() => {
     if (aiProvider === "openai" || aiProvider === "anthropic") {
@@ -106,6 +205,42 @@ export default function RSSMarkdownPlatform() {
         console.error("Error loading recent feeds:", error)
       }
     }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return
+    }
+
+    const lastUrl = localStorage.getItem(RSS_LAST_URL_KEY)
+    if (!lastUrl) {
+      return
+    }
+
+    const cached = readCachedFeed(lastUrl)
+    if (!cached) {
+      localStorage.removeItem(RSS_LAST_URL_KEY)
+      return
+    }
+
+    setRssUrl(lastUrl)
+    setRssItems(cached.items)
+
+    const cachedSelection = cached.selectedItemLink
+      ? cached.items.find((item) => item.link === cached.selectedItemLink)
+      : cached.items[0] || null
+    setSelectedItem(cachedSelection || null)
+
+    setRecentFeeds((prev) => {
+      const filtered = prev.filter((feed) => feed.url !== lastUrl)
+      const updated: RecentFeed = {
+        url: lastUrl,
+        title: cached.feedTitle || lastUrl,
+        lastUsed: new Date().toISOString(),
+        articleCount: cached.items.length,
+      }
+      return [updated, ...filtered].slice(0, 10)
+    })
   }, [])
 
   // Save recent feeds to localStorage whenever recentFeeds changes
@@ -136,6 +271,29 @@ export default function RSSMarkdownPlatform() {
     })
   }, [rssItems, filters])
 
+  useEffect(() => {
+    if (!rssUrl) {
+      return
+    }
+
+    const cache = readCacheMap()
+    const entry = cache[rssUrl]
+    if (!entry) {
+      return
+    }
+
+    const nextLink = selectedItem?.link
+    if (entry.selectedItemLink === nextLink) {
+      return
+    }
+
+    cache[rssUrl] = {
+      ...entry,
+      selectedItemLink: nextLink,
+    }
+    writeCacheMap(cache)
+  }, [rssUrl, selectedItem])
+
   const saveRecentFeed = (url: string, title: string, articleCount: number) => {
     const newFeed: RecentFeed = {
       url,
@@ -154,11 +312,44 @@ export default function RSSMarkdownPlatform() {
 
   const removeRecentFeed = (urlToRemove: string) => {
     setRecentFeeds((prev) => prev.filter((feed) => feed.url !== urlToRemove))
+
+    if (typeof window !== "undefined") {
+      deleteCachedFeed(urlToRemove)
+      if (localStorage.getItem(RSS_LAST_URL_KEY) === urlToRemove) {
+        localStorage.removeItem(RSS_LAST_URL_KEY)
+      }
+    }
   }
 
   const fetchRSSFeed = async (url?: string) => {
     const feedUrl = url || rssUrl
     if (!feedUrl) return
+
+    const cachedFeed = readCachedFeed(feedUrl)
+    if (cachedFeed) {
+      setRssItems(cachedFeed.items)
+      setRssUrl(feedUrl)
+
+      const cachedSelection = cachedFeed.selectedItemLink
+        ? cachedFeed.items.find((item) => item.link === cachedFeed.selectedItemLink)
+        : cachedFeed.items[0] || null
+      setSelectedItem(cachedSelection || null)
+
+      saveRecentFeed(feedUrl, cachedFeed.feedTitle || feedUrl, cachedFeed.items.length)
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem(RSS_LAST_URL_KEY, feedUrl)
+      }
+
+      toast({
+        title: "Using cached feed",
+        description: `Loaded ${cachedFeed.items.length} article${cachedFeed.items.length === 1 ? "" : "s"} from browser cache`,
+        duration: 2500,
+      })
+
+      setLoading(false)
+      return
+    }
 
     setLoading(true)
     try {
@@ -177,12 +368,28 @@ export default function RSSMarkdownPlatform() {
       setRssItems(data.items)
       setRssUrl(feedUrl)
 
+      const nextSelected = data.items[0] || null
+      setSelectedItem(nextSelected)
+
+      const feedTitle = data.feedTitle || feedUrl
+
       // Save to recent feeds
-      saveRecentFeed(feedUrl, data.feedTitle, data.items.length)
+      saveRecentFeed(feedUrl, feedTitle, data.items.length)
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem(RSS_LAST_URL_KEY, feedUrl)
+      }
+
+      persistFeedCache(feedUrl, {
+        feedTitle,
+        items: data.items,
+        timestamp: Date.now(),
+        selectedItemLink: nextSelected?.link,
+      })
 
       toast({
         title: "RSS Feed Loaded",
-        description: `Found ${data.items.length} articles from ${data.feedTitle}`,
+        description: `Found ${data.items.length} articles from ${feedTitle}`,
       })
     } catch (error) {
       toast({
@@ -419,12 +626,12 @@ export default function RSSMarkdownPlatform() {
       id: "openai",
       name: "OpenAI",
       icon: <Brain className="w-4 h-4" />,
-      description: "GPT-5 for cutting-edge AI, GPT-4o for high-quality content, GPT-4o-mini for fast generation",
-      model: "gpt-5",
+      description: "GPT-5 Codex (Preview) for cutting-edge coding content, plus GPT-5 and GPT-4o families",
+      model: "gpt-5-codex-preview",
       requiresKey: true,
       keyPlaceholder: "sk-...",
       keyValidation: (key: string) => key.startsWith("sk-") && key.length > 20,
-      defaultModels: ["gpt-5", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
+      defaultModels: ["gpt-5-codex-preview", "gpt-5", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-4", "gpt-3.5-turbo"],
       supportsCustomModels: true,
     },
     anthropic: {
