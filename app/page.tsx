@@ -3,15 +3,14 @@
 import { useState, useMemo, useEffect, useRef } from "react"
 import { useToast } from "@/hooks/use-toast"
 import { Analytics } from "@vercel/analytics/react"
-import { Header } from "@/components/header"
-import { Footer } from "@/components/footer"
+import { Header, type HeaderTab } from "@/components/header"
+import { HeroSection } from "@/components/hero-section"
 import { RSSFeedSection } from "@/components/rss-feed-section"
 import { ContentPreview } from "@/components/content-preview"
 import { AIToolsSection } from "@/components/ai-tools-section"
 import { AuthorContentGenerator } from "@/components/author-content-generator"
 import { apiKeyManager, type APIProvider } from "@/lib/api-key-manager"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Zap, Brain, MessageSquare, FileText, Users, Wand2 } from "lucide-react"
+import { Zap, Brain, MessageSquare, Wand2 } from "lucide-react"
 
 interface RSSItem {
   title: string
@@ -23,6 +22,8 @@ interface RSSItem {
   coverImage?: string
   images: string[]
   extractedLinks?: Array<{ url: string; text: string }>
+  category?: string
+  categories?: string[]
 }
 
 interface FilterState {
@@ -81,12 +82,17 @@ export default function RSSMarkdownPlatform() {
   const [selectedKeyId, setSelectedKeyId] = useState<string>("")
   const [selectedModel, setSelectedModel] = useState<string>("")
   const [showAPIKeyDialog, setShowAPIKeyDialog] = useState(false)
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  const [activeTab, setActiveTab] = useState<HeaderTab>("content-tools")
   const [currentGenerationType, setCurrentGenerationType] = useState<string>("")
   const [lastError, setLastError] = useState<string>("")
   const [lastErrorDetails, setLastErrorDetails] = useState<string>("")
 
   // New state for includeSourceLink
   const [includeSourceLink, setIncludeSourceLink] = useState(false)
+
+  // Humanize pass toggle (runs a second LLM pass to strip AI-isms)
+  const [humanize, setHumanize] = useState(false)
 
   // Comment Generation State
   const [generatedComments, setGeneratedComments] = useState<string[]>([])
@@ -247,6 +253,19 @@ export default function RSSMarkdownPlatform() {
   useEffect(() => {
     localStorage.setItem("rss-recent-feeds", JSON.stringify(recentFeeds))
   }, [recentFeeds])
+
+  // Close mobile sidebar drawer when an article is selected
+  useEffect(() => {
+    if (selectedItem) {
+      setMobileSidebarOpen(false)
+    }
+  }, [selectedItem])
+
+  // Reset scroll on article selection or tab change
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    window.scrollTo({ top: 0, behavior: "auto" })
+  }, [selectedItem?.link, activeTab])
 
   // Get unique authors for filter dropdown
   const uniqueAuthors = useMemo(() => {
@@ -438,6 +457,7 @@ export default function RSSMarkdownPlatform() {
         provider: aiProvider,
         extractedLinks: selectedItem.extractedLinks || [],
         includeSourceLink,
+        humanize,
       }
 
       // Check if the selected postType is a persona and get its training data
@@ -669,45 +689,52 @@ export default function RSSMarkdownPlatform() {
     }
   }
 
+  const sidebar = (
+    <RSSFeedSection
+      rssUrl={rssUrl}
+      setRssUrl={setRssUrl}
+      rssItems={rssItems}
+      selectedItem={selectedItem}
+      setSelectedItem={setSelectedItem}
+      loading={loading}
+      filters={filters}
+      setFilters={setFilters}
+      showFilters={showFilters}
+      setShowFilters={setShowFilters}
+      recentFeeds={recentFeeds}
+      removeRecentFeed={removeRecentFeed}
+      fetchRSSFeed={fetchRSSFeed}
+      filteredItems={filteredItems}
+      uniqueAuthors={uniqueAuthors}
+    />
+  )
+
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-        <div className="container mx-auto p-6 max-w-7xl">
-          <Header />
+      <div className="app-shell flex min-h-screen flex-col">
+        <Header
+          mobileSidebarOpen={mobileSidebarOpen}
+          setMobileSidebarOpen={setMobileSidebarOpen}
+          sidebar={sidebar}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+        <div className="flex min-h-[calc(100vh-3.5rem)] flex-1">
+          {/* Desktop sidebar — sticks to viewport; inner list handles its own scroll */}
+          <aside className="sticky top-14 hidden h-[calc(100vh-3.5rem)] w-[320px] shrink-0 self-start border-r border-border/60 bg-muted/30 backdrop-blur-sm lg:block xl:w-[360px]">
+            {sidebar}
+          </aside>
 
-          <Tabs defaultValue="content-tools" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="content-tools" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Content Tools
-              </TabsTrigger>
-              <TabsTrigger value="author-generator" className="flex items-center gap-2">
-                <Users className="w-4 h-4" />
-                Author-Based Generator
-              </TabsTrigger>
-            </TabsList>
+          <main className="min-w-0 flex-1 px-4 pb-10 sm:px-6 lg:px-10">
+            <div className="w-full">
+              <HeroSection />
 
-            <TabsContent value="content-tools">
-              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                <RSSFeedSection
-                  rssUrl={rssUrl}
-                  setRssUrl={setRssUrl}
-                  rssItems={rssItems}
+              {activeTab === "content-tools" ? (
+                <ContentPreview
                   selectedItem={selectedItem}
-                  setSelectedItem={setSelectedItem}
-                  loading={loading}
-                  filters={filters}
-                  setFilters={setFilters}
-                  showFilters={showFilters}
-                  setShowFilters={setShowFilters}
-                  recentFeeds={recentFeeds}
-                  removeRecentFeed={removeRecentFeed}
-                  fetchRSSFeed={fetchRSSFeed}
-                  filteredItems={filteredItems}
-                  uniqueAuthors={uniqueAuthors}
-                />
-
-                <ContentPreview selectedItem={selectedItem} rssItems={rssItems} copyToClipboard={copyToClipboard}>
+                  rssItems={rssItems}
+                  copyToClipboard={copyToClipboard}
+                >
                   <AIToolsSection
                     postType={postType}
                     setPostType={setPostType}
@@ -738,13 +765,11 @@ export default function RSSMarkdownPlatform() {
                     generateComments={generateComments}
                     generatedComments={generatedComments}
                     commentLoading={commentLoading}
+                    humanize={humanize}
+                    setHumanize={setHumanize}
                   />
                 </ContentPreview>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="author-generator">
-              <div className="grid grid-cols-1 gap-6">
+              ) : (
                 <AuthorContentGenerator
                   rssItems={rssItems}
                   aiProvider={aiProvider}
@@ -758,11 +783,9 @@ export default function RSSMarkdownPlatform() {
                   aiProviders={aiProviders}
                   copyToClipboard={copyToClipboard}
                 />
-              </div>
-            </TabsContent>
-          </Tabs>
-
-          <Footer />
+              )}
+            </div>
+          </main>
         </div>
       </div>
       <Analytics />

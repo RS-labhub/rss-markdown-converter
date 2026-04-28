@@ -1,73 +1,76 @@
 "use client"
 
-import { Button } from "@/components/ui/button"
-import { HeartCrack, Github, Linkedin, Twitter, Globe } from 'lucide-react'
+import { Heart, Github, Linkedin, Twitter, Globe } from "lucide-react"
+
+const links = [
+  {
+    href: "https://github.com/RS-labhub/rss-markdown-converter",
+    label: "GitHub",
+    icon: Github,
+  },
+  {
+    href: "https://www.linkedin.com/in/rohan-sharma-9386rs/",
+    label: "LinkedIn",
+    icon: Linkedin,
+  },
+  {
+    href: "https://twitter.com/rrs00179",
+    label: "Twitter",
+    icon: Twitter,
+  },
+  {
+    href: "https://rohan-sharma-portfolio.vercel.app",
+    label: "Portfolio",
+    icon: Globe,
+  },
+]
 
 export function Footer() {
   return (
-    <footer className="mt-12 border-t border-gray-200 bg-white/50 backdrop-blur-sm rounded-lg">
-      <div className="px-4 py-6 sm:px-6">
-        <div className="flex flex-col items-center space-y-4">
-          <div className="flex items-center space-x-2">
-            <span className="text-sm text-gray-600">
-              Made with memories of RS by
-            </span>
-            <span className="font-semibold text-gray-900">Rohan Sharma</span>
-            <HeartCrack className="h-4 w-4 text-red-500" />
-          </div>
+    <footer>
+      <div className="flex flex-wrap items-center justify-between gap-3 text-xs text-muted-foreground">
+        <span className="flex items-center gap-1.5">
+          © {new Date().getFullYear()}
+          <span className="text-foreground/40">·</span>
+          Built with
+          <Heart className="h-3 w-3 fill-red-500 text-red-500" />
+          by
+          <a
+            href="https://rohan-sharma-portfolio.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground transition-colors hover:text-primary"
+          >
+            Rohan Sharma
+          </a>
+        </span>
 
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-gray-600 hover:text-gray-900"
-              onClick={() => window.open("https://github.com/RS-labhub/rss-markdown-converter", "_blank")}
-            >
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-gray-600 hover:text-gray-900"
-              onClick={() => window.open("https://www.linkedin.com/in/rohan-sharma-9386rs/", "_blank")}
-            >
-              <Linkedin className="mr-2 h-4 w-4" />
-              LinkedIn
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-gray-600 hover:text-gray-900"
-              onClick={() => window.open("https://twitter.com/rrs00179", "_blank")}
-            >
-              <Twitter className="mr-2 h-4 w-4" />X (Twitter)
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 text-gray-600 hover:text-gray-900"
-              onClick={() => window.open("https://rohan-sharma-portfolio.vercel.app", "_blank")}
-            >
-              <Globe className="mr-2 h-4 w-4" />
-              Portfolio
-            </Button>
-          </div>
+        <span className="hidden items-center gap-1.5 md:flex">
+          <span className="text-foreground/40">Try also</span>
+          <a
+            href="https://content-generation-platform.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-foreground transition-colors hover:text-primary"
+          >
+            Content Generation Platform
+          </a>
+        </span>
 
-          <div className="text-xs text-gray-500 text-center">
-            <p className="mt-1">
-              Must check the{" "}
-              <a
-                href="https://content-generation-platform.vercel.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-600 underline hover:text-gray-800"
-              >
-                Content Generation Platform
-              </a>
-            </p>
-            <p className="mt-1">© 2025 RSS to Markdown Converter.</p>
-          </div>
+        <div className="flex items-center gap-0.5">
+          {links.map(({ href, label, icon: Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              title={label}
+              className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            >
+              <Icon className="h-3.5 w-3.5" />
+            </a>
+          ))}
         </div>
       </div>
     </footer>

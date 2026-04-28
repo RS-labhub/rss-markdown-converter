@@ -9,7 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Switch } from "@/components/ui/switch"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import {
   Copy,
   Key,
@@ -31,7 +36,10 @@ import {
   ExternalLink,
   Link,
   MessageCircle,
-  Image
+  Image,
+  ChevronDown,
+  Settings,
+  Wand2,
 } from "lucide-react"
 import { APIKeyDialog } from "@/components/api-key-dialog"
 import { PersonaTrainingDialog } from "@/components/persona-training-dialog"
@@ -84,6 +92,8 @@ interface AIToolsSectionProps {
   generateComments?: (personaName?: string) => void
   generatedComments?: string[]
   commentLoading?: boolean
+  humanize?: boolean
+  setHumanize?: (value: boolean) => void
 }
 
 export function AIToolsSection({
@@ -116,10 +126,13 @@ export function AIToolsSection({
   generateComments,
   generatedComments = [],
   commentLoading = false,
+  humanize = false,
+  setHumanize,
 }: AIToolsSectionProps) {
   const [showPersonaTrainingDialog, setShowPersonaTrainingDialog] = useState(false)
   const [trainedPersonas, setTrainedPersonas] = useState<string[]>([])
   const [showImageGenerationDialog, setShowImageGenerationDialog] = useState(false)
+  const [providerOpen, setProviderOpen] = useState(false)
 
   useEffect(() => {
     const loadPersonas = async () => {
@@ -187,111 +200,132 @@ export function AIToolsSection({
 
   return (
     <>
-      {/* Make scroll constrained only on md+ for better mobile UX */}
-      <ScrollArea className="md:h-[650px] h-auto">
+      <div className="space-y-4">
         <div className="space-y-4">
-          {/* AI Provider Selection */}
-          <Card className="p-4 bg-muted/30">
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                <Label className="text-sm font-medium">AI Provider</Label>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={() => setShowAPIKeyDialog(true)} className="h-9">
-                    <Key className="w-4 h-4 mr-2" />
-                    Configure Keys
+          {/* AI Provider Selection (collapsible to reduce noise) */}
+          <Collapsible open={providerOpen} onOpenChange={setProviderOpen}>
+            <Card className="border-border/60 p-3 sm:p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex min-w-0 items-center gap-2.5">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    {aiProviders[aiProvider]?.icon ?? <Settings className="h-4 w-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="text-sm font-medium">{aiProviders[aiProvider]?.name ?? "AI Provider"}</span>
+                      <Badge variant="outline" className="h-4 px-1.5 font-mono text-[10px]">
+                        {selectedModel || aiProviders[aiProvider]?.model}
+                      </Badge>
+                      {selectedKeyId && (
+                        <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">
+                          Custom Key
+                        </Badge>
+                      )}
+                    </div>
+                    <span className="text-[11px] text-muted-foreground">
+                      AI Provider · click to change
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAPIKeyDialog(true)}
+                    className="h-8 text-xs"
+                  >
+                    <Key className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">API Keys</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => setShowPersonaTrainingDialog(true)}
-                    className="h-9"
+                    className="h-8 text-xs"
                   >
-                    <Brain className="w-4 h-4 mr-2" />
-                    Train Personas
+                    <Brain className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline">Personas</span>
                   </Button>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${providerOpen ? "rotate-180" : ""}`}
+                      />
+                    </Button>
+                  </CollapsibleTrigger>
                 </div>
               </div>
 
-              {/* Current Provider & Model Info */}
-              {aiProvider && (
-                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
-                  <div className="flex flex-wrap items-center gap-2 mb-2">
-                    <div className="p-1 bg-primary/10 rounded">{aiProviders[aiProvider].icon}</div>
-                    <span className="font-medium text-sm">Active: {aiProviders[aiProvider].name}</span>
-                    {selectedKeyId && (
-                      <Badge variant="secondary" className="text-xs">
-                        Custom Key
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Show current model */}
-                  <div className="text-xs text-muted-foreground flex flex-wrap items-center gap-2">
-                    <span>Model:</span>
-                    <Badge variant="outline" className="text-xs font-mono">
-                      {selectedModel || aiProviders[aiProvider].model}
-                    </Badge>
-                  </div>
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {Object.entries(aiProviders).map(([key, provider]) => (
-                  <Card
-                    key={key}
-                    className={`cursor-pointer transition-all p-3 ${
-                      aiProvider === key ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/50"
-                    }`}
-                    onClick={() => {
-                      if (provider.requiresKey) {
-                        setShowAPIKeyDialog(true)
-                      } else {
-                        setAiProvider(key as AIProvider)
-                        // reset custom selection if switching to keyless provider
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore - these setters exist in parent
-                        if (typeof (setSelectedModel as any) === "function") setSelectedModel("")
-                      }
-                    }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="p-2 bg-primary/10 rounded-lg">{provider.icon}</div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          <h4 className="font-medium text-sm">{provider.name}</h4>
-                          <Badge variant="outline" className="text-xs">
-                            {provider.model}
-                          </Badge>
-                          {provider.requiresKey && (
-                            <Badge variant="secondary" className="text-xs">
-                              <Key className="w-3 h-3 mr-1" />
-                              API Key
-                            </Badge>
-                          )}
+              <CollapsibleContent className="mt-3 space-y-3">
+                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                  {Object.entries(aiProviders).map(([key, provider]) => (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => {
+                        if (provider.requiresKey) {
+                          setShowAPIKeyDialog(true)
+                        } else {
+                          setAiProvider(key as AIProvider)
+                          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                          // @ts-ignore - these setters exist in parent
+                          if (typeof (setSelectedModel as any) === "function") setSelectedModel("")
+                        }
+                      }}
+                      className={`rounded-lg border p-3 text-left transition-all ${
+                        aiProvider === key
+                          ? "border-primary/60 bg-primary/5"
+                          : "border-border/60 hover:border-border hover:bg-muted/40"
+                      }`}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary">
+                          {provider.icon}
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{provider.description}</p>
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-0.5 flex flex-wrap items-center gap-1.5">
+                            <h4 className="text-sm font-medium">{provider.name}</h4>
+                            {provider.requiresKey && (
+                              <Badge variant="secondary" className="h-4 px-1 text-[10px]">
+                                <Key className="mr-0.5 h-2.5 w-2.5" />
+                                Key
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="line-clamp-2 text-[11px] text-muted-foreground">
+                            {provider.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    </button>
+                  ))}
+                </div>
 
-              {/* Model Selector for custom providers */}
-              {(aiProvider === "openai" || aiProvider === "anthropic") && selectedKeyId && (
-                <ModelSelector
-                  provider={aiProvider}
-                  keyId={selectedKeyId}
-                  selectedModel={selectedModel}
-                  onModelChange={setSelectedModel}
-                  defaultModels={aiProviders[aiProvider]?.defaultModels}
-                />
-              )}
-            </div>
-          </Card>
+                {(aiProvider === "openai" || aiProvider === "anthropic") && selectedKeyId && (
+                  <ModelSelector
+                    provider={aiProvider}
+                    keyId={selectedKeyId}
+                    selectedModel={selectedModel}
+                    onModelChange={setSelectedModel}
+                    defaultModels={aiProviders[aiProvider]?.defaultModels}
+                  />
+                )}
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
 
           {/* Config Panel */}
-          <Card className="p-4 md:p-6 bg-muted/30">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 md:mb-6">
+          <Card className="border-border/60 p-4 md:p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="h-5 border-primary/30 bg-primary/5 px-1.5 text-[10px] font-medium uppercase tracking-wide text-primary"
+              >
+                Step 3
+              </Badge>
+              <span className="text-sm font-medium">Generate content</span>
+            </div>
+            <div className="mb-4 grid grid-cols-1 gap-4 md:mb-6 md:grid-cols-2">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">Post Type</Label>
                 <Select value={postType} onValueChange={setPostType}>
@@ -369,6 +403,33 @@ export function AIToolsSection({
                 <p className="text-xs text-muted-foreground">Separate multiple keywords with commas</p>
               </div>
             </div>
+
+            {/* Humanize toggle: runs a second LLM pass to remove AI-isms */}
+            {setHumanize && (
+              <div className="mt-4 flex items-start justify-between gap-3 rounded-lg border border-border/60 bg-muted/30 p-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <Wand2 className="h-4 w-4 text-primary" />
+                    <Label htmlFor="humanize-toggle" className="text-sm font-medium">
+                      Humanize output
+                    </Label>
+                    <Badge variant="outline" className="h-4 px-1.5 text-[10px]">
+                      Beta
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Runs a second pass to strip AI tells (em-dashes, "stands as", rule of three).
+                    Adds ~1 extra request per generation.
+                  </p>
+                </div>
+                <Switch
+                  id="humanize-toggle"
+                  checked={humanize}
+                  onCheckedChange={setHumanize}
+                  aria-label="Toggle humanize pass"
+                />
+              </div>
+            )}
 
             <Separator className="my-4 md:my-6" />
 
@@ -504,7 +565,7 @@ export function AIToolsSection({
                             Copy All
                           </Button>
                         </div>
-                        <div className="space-y-2 max-h-60 overflow-y-auto">
+                        <div className="space-y-2">
                           {generatedComments.map((comment, index) => (
                             <div key={index} className="p-3 bg-muted/50 rounded-lg border">
                               <div className="flex items-start justify-between gap-2">
@@ -562,39 +623,40 @@ export function AIToolsSection({
 
           {/* Article Link Section - Show above generated content */}
           {selectedItem && (
-            <Card className="p-4 md:p-6 bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <Card className="border-primary/20 bg-primary/5 p-4 md:p-5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-2">
-                  <Link className="w-5 h-5 text-blue-600" />
-                  <Label className="text-base font-medium text-blue-900 dark:text-blue-100">Source Article</Label>
+                  <Link className="h-4 w-4 text-primary" />
+                  <Label className="text-sm font-medium">Source Article</Label>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => copyToClipboard(selectedItem.link)}
-                  className="w-full sm:w-auto border-blue-200 hover:bg-blue-100 dark:border-blue-700 dark:hover:bg-blue-900/50"
+                  className="w-full sm:w-auto"
                 >
-                  <Copy className="w-4 h-4 mr-2" />
+                  <Copy className="h-3.5 w-3.5" />
                   Copy Link
                 </Button>
               </div>
-              <div className="mt-3 p-3 bg-white dark:bg-gray-800 rounded-lg border">
+              <div className="mt-3 rounded-lg border border-border/60 bg-background p-3">
                 <div className="flex items-start gap-3">
-                  <ExternalLink className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-1 mb-1">
+                  <ExternalLink className="mt-0.5 h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                  <div className="min-w-0 flex-1">
+                    <p className="mb-1 line-clamp-1 text-sm font-medium">
                       {selectedItem.title}
                     </p>
                     <a
                       href={selectedItem.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 break-all hover:underline"
+                      className="break-all text-xs text-primary hover:underline"
                     >
                       {selectedItem.link}
                     </a>
-                    <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                    <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
                       <span>By {selectedItem.author}</span>
+                      <span>·</span>
                       <span>{new Date(selectedItem.date).toLocaleDateString()}</span>
                     </div>
                   </div>
@@ -632,6 +694,12 @@ export function AIToolsSection({
                       {postType.charAt(0).toUpperCase() + postType.slice(1)} Style
                     </Badge>
                   )}
+                  {humanize && (
+                    <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                      <Wand2 className="w-3 h-3" />
+                      Humanized
+                    </Badge>
+                  )}
                 </div>
                 <Button
                   variant="outline"
@@ -665,7 +733,7 @@ export function AIToolsSection({
             />
           )}
         </div>
-      </ScrollArea>
+      </div>
 
       <APIKeyDialog
         open={showAPIKeyDialog}

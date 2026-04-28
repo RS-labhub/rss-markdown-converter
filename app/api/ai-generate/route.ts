@@ -3,6 +3,11 @@ import { generateText } from "ai"
 import { createOpenAI } from "@ai-sdk/openai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createAnthropic } from "@ai-sdk/anthropic"
+import {
+  HUMANIZER_SYSTEM_PROMPT,
+  buildHumanizerPrompt,
+  shouldSkipHumanize,
+} from "@/lib/humanizer"
 
 // Server-side persona analysis functions (duplicated from client-side lib)
 function analyzePersonaContentServer(content: string) {
@@ -1104,6 +1109,7 @@ export async function POST(request: NextRequest) {
       personaTrainingData,
       extractedLinks = [],
       includeSourceLink = false,
+      humanize = false,
     } = await request.json()
 
     if (!content) {
@@ -1254,7 +1260,33 @@ Generate ONLY the Mermaid diagram code following the exact format above:`
       }
     }
 
-    return NextResponse.json({ content: finalContent, provider })
+    // Optional second pass: rewrite to remove AI-generated tells.
+    let humanized = false
+    if (humanize && !shouldSkipHumanize(type)) {
+      try {
+        const { text: rewritten } = await generateText({
+          model: aiModel,
+          system: HUMANIZER_SYSTEM_PROMPT,
+          prompt: buildHumanizerPrompt(finalContent, {
+            platform: type,
+            postType,
+          }),
+          temperature: 0.6,
+        })
+
+        const cleaned = rewritten?.trim()
+        // Guard against empty / nonsensical responses; fall back to original.
+        if (cleaned && cleaned.length > Math.min(40, finalContent.length / 4)) {
+          finalContent = cleaned
+          humanized = true
+        }
+      } catch (humanizeError) {
+        // Non-fatal: keep the original generation if the humanize pass fails.
+        console.error("Humanize pass failed:", humanizeError)
+      }
+    }
+
+    return NextResponse.json({ content: finalContent, provider, humanized })
   } catch (error) {
     console.error("AI generation error:", error)
 

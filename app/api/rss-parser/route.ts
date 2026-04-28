@@ -1,11 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { parseStringPromise } from "xml2js"
 import TurndownService from "turndown"
+import { gfm } from "turndown-plugin-gfm"
 
 const turndownService = new TurndownService({
   headingStyle: "atx",
   codeBlockStyle: "fenced",
 })
+
+// Enable GFM plugin for table support
+turndownService.use(gfm)
 
 // In-memory cache for RSS feeds
 interface CacheEntry {
@@ -55,7 +59,30 @@ setInterval(() => {
   }
 }, CACHE_DURATION) // Run cleanup every 5 minutes
 
-// Configure turndown to handle images and code blocks properly
+// Configure turndown to handle images, figures, figcaptions, and code blocks properly
+turndownService.addRule("figures", {
+  filter: "figure",
+  replacement: (content, node: any) => {
+    // Extract img and figcaption from figure
+    const imgNode = node.querySelector("img")
+    const captionNode = node.querySelector("figcaption")
+    const alt = imgNode?.getAttribute("alt") || ""
+    const src = imgNode?.getAttribute("src") || ""
+    const caption = captionNode?.textContent?.trim() || ""
+    if (src) {
+      return caption
+        ? `\n\n![${alt}](${src})\n*${caption}*\n\n`
+        : `\n\n![${alt}](${src})\n\n`
+    }
+    return content
+  },
+})
+
+turndownService.addRule("figcaption", {
+  filter: "figcaption",
+  replacement: () => "", // handled by figures rule above
+})
+
 turndownService.addRule("images", {
   filter: "img",
   replacement: (content, node: any) => {
@@ -199,6 +226,21 @@ export async function POST(request: NextRequest) {
       const link =
         item.link?.[0]?.$?.href || item.link?.[0] || item.guid?.[0]?._ || item.guid?.[0] || item.id?.[0] || "#"
 
+      // Extract categories (RSS 2.0: <category>, Atom: <category term="..."/>)
+      const rawCategories = item.category || []
+      const categories: string[] = (Array.isArray(rawCategories) ? rawCategories : [rawCategories])
+        .map((c: any) => {
+          if (!c) return ""
+          if (typeof c === "string") return c
+          if (typeof c === "object") {
+            return c._ || c.$?.term || c.$?.label || ""
+          }
+          return String(c)
+        })
+        .map((c: string) => c.trim())
+        .filter(Boolean)
+      const category = categories[0]
+
       // Convert HTML content to clean markdown
       const cleanContent = typeof content === "string" ? content : String(content)
 
@@ -226,7 +268,9 @@ export async function POST(request: NextRequest) {
         markdown: markdown.trim(),
         coverImage,
         images,
-        extractedLinks, // Add this line
+        extractedLinks,
+        category,
+        categories,
       }
     })
 

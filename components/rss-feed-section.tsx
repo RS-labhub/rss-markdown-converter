@@ -3,11 +3,10 @@
 import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { RefreshCw, Rss, Filter, Search, Calendar, User, FileText, X, Clock, Trash2, Camera } from 'lucide-react'
 
 interface RSSItem {
@@ -19,6 +18,8 @@ interface RSSItem {
     markdown: string
     coverImage?: string
     images: string[]
+    category?: string
+    categories?: string[]
 }
 
 interface FilterState {
@@ -74,6 +75,9 @@ export function RSSFeedSection({
     const [showSuggestions, setShowSuggestions] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
     const suggestionsRef = useRef<HTMLDivElement>(null)
+    const [authorSearch, setAuthorSearch] = useState("")
+    const [authorOpen, setAuthorOpen] = useState(false)
+    const authorInputRef = useRef<HTMLInputElement>(null)
 
     // Handle clicks outside suggestions to close them
     useEffect(() => {
@@ -131,15 +135,28 @@ export function RSSFeedSection({
             .slice(0, 5)
 
     return (
-        <Card className="xl:col-span-1 shadow-lg">
-            <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                    <Rss className="w-5 h-5 text-primary" />
-                    RSS Feed
-                </CardTitle>
-                <CardDescription>Enter RSS feed URL to fetch all articles</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+        <div className="flex h-full min-h-0 flex-col">
+            {/* Sticky header: title, URL input, search, filter toggle */}
+            <div className="space-y-4 px-4 pt-5 pb-3">
+                <div>
+                    <div className="mb-1 flex items-center justify-between">
+                        <Badge variant="outline" className="h-5 border-primary/30 bg-primary/5 px-1.5 text-[10px] font-medium uppercase tracking-wide text-primary">
+                            Step 1
+                        </Badge>
+                        {rssItems.length > 0 && (
+                            <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
+                                {rssItems.length} articles
+                            </Badge>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2 text-base font-semibold tracking-tight">
+                        <Rss className="h-4 w-4 text-primary" />
+                        RSS Feed
+                    </div>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                        Paste any RSS feed URL to load articles
+                    </p>
+                </div>
                 {/* RSS URL Input with Suggestions */}
                 <div className="space-y-2">
                     <div className="relative">
@@ -224,12 +241,18 @@ export function RSSFeedSection({
                     </div>
 
                     {rssItems.length > 0 && (
-                        <div className="flex items-center justify-between text-sm text-muted-foreground">
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
                             <span>
-                                {filteredItems.length} of {rssItems.length} articles
+                                Showing {filteredItems.length} of {rssItems.length}
                             </span>
-                            <Button variant="ghost" size="sm" onClick={() => setShowFilters(!showFilters)} className="h-8 px-2">
-                                <Filter className="w-4 h-4" />
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setShowFilters(!showFilters)}
+                                className="h-7 gap-1.5 px-2 text-xs"
+                            >
+                                <Filter className="h-3.5 w-3.5" />
+                                {showFilters ? "Hide" : "Filter"}
                             </Button>
                         </div>
                     )}
@@ -263,30 +286,103 @@ export function RSSFeedSection({
                                     />
                                 </div>
 
-                                <Select
-                                    value={filters.author}
-                                    onValueChange={(value) =>
-                                        setFilters({
-                                            ...filters,
-                                            author: value === "all" ? "" : value,
-                                        })
-                                    }
-                                >
-                                    <SelectTrigger className="h-8">
-                                        <div className="flex items-center gap-2">
-                                            <User className="w-4 h-4" />
-                                            <SelectValue placeholder="Filter by author" />
+                                {/* Searchable author combobox using Popover (portals out of clipping sidebar) */}
+                                <Popover open={authorOpen} onOpenChange={setAuthorOpen}>
+                                    <PopoverTrigger asChild>
+                                        <div className="relative">
+                                            <User className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+                                            <Input
+                                                ref={authorInputRef}
+                                                placeholder={
+                                                    filters.author && filters.author !== "all"
+                                                        ? filters.author
+                                                        : "Filter by author"
+                                                }
+                                                value={authorSearch}
+                                                onFocus={() => setAuthorOpen(true)}
+                                                onChange={(e) => {
+                                                    setAuthorSearch(e.target.value)
+                                                    setAuthorOpen(true)
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Escape") setAuthorOpen(false)
+                                                }}
+                                                className="h-8 pl-9 pr-8 text-xs"
+                                            />
+                                            {(authorSearch || (filters.author && filters.author !== "all")) && (
+                                                <button
+                                                    type="button"
+                                                    aria-label="Clear author filter"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setAuthorSearch("")
+                                                        setFilters({ ...filters, author: "" })
+                                                    }}
+                                                    className="absolute right-2 top-1/2 inline-flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
+                                                >
+                                                    <X className="h-3 w-3" />
+                                                </button>
+                                            )}
                                         </div>
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All authors</SelectItem>
-                                        {uniqueAuthors.map((author) => (
-                                            <SelectItem key={author} value={author}>
-                                                {author}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        align="start"
+                                        sideOffset={4}
+                                        onOpenAutoFocus={(e) => e.preventDefault()}
+                                        className="z-[60] w-[var(--radix-popover-trigger-width)] p-0"
+                                    >
+                                        {(() => {
+                                            const list = uniqueAuthors.filter((a) =>
+                                                a.toLowerCase().includes(authorSearch.toLowerCase()),
+                                            )
+                                            // Each row has a fixed 32px height; show 5 at a time = 160px
+                                            return (
+                                                <div className="max-h-40 overflow-y-auto text-xs">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setFilters({ ...filters, author: "" })
+                                                            setAuthorSearch("")
+                                                            setAuthorOpen(false)
+                                                        }}
+                                                        className={`flex h-8 w-full shrink-0 items-center gap-2 px-3 text-left hover:bg-accent ${
+                                                            !filters.author || filters.author === "all"
+                                                                ? "font-medium text-foreground"
+                                                                : "text-muted-foreground"
+                                                        }`}
+                                                    >
+                                                        All authors
+                                                    </button>
+                                                    {list.length === 0 ? (
+                                                        <div className="px-3 py-3 text-center text-muted-foreground">
+                                                            No matches
+                                                        </div>
+                                                    ) : (
+                                                        list.map((author) => {
+                                                            const active = filters.author === author
+                                                            return (
+                                                                <button
+                                                                    key={author}
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        setFilters({ ...filters, author })
+                                                                        setAuthorSearch("")
+                                                                        setAuthorOpen(false)
+                                                                    }}
+                                                                    className={`flex h-8 w-full shrink-0 items-center gap-2 truncate px-3 text-left hover:bg-accent ${
+                                                                        active ? "bg-accent text-foreground" : ""
+                                                                    }`}
+                                                                >
+                                                                    <span className="truncate">{author}</span>
+                                                                </button>
+                                                            )
+                                                        })
+                                                    )}
+                                                </div>
+                                            )
+                                        })()}
+                                    </PopoverContent>
+                                </Popover>
 
                                 <div className="grid grid-cols-2 gap-2">
                                     <div>
@@ -322,63 +418,97 @@ export function RSSFeedSection({
                         </div>
                     </Card>
                 )}
+            </div>
 
+            {/* Scrollable list area */}
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-5">
                 {/* Articles List */}
-                <ScrollArea className="h-[600px]">
-                    <div className="space-y-3 px-1">
-                        {filteredItems.map((item, index) => (
-                            <Card
-                                key={index}
-                                className={`cursor-pointer transition-all duration-200 hover:shadow-md ${selectedItem === item ? "ring-2 ring-primary bg-primary/5" : "hover:bg-muted/30"
-                                    }`}
-                                onClick={() => setSelectedItem(item)}
-                            >
-                                <CardContent className="p-4">
-                                    {item.coverImage && (
-                                        <div className="mb-3 rounded-lg overflow-hidden">
-                                            <img
-                                                src={item.coverImage || "/placeholder.svg"}
-                                                alt={item.title}
-                                                className="w-full h-24 object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = "none"
-                                                }}
-                                            />
-                                        </div>
-                                    )}
-                                    <h4 className="font-medium text-sm line-clamp-2 mb-2 text-center sm:text-left">{item.title}</h4>
-                                    <div className="flex items-center justify-between flex-wrap gap-2">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <Badge variant="outline" className="text-xs px-2 py-0">
-                                                <Calendar className="w-3 h-3 mr-1" />
-                                                {new Date(item.date).toLocaleDateString()}
-                                            </Badge>
-                                            {item.images.length > 0 && (
-                                                <Badge variant="outline" className="text-xs px-2 py-0">
-                                                    <Camera className="w-3 h-3 mr-1" />
-                                                    {item.images.length}
-                                                </Badge>
-                                            )}
-                                        </div>
-                                        <span
-                                            className="text-xs text-muted-foreground truncate max-w-24 text-center sm:text-right"
-                                            title={item.author}
-                                        >
-                                            {item.author}
-                                        </span>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
-                        {filteredItems.length === 0 && rssItems.length > 0 && (
-                            <div className="text-center text-muted-foreground py-8">
-                                <Filter className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                                <p>No articles match your filters</p>
-                            </div>
-                        )}
+                {rssItems.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-border/70 bg-muted/30 px-4 py-10 text-center">
+                        <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                            <Rss className="h-5 w-5 text-primary" />
+                        </div>
+                        <p className="text-sm font-medium">No feed loaded yet</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                            Paste an RSS URL above and hit{" "}
+                            <span className="font-medium text-foreground">Fetch</span>
+                        </p>
                     </div>
-                </ScrollArea>
-            </CardContent>
-        </Card>
+                ) : (
+                    <div className="space-y-2">
+                            {filteredItems.map((item, index) => {
+                                const isSelected = selectedItem === item
+                                return (
+                                    <button
+                                        key={index}
+                                        onClick={() => setSelectedItem(item)}
+                                        className={`group w-full rounded-lg border p-3 text-left transition-all ${
+                                            isSelected
+                                                ? "border-primary/60 bg-primary/5 shadow-sm"
+                                                : "border-border/60 hover:border-border hover:bg-muted/40"
+                                        }`}
+                                    >
+                                        {item.coverImage ? (
+                                            <div className="relative mb-2 overflow-hidden rounded-md">
+                                                <img
+                                                    src={item.coverImage || "/placeholder.svg"}
+                                                    alt={item.title}
+                                                    className="h-24 w-full object-cover transition-transform group-hover:scale-[1.03]"
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = "none"
+                                                    }}
+                                                />
+                                                {item.category && (
+                                                    <span className="absolute right-1.5 top-1.5 rounded-full bg-background/90 px-2 py-0.5 text-[10px] font-medium text-foreground shadow-sm backdrop-blur-sm">
+                                                        {item.category}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            item.category && (
+                                                <div className="mb-2">
+                                                    <span className="inline-flex rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                                                        {item.category}
+                                                    </span>
+                                                </div>
+                                            )
+                                        )}
+                                        <h4
+                                            className={`mb-2 line-clamp-2 text-sm font-medium leading-snug ${
+                                                isSelected ? "text-foreground" : "text-foreground/90"
+                                            }`}
+                                        >
+                                            {item.title}
+                                        </h4>
+                                        <div className="flex items-center justify-between gap-2 text-[10px] text-muted-foreground">
+                                            <div className="flex items-center gap-2">
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Calendar className="h-3 w-3" />
+                                                    {new Date(item.date).toLocaleDateString()}
+                                                </span>
+                                                {item.images.length > 0 && (
+                                                    <span className="inline-flex items-center gap-1">
+                                                        <Camera className="h-3 w-3" />
+                                                        {item.images.length}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <span className="max-w-[6.5rem] truncate" title={item.author}>
+                                                {item.author}
+                                            </span>
+                                        </div>
+                                    </button>
+                                )
+                            })}
+                            {filteredItems.length === 0 && rssItems.length > 0 && (
+                                <div className="py-8 text-center text-muted-foreground">
+                                    <Filter className="mx-auto mb-2 h-7 w-7 opacity-50" />
+                                    <p className="text-sm">No articles match your filters</p>
+                                </div>
+                            )}
+                    </div>
+                )}
+            </div>
+        </div>
     )
 }
